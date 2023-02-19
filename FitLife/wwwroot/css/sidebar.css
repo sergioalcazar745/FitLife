@@ -1,0 +1,19 @@
+﻿@media(max-width: 768px) {
+    #sidebar {
+        --tw-translate-x: -100%;
+    }
+
+    #content {
+        margin-left: 0px;
+    }
+}
+
+@media(min-width: 768px) {
+    #sidebar {
+        --tw-translate-x: 0%;
+    }
+
+    #content {
+        margin-left: 249px;
+    }
+}
