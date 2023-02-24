@@ -1,0 +1,18 @@
+html, body{
+    scroll-behavior: smooth
+}
+
+#landing{
+    background-blend-mode: multiply;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-image: url("/images/landing.jpg");
+    --tw-bg-opacity: 1;
+    background-color: rgb(55 65 81/var(--tw-bg-opacity));
+    /* background-attachment: fixed; */
+}
+
+#nav{
+    transition: all 0.5s ease;
+}
