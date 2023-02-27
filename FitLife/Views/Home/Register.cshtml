@@ -1,0 +1,101 @@
+﻿@{
+    Layout = "_RegisterLayout";
+}
+
+<form class="container mx-auto max-w-7xl p-8 bg-gray-900 rounded" method="post" style="--tw-bg-opacity: 0.75;" id="form">
+    <a href="#" class="flex items-center justify-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
+        <img class="w-8 h-8 mr-2" src="~/images/logo.png" alt="logo">
+        FitLife
+    </a>
+    @*<div class="flex p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-red-800 dark:text-red-400" role="alert" id="alert-error" hidden>
+        <svg aria-hidden="true" class="flex-shrink-0 inline w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+        <span class="sr-only">Info</span>
+        <div>
+            <span class="font-medium text-white">Existen campos incorrectos, revíselos.</span>
+        </div>
+    </div>*@
+    <div class="flex justify-start sm:flex-col" id="content-form">
+        <div class="flex items-start mb-6">
+            <div class="flex items-center h-5">
+                <input id="cliente" type="radio" value="cliente" name="tipo"
+                       class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800"
+                       checked>
+            </div>
+            <label for="cliente" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                Cliente
+            </label>
+        </div>
+        <div class="flex items-start mb-6 ml-6">
+            <div class="flex items-center h-5">
+                <input id="entrenador" type="radio" value="entrenador" name="tipo"
+                       class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800">
+            </div>
+            <label for="entrenador" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                Entrenador
+            </label>
+        </div>
+        <div class="flex items-start mb-6 ml-6">
+            <div class="flex items-center h-5">
+                <input id="nutricionista" type="radio" value="nutricionista" name="tipo"
+                       class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800">
+            </div>
+            <label for="nutricionista" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                Nutricionista
+            </label>
+        </div>
+    </div>
+    <div class="mb-6" id="content-name">
+        <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
+        <input type="text" id="name" name="name"
+               class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required>
+    </div>
+    <div class="mb-6" id="content-lastname">
+        <label for="lastname" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellidos</label>
+        <input type="text" id="lastname" name="lastname"
+               class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required>
+    </div>
+    <div class="mb-6" id="content-edad">
+        <label for="edad" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Edad</label>
+        <input type="number" id="edad" name="edad"
+               class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required>
+    </div>
+    <div class="mb-6" id="content-sexo">
+        <label for="sexo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Sexo</label>
+        <select id="sexo" name="sexo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <option value="masculino" selected>Masculino</option>
+            <option value="femenino">Femenino</option>
+        </select>
+    </div>
+    <div class="mb-6" id="content-email">
+        <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Correo electrónico</label>
+        <input type="email" id="email" name="email" autocomplete="username"
+               class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required>
+    </div>
+    <div class="mb-6" id="content-password">
+        <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Contraseña
+        </label>
+        <input type="password" id="password" name="password" autocomplete="new-password"
+               class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
+               required>
+    </div>
+    <div class="mb-6" id="content-repeatpassword">
+        <label for="repeatpassword" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Repite
+            contraseña
+        </label>
+        <input type="password" id="repeatpassword" name="repeatpassword" autocomplete="repeat-password"
+               class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
+               required>
+    </div>
+    <button type="button"
+            id="buttonregister"
+            class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-blue-800">
+        Register
+        new account
+    </button>
+</form>
+
+@section script{
+    <script src="~/js/register.js"></script>
+}

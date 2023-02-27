@@ -1,8 +1,4 @@
-﻿@{
-    string error = ViewData["Error"] as string;
-}
-
-<section id="landing" class="flex align-items-center justify-center">
+﻿<section id="landing" class="flex align-items-center justify-center">
     <nav id="nav" class="bg-transparent px-2 sm:px-4 py-4 fixed w-full z-20 top-0 left-0">
         <!--border-b border-gray-200-->
         <div class="container mx-auto max-w-7xl flex flex-wrap items-center justify-between mx-auto">
@@ -24,10 +20,10 @@
                               fill-rule="evenodd" clip-rule="evenodd"></path>
                     </svg>
                 </button>
-                <button type="button"
-                        class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3 md:mr-0 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                <a asp-action="Register" asp-controller="Home"
+                   class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3 md:mr-0 dark:hover:bg-green-700 dark:focus:ring-green-800">
                     Sign up
-                </button>
+                </a>
             </div>
         </div>
     </nav>
@@ -41,7 +37,7 @@
                 enfoque en la importancia del equilibrio entre el ejercicio y la alimentación para una vida
                 saludable.
             </p>
-            <a href="#"
+            <a asp-action="Register" asp-controller="Home"
                class="inline-flex items-center justify-center px-5 py-3 mr-3 text-base font-medium text-center text-white rounded-lg bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
                 Comienza
                 <svg class="w-5 h-5 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20"
@@ -60,13 +56,13 @@
             <div class="flex flex-col w-full lg:ml-5 items-center justify-center pr-3 py-8 mx-auto md:h-screen lg:py-0">
                 <div class="w-full ml-4 bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                     <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-                        @if(error != null)
+                        @if (ViewData["Error"] is not null)
                         {
-                            <div class="flex p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+                            <div class="flex p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-red-800 dark:text-red-400" role="alert">
                                 <svg aria-hidden="true" class="flex-shrink-0 inline w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
                                 <span class="sr-only">Info</span>
                                 <div>
-                                    <span class="font-medium">!Error!</span>@error
+                                    <span class="font-medium text-white">@ViewData["Error"]</span>
                                 </div>
                             </div>
                         }
@@ -107,8 +103,8 @@
                             </button>
                             <button type="button"
                                     class="w-full text-gray-900 bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-800 dark:bg-white dark:border-gray-700 dark:text-gray-900 dark:hover:bg-gray-200 mr-2 mb-2">
-                                <img src="google.svg" width="24" height="24" /> <span class="text-center"
-                                                                                      style="width: 85%;">
+                                <img src="~/images/google.svg" width="24" height="24" /> <span class="text-center"
+                                                                                               style="width: 85%;">
                                     Continue with
                                     Google
                                 </span>

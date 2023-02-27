@@ -1,0 +1,10 @@
+#register{
+    background-blend-mode: multiply;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-image: url("/images/registro.jpg");
+    --tw-bg-opacity: 1;
+    background-color: rgb(55 65 81/var(--tw-bg-opacity));
+    height: 100%;
+}
