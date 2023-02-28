@@ -1,15 +1,25 @@
-﻿namespace FitLife.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace FitLife.Models
 {
+    [Table("Client")]
     public class Client : User
     {
-        public int Edad { get; set; }
+        [Column("edad")]
+        public int Age { get; set; }
+
+        [Column("sexo")]
         public string Sexo { get; set; }
 
-        public Client(string name, string lastname, string email, string password, int edad, string sexo): 
+        [Column("height")]
+        public string Height { get; set; }
+
+        public Client(string name, string lastname, string email, string password, int age, string sexo, string height): 
             base(name, lastname, email, password) 
         {
-            this.Edad = edad;
+            this.Age = age;
             this.Sexo = sexo;
+            this.Height = height;
         }
     }
 }

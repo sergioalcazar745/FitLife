@@ -115,8 +115,11 @@
             }
         }
 
+        console.log("Checked" + $("#cliente:checked").is(":checked"))
+
         if ($("#cliente:checked").is(":checked")) {
-            var edad = $("#edad");
+            var edad = $("#age");
+            var altura = $("#height")
             if (edad.val() == "") {
                 edad.removeClass("border border-gray-300 dark:border-gray-600").addClass("border border-red-500 dark:border-red-600 dark:text-red-900")
                 $("#error-edad").remove();
@@ -127,6 +130,19 @@
                 if ($("#error-edad").length) {
                     $("#error-edad").remove();
                     edad.addClass("border border-gray-300 dark:border-gray-600").removeClass("border border-red-500 dark:border-red-600")
+                }
+            }
+
+            if (edad.val() == "") {
+                altura.removeClass("border border-gray-300 dark:border-gray-600").addClass("border border-red-500 dark:border-red-600 dark:text-red-900")
+                $("#error-height").remove();
+                $("#content-height").append('<p class="mt-2 text-sm text-red-600 dark:text-red-500" id="error-height">La altura es obligatoria</p>')
+                correcto = false;
+                console.log("Altura")
+            } else {
+                if ($("#error-height").length) {
+                    $("#error-height").remove();
+                    altura.addClass("border border-gray-300 dark:border-gray-600").removeClass("border border-red-500 dark:border-red-600")
                 }
             }
         }
@@ -145,6 +161,7 @@
                     <span class="font-medium text-white">Existen campos incorrectos, revíselos.</span>
                 </div>
             </div>`);
+            $(window).scrollTop(0);
         }
     })
 })

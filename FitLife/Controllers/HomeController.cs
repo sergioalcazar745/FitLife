@@ -26,7 +26,7 @@ namespace FitLife.Controllers
         {
             if(signin.Email == "sergioalcazar745@gmail.com" && signin.Password == "a12345")
             {
-                return RedirectToAction("Index", "Log");
+                return RedirectToAction("Index", "Client");
             }
             else
             {
@@ -57,7 +57,7 @@ namespace FitLife.Controllers
             }
             else
             {
-                return RedirectToAction("Index", "Log");
+                return RedirectToAction("Index", "Client");
             }
         }
     }

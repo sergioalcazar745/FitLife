@@ -8,7 +8,7 @@
     <title>Document</title>
     <link rel="dns-prefetch" href="//unpkg.com" />
     <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
-    <link href="~/css//flowbite.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.3/flowbite.min.css" rel="stylesheet" />
     <link href="~/css/register.css" rel="stylesheet" />
     <script>
         // On page load or when changing themes, best to add inline in `head` to avoid FOUC
@@ -21,10 +21,12 @@
 </head>
 
 <body class="bg-whtie dark:bg-gray-900">
-    <div class="pt-8" id="register">
+    <div class="py-8" id="register">
         @RenderBody()
-    </div>
-    <script src="~/js/flowbite.min.js"></script>
+    </div>   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.3/flowbite.min.js"></script>
+    <script src="jquery-3.6.3.min.js"></script>
+    <script src="register.js"></script>
     <script>
         //localStorage.setItem('color-theme', 'dark');
         var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
@@ -68,8 +70,9 @@
 
         });
     </script>
-    <script src="~/js/flowbite.min.js"></script>
     <script src="~/js/jquery-3.6.3.min.js"></script>
     @RenderSection("script", false)
+    </div>
 </body>
+
 </html>

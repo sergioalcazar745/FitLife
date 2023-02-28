@@ -13,6 +13,19 @@ html, body{
     /* background-attachment: fixed; */
 }
 
+@media(max-width: 992px){
+    #landing {
+        height: 100%;
+        padding-top: 70px;
+    }
+}
+
+@media(min-width: 992px) {
+    #landing {
+        height: 100vh;
+    }
+}
+
 #nav{
     transition: all 0.5s ease;
 }

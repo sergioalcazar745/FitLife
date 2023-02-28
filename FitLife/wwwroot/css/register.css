@@ -1,4 +1,8 @@
-#register{
+﻿html, body {
+    scroll-behavior: smooth
+}
+
+body {
     background-blend-mode: multiply;
     background-repeat: no-repeat;
     background-position: center;
@@ -7,4 +11,5 @@
     --tw-bg-opacity: 1;
     background-color: rgb(55 65 81/var(--tw-bg-opacity));
     height: 100%;
+    background-attachment: fixed;
 }

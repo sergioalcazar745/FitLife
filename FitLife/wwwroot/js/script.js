@@ -2,12 +2,12 @@ $(document).ready(function () {
 
     scroll();
 
-    if (window.matchMedia("(max-width: 992px)").matches) {
-        $("#landing").css("height", "100%")
-        $("#landing").css("padding-top", "70px")
-    } else {
-        $("#landing").css("height", "100vh")
-    }
+    //if (window.matchMedia("(max-width: 992px)").matches) {
+    //    $("#landing").css("height", "100%")
+    //    $("#landing").css("padding-top", "70px")
+    //} else {
+    //    $("#landing").css("height", "100vh")
+    //}
 
     $(document).scroll(function () {
         scroll();
