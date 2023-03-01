@@ -1,4 +1,5 @@
-﻿using FitLife.Models;
+﻿using FitLife.Data;
+using FitLife.Models;
 
 #region PROCEDURES
 //CREATE PROCEDURE SP_REGISTER_USER
@@ -14,10 +15,10 @@ namespace FitLife.Repositories
 {
     public class RepositorySQL : IRepository
     {
-        private IRepository repo;
-        public RepositorySQL(IRepository repo)
+        private FitLifeContext context;
+        public RepositorySQL(FitLifeContext context)
         {
-            this.repo = repo;
+            this.context = context;
         }
 
         public User Login()
@@ -27,7 +28,7 @@ namespace FitLife.Repositories
 
         public void Logout()
         {
-            throw new NotImplementedException();
+            
         }
 
         public void RegisterClient(string name, string lastname, string email, string password, int age, int height, string sexo)

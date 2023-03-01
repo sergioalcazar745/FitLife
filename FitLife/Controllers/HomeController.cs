@@ -34,31 +34,15 @@ namespace FitLife.Controllers
             }            
         }
 
-        public IActionResult Register(List<Error>? errores)
+        public IActionResult Register()
         {
-            if(errores is not null)
-            {
-                return View(errores);
-            }
-            else
-            {
-                return View();
-            }
+            return View();
         }
 
         [HttpPost]
         public IActionResult Register(User user, int edad, string sexo, string repeatpassword)
         {
-            List<Error> errores = new List<Error>();
-            if (user.Password != repeatpassword)
-            {
-                errores.Add(new Error("repeatpassword", "La contraseñas no coinciden"));
-                return RedirectToAction("Index", new { error = errores });
-            }
-            else
-            {
-                return RedirectToAction("Index", "Client");
-            }
+            return RedirectToAction("Index", "Client");
         }
     }
 }
