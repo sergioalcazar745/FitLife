@@ -3,29 +3,29 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FitLife.Models
 {
-    [Table("Users")]
+    [Table("USUARIO")]
     public class User
     {
         [Key]
-        [Column("idUser")]
-        public int IdUser { get; set; }
+        [Column("IDUSUARIO")]
+        public int IdUsuario { get; set; }
 
-        [Column("Name")]
-        public string Name { get; set; }
+        [Column("NOMBRE")]
+        public string Nombre { get; set; }
 
-        [Column("lastname")]
-        public string LastName { get; set; }
+        [Column("APELLIDOS")]
+        public string Apellidos { get; set; }
 
-        [Column("email")]
+        [Column("EMAIL")]
         public string Email { get; set; }
 
-        [Column("password")]
+        [Column("PASSWORD")]
         public string Password { get; set; }
 
         public User(string name, string lastname, string email, string password)
         {
-            this.Name = name;
-            this.LastName = lastname;
+            this.Nombre = name;
+            this.Apellidos = lastname;
             this.Email = email;
             this.Password = password;
         }

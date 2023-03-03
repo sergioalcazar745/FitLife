@@ -2,24 +2,27 @@
 
 namespace FitLife.Models
 {
-    [Table("Client")]
+    [Table("CLIENTE")]
     public class Client : User
     {
-        [Column("edad")]
-        public int Age { get; set; }
+        [Column("IDCLIENTE")]
+        public int IdCliente { get; set; }
 
-        [Column("sexo")]
+        [Column("EDAD")]
+        public int Edad { get; set; }
+
+        [Column("SEXO")]
         public string Sexo { get; set; }
 
-        [Column("height")]
-        public string Height { get; set; }
+        [Column("ALTURA")]
+        public string Altura { get; set; }
 
-        public Client(string name, string lastname, string email, string password, int age, string sexo, string height): 
+        public Client(string name, string lastname, string email, string password, int edad, string sexo, string altura): 
             base(name, lastname, email, password) 
         {
-            this.Age = age;
+            this.Edad = edad;
             this.Sexo = sexo;
-            this.Height = height;
+            this.Altura = altura;
         }
     }
 }
