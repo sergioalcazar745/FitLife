@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FitLife.Models
 {
-    [Table("USUARIO")]
-    public class User
+    [Table("USUARIOS")]
+    public class Usuario
     {
         [Key]
         [Column("IDUSUARIO")]
@@ -16,18 +16,16 @@ namespace FitLife.Models
         [Column("APELLIDOS")]
         public string Apellidos { get; set; }
 
+        [Column("DNI")]
+        public string Dni { get; set; }
+
         [Column("EMAIL")]
         public string Email { get; set; }
 
         [Column("PASSWORD")]
         public string Password { get; set; }
 
-        public User(string name, string lastname, string email, string password)
-        {
-            this.Nombre = name;
-            this.Apellidos = lastname;
-            this.Email = email;
-            this.Password = password;
-        }
+        [Column("ROLE")]
+        public string Role { get; set; }
     }
 }

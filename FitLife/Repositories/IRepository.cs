@@ -4,12 +4,12 @@ namespace FitLife.Repositories
 {
     public interface IRepository
     {
-        User Login();
+        Usuario Login(string email, string password);
 
-        void Logout();
+        Usuario FindUsuario(int idUsuario);
 
-        void RegisterUser(string name, string lastname, string email, string password);
+        Task RegistrarUsuario(string nombre, string apellidos, string dni, string email, string password, string role);
 
-        void RegisterClient(string name, string lastname, string email, string password, int age, int height, string sexo);
+        Task RegistrarCliente(string nombre, string apellidos, string dni, string email, string password, string role, int altura, int peso, int edad, string sexo);
     }
 }

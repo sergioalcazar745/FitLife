@@ -1,16 +1,33 @@
-﻿@{
+﻿@model List<Error>
+
+@{
+    Error error = null;
+}
+
+@{
     Layout = "_RegisterLayout";
 }
 
 <form class="container mx-auto max-w-7xl p-8 bg-gray-900 rounded" method="post" style="--tw-bg-opacity: 0.75;" id="form">
+    @Html.AntiForgeryToken()
     <a href="#" class="flex items-center justify-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
         <img class="w-8 h-8 mr-2" src="~/images/logo.png" alt="logo">
         FitLife
     </a>
-    <div class="flex justify-start sm:flex-col">
+    @if (Model is not null)
+    {
+        <div class="flex p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-red-800 dark:text-red-400" role="alert" id="alert-error" hidden>
+            <svg aria-hidden="true" class="flex-shrink-0 inline w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            <span class="sr-only">Info</span>
+            <div>
+                <span class="font-medium text-white">Existen campos incorrectos, revíselos.</span>
+            </div>
+        </div>
+    }
+    <div class="flex justify-start sm:flex-col" id="content-form">
         <div class="flex items-start mb-6">
             <div class="flex items-center h-5">
-                <input id="cliente" type="radio" value="cliente" name="tipo"
+                <input id="cliente" type="radio" value="cliente" name="role"
                        class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800"
                        checked>
             </div>
@@ -20,7 +37,7 @@
         </div>
         <div class="flex items-start mb-6 ml-6">
             <div class="flex items-center h-5">
-                <input id="entrenador" type="radio" value="entrenador" name="tipo"
+                <input id="entrenador" type="radio" value="entrenador" name="role"
                        class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800">
             </div>
             <label for="entrenador" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
@@ -29,7 +46,7 @@
         </div>
         <div class="flex items-start mb-6 ml-6">
             <div class="flex items-center h-5">
-                <input id="nutricionista" type="radio" value="nutricionista" name="tipo"
+                <input id="nutricionista" type="radio" value="nutricionista" name="role"
                        class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800">
             </div>
             <label for="nutricionista" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
@@ -37,54 +54,125 @@
             </label>
         </div>
     </div>
-    <div class="mb-6" id="content-name">
-        <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
-        <input type="text" id="name" name="name"
-               class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required>
+    <div class="mb-6" id="content-nombre">
+        <label for="nombre" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre*</label>
+        <input type="text" id="nombre" name="nombre"
+               class="shadow-sm bg-gray-50@(Model is not null && Model.Where(error => error.NombreInput == "nombre").Any() ? "border border-red-500 dark:border-red-600" : "border border-gray-300 dark:border-gray-600") text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
+        @if (Model is not null)
+        {
+            if (Model.Where(error => error.NombreInput == "nombre").Any())
+            {
+                <p class="mt-2 text-sm text-red-600 dark:text-red-500" id="error-nombre">@Model.Where(error => error.NombreInput == "nombre").First().Mensaje</p>
+            }
+        }
     </div>
-    <div class="mb-6" id="content-lastname">
-        <label for="lastname" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellidos</label>
-        <input type="text" id="lastname" name="lastname"
-               class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required>
+    <div class="mb-6" id="content-apellidos">
+        <label for="apellidos" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellidos*</label>
+        <input type="text" id="apellidos" name="apellidos"
+               class="shadow-sm bg-gray-50@(Model is not null && Model.Where(error => error.NombreInput == "nombre").Any() ? "border border-red-500 dark:border-red-600" : "border border-gray-300 dark:border-gray-600") text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
+        @if (Model is not null)
+        {
+            if (Model.Where(error => error.NombreInput == "apellidos").Any())
+            {
+                <p class="mt-2 text-sm text-red-600 dark:text-red-500" id="error-apellidos">@Model.Where(error => error.NombreInput == "apellidos").First().Mensaje</p>
+            }
+        }
     </div>
     <div class="mb-6" id="content-edad">
-        <label for="age" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Edad</label>
-        <input type="number" id="age" name="age"
-               class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required>
+        <label for="edad" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Edad*</label>
+        <input type="number" id="edad" name="edad"
+               class="shadow-sm bg-gray-50@(Model is not null && Model.Where(error => error.NombreInput == "nombre").Any() ? "border border-red-500 dark:border-red-600" : "border border-gray-300 dark:border-gray-600") text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
+        @if (Model is not null)
+        {
+            if (Model.Where(error => error.NombreInput == "edad").Any())
+            {
+                <p class="mt-2 text-sm text-red-600 dark:text-red-500" id="error-edad">@Model.Where(error => error.NombreInput == "edad").First().Mensaje</p>
+            }
+        }
     </div>
-    <div class="mb-6" id="content-height">
-        <label for="height" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Altura</label>
-        <input type="number" id="height" name="height"
-               class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required>
+    <div class="mb-6" id="content-altura">
+        <label for="altura" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Altura*</label>
+        <input type="number" id="altura" name="altura"
+               class="shadow-sm bg-gray-50@(Model is not null && Model.Where(error => error.NombreInput == "nombre").Any() ? "border border-red-500 dark:border-red-600" : "border border-gray-300 dark:border-gray-600") text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
+        @if (Model is not null)
+        {
+            if (Model.Where(error => error.NombreInput == "altura").Any())
+            {
+                <p class="mt-2 text-sm text-red-600 dark:text-red-500" id="error-altura">@Model.Where(error => error.NombreInput == "altura").First().Mensaje</p>
+            }
+        }
+    </div>
+    <div class="mb-6" id="content-peso">
+        <label for="peso" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Peso*</label>
+        <input type="number" id="peso" name="peso"
+               class="shadow-sm bg-gray-50@(Model is not null && Model.Where(error => error.NombreInput == "nombre").Any() ? "border border-red-500 dark:border-red-600" : "border border-gray-300 dark:border-gray-600") text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
+        @if (Model is not null)
+        {
+            if (Model.Where(error => error.NombreInput == "peso").Any())
+            {
+                <p class="mt-2 text-sm text-red-600 dark:text-red-500" id="error-peso">@Model.Where(error => error.NombreInput == "peso").First().Mensaje</p>
+            }
+        }
     </div>
     <div class="mb-6" id="content-sexo">
-        <label for="sexo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Sexo</label>
+        <label for="sexo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Sexo*</label>
         <select id="sexo" name="sexo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
             <option value="masculino" selected>Masculino</option>
             <option value="femenino">Femenino</option>
         </select>
     </div>
+    <div class="mb-6" id="content-dni">
+        <label for="dni" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">DNI*</label>
+        <input type="text" id="dni" name="dni"
+               class="shadow-sm bg-gray-50@(Model is not null && Model.Where(error => error.NombreInput == "nombre").Any() ? "border border-red-500 dark:border-red-600" : "border border-gray-300 dark:border-gray-600") text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
+        @if (Model is not null)
+        {
+            if (Model.Where(error => error.NombreInput == "dni").Any())
+            {
+                <p class="mt-2 text-sm text-red-600 dark:text-red-500" id="error-dni">@Model.Where(error => error.NombreInput == "dni").First().Mensaje</p>
+            }
+        }
+    </div>
     <div class="mb-6" id="content-email">
-        <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Correo electrónico</label>
+        <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Correo electrónico*</label>
         <input type="email" id="email" name="email" autocomplete="username"
-               class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required>
+               class="shadow-sm bg-gray-50@(Model is not null && Model.Where(error => error.NombreInput == "nombre").Any() ? "border border-red-500 dark:border-red-600" : "border border-gray-300 dark:border-gray-600") text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
+        @if (Model is not null)
+        {
+            if (Model.Where(error => error.NombreInput == "email").Any())
+            {
+                <p class="mt-2 text-sm text-red-600 dark:text-red-500" id="error-email">@Model.Where(error => error.NombreInput == "email").First().Mensaje</p>
+            }
+        }
     </div>
     <div class="mb-6" id="content-password">
         <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Contraseña
+            Contraseña*
         </label>
         <input type="password" id="password" name="password" autocomplete="new-password"
-               class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
-               required>
+               class="shadow-sm bg-gray-50@(Model is not null && Model.Where(error => error.NombreInput == "nombre").Any() ? "border border-red-500 dark:border-red-600" : "border border-gray-300 dark:border-gray-600") text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
+        @if (Model is not null)
+        {
+            if (Model.Where(error => error.NombreInput == "password").Any())
+            {
+                <p class="mt-2 text-sm text-red-600 dark:text-red-500" id="error-altura">@Model.Where(error => error.NombreInput == "password").First().Mensaje</p>
+            }
+        }
     </div>
     <div class="mb-6" id="content-repeatpassword">
         <label for="repeatpassword" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
             Repite
-            contraseña
+            contraseña*
         </label>
         <input type="password" id="repeatpassword" name="repeatpassword" autocomplete="repeat-password"
-               class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
-               required>
+               class="shadow-sm bg-gray-50@(Model is not null && Model.Where(error => error.NombreInput == "nombre").Any() ? "border border-red-500 dark:border-red-600" : "border border-gray-300 dark:border-gray-600") text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
+        @if (Model is not null)
+        {
+            if (Model.Where(error => error.NombreInput == "password").Any())
+            {
+                <p class="mt-2 text-sm text-red-600 dark:text-red-500" id="error-altura">@Model.Where(error => error.NombreInput == "password").First().Mensaje</p>
+            }
+        }
     </div>
     <button type="button"
             id="buttonregister"

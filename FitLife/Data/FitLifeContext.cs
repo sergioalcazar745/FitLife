@@ -8,6 +8,6 @@ namespace FitLife.Data
         public FitLifeContext(DbContextOptions<FitLifeContext> options)
             : base(options) { }
 
-        public DbSet<User> Usuarios { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
     }
 }
