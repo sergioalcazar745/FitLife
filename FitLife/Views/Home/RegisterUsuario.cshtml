@@ -1,0 +1,102 @@
+﻿@model List<Error>
+
+@{
+    Error error = null;
+}
+
+@{
+    Layout = "_RegisterLayout";
+}
+
+<form class="container mx-auto max-w-7xl p-8 bg-gray-900 rounded" method="post" style="--tw-bg-opacity: 0.75;" id="form">
+    @Html.AntiForgeryToken()
+    <div class="flex items-center justify-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
+        <img class="w-8 h-8 mr-2" src="~/images/logo.png" alt="logo">
+        FitLife
+    </div>
+    @if (Model is not null)
+    {
+        <div class="flex p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-red-800 dark:text-red-400" role="alert" id="alert-error" hidden>
+            <svg aria-hidden="true" class="flex-shrink-0 inline w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            <span class="sr-only">Info</span>
+            <div>
+                <span class="font-medium text-white">Existen campos incorrectos, revíselos.</span>
+            </div>
+        </div>
+    }
+    <div class="flex justify-start sm:flex-col" id="content-form">
+        <div class="flex items-start mb-6">
+            <div class="flex items-center h-5">
+                <input id="cliente" type="radio" value="cliente" name="role"
+                       class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800"
+                       checked>
+            </div>
+            <label for="cliente" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                Cliente
+            </label>
+        </div>
+        <div class="flex items-start mb-6 ml-6">
+            <div class="flex items-center h-5">
+                <input id="entrenador" type="radio" value="entrenador" name="role"
+                       class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800">
+            </div>
+            <label for="entrenador" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                Entrenador
+            </label>
+        </div>
+        <div class="flex items-start mb-6 ml-6">
+            <div class="flex items-center h-5">
+                <input id="nutricionista" type="radio" value="nutricionista" name="role"
+                       class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800">
+            </div>
+            <label for="nutricionista" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                Nutricionista
+            </label>
+        </div>
+    </div>
+    <div class="mb-6" id="content-nombre">
+        <label for="nombre" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre*</label>
+        <input type="text" id="nombre" name="nombre"
+               class="shadow-sm bg-gray-50 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
+    </div>
+    <div class="mb-6" id="content-apellidos">
+        <label for="apellidos" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellidos*</label>
+        <input type="text" id="apellidos" name="apellidos"
+               class="shadow-sm bg-gray-50 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
+    </div>
+    <div class="mb-6" id="content-dni">
+        <label for="dni" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">DNI*</label>
+        <input type="text" id="dni" name="dni"
+               class="shadow-sm bg-gray-50 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
+    </div>
+    <div class="mb-6" id="content-email">
+        <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Correo electrónico*</label>
+        <input type="email" id="email" name="email" autocomplete="username"
+               class="shadow-sm bg-gray-50 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
+    </div>
+    <div class="mb-6" id="content-password">
+        <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Contraseña*
+        </label>
+        <input type="password" id="password" name="password" autocomplete="new-password"
+               class="shadow-sm bg-gray-50 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
+    </div>
+    <div class="mb-6" id="content-repeatpassword">
+        <label for="repeatpassword" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Repite
+            contraseña*
+        </label>
+        <input type="password" id="repeatpassword" name="repeatpassword" autocomplete="repeat-password"
+               class="shadow-sm bg-gray-50 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light">
+    </div>
+    <button type="button"
+            id="buttonregister"
+            class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-blue-800">
+        Register
+        new account
+    </button>
+</form>
+
+@section script{
+    <script src="~/js/registerusuario.js"></script>
+}

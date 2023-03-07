@@ -9,5 +9,7 @@ namespace FitLife.Data
             : base(options) { }
 
         public DbSet<Usuario> Usuarios { get; set; }
+
+        public DbSet<PerfilUsuario> PerfilUsuarios { get; set; }
     }
 }

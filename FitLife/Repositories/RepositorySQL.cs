@@ -69,6 +69,11 @@ namespace FitLife.Repositories
             return consulta.FirstOrDefault();
         }
 
+        public void Logout(int id)
+        {
+
+        }
+
         public Usuario FindUsuario(int idUsuario)
         {
             var consulta = from datos in this.context.Usuarios.AsEnumerable()
@@ -77,13 +82,13 @@ namespace FitLife.Repositories
             return consulta.FirstOrDefault();
         }
 
-        //public PerfilUsuario FindPerfilUsuario(int idUsuario)
-        //{
-        //    var consulta = from datos in this.context.PerfilUsuarios.AsEnumerable()
-        //                   where datos.IdUsuario == idUsuario
-        //                   select datos;
-        //    return consulta.FirstOrDefault();
-        //}
+        public PerfilUsuario FindPerfilUsuario(int idUsuario)
+        {
+            var consulta = from datos in this.context.PerfilUsuarios.AsEnumerable()
+                           where datos.IdUsuario == idUsuario
+                           select datos;
+            return consulta.FirstOrDefault();
+        }
 
         public async Task RegistrarCliente(string nombre, string apellidos, string dni, string email, string password, string role, int altura, int peso, int edad, string sexo)
         {

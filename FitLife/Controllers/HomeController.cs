@@ -49,83 +49,84 @@ namespace FitLife.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(Usuario user, int edad, int altura, int peso, string sexo, string repeatpassword)
         {
-            List<Error> errores = new List<Error>();
-            Regex rgEmail = new Regex("/^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$/");
+            //List<Error> errores = new List<Error>();
+            //Regex rgEmail = new Regex("/^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$/");
 
-            if (string.IsNullOrEmpty(user.Nombre))
-            {
-                errores.Add(new Error("nombre", "El nombre es obligatorio"));
-            }
+            //if (string.IsNullOrEmpty(user.Nombre))
+            //{
+            //    errores.Add(new Error("nombre", "El nombre es obligatorio"));
+            //}
 
-            if (string.IsNullOrEmpty(user.Apellidos))
-            {
-                errores.Add(new Error("apellidos", "Los apellidos son obligatorios"));
-            }
+            //if (string.IsNullOrEmpty(user.Apellidos))
+            //{
+            //    errores.Add(new Error("apellidos", "Los apellidos son obligatorios"));
+            //}
 
-            if (string.IsNullOrEmpty(user.Dni))
-            {
-                errores.Add(new Error("dni", "El DNI es obligatorio"));
-            }
-            else if (!HelperValidacion.CheckDNI(user.Dni))
-            {
-                errores.Add(new Error("dni", "Formato incorrecto"));
-            }
+            //if (string.IsNullOrEmpty(user.Dni))
+            //{
+            //    errores.Add(new Error("dni", "El DNI es obligatorio"));
+            //}
+            //else if (!HelperValidacion.CheckDNI(user.Dni))
+            //{
+            //    errores.Add(new Error("dni", "Formato incorrecto"));
+            //}
 
-            if (string.IsNullOrEmpty(user.Email))
-            {
-                errores.Add(new Error("email", "El email es obligatorio"));
-            }
-            else if (rgEmail.IsMatch(user.Email))
-            {
-                errores.Add(new Error("email", "Formato incorrecto"));
-            }
+            //if (string.IsNullOrEmpty(user.Email))
+            //{
+            //    errores.Add(new Error("email", "El email es obligatorio"));
+            //}
+            //else if (rgEmail.IsMatch(user.Email))
+            //{
+            //    errores.Add(new Error("email", "Formato incorrecto"));
+            //}
 
-            if (string.IsNullOrEmpty(user.Password))
-            {
-                errores.Add(new Error("password", "La password es obligatoria"));
-            }
-            else
-            {
-                if(user.Password != repeatpassword)
-                {
-                    errores.Add(new Error("repeatpassword", "Las contraseñas no coinciden"));
-                }
-            }
+            //if (string.IsNullOrEmpty(user.Password))
+            //{
+            //    errores.Add(new Error("password", "La password es obligatoria"));
+            //}
+            //else
+            //{
+            //    if(user.Password != repeatpassword)
+            //    {
+            //        errores.Add(new Error("repeatpassword", "Las contraseñas no coinciden"));
+            //    }
+            //}
 
-            if(user.Role.ToLower() == "cliente")
-            {
-                if (edad == 0)
-                {
-                    errores.Add(new Error("edad", "La edad es obligatoria"));
-                }
+            //if(user.Role.ToLower() == "cliente")
+            //{
+            //    if (edad == 0)
+            //    {
+            //        errores.Add(new Error("edad", "La edad es obligatoria"));
+            //    }
 
-                if (altura == 0)
-                {
-                    errores.Add(new Error("altura", "La altura es obligatoria"));
-                }
+            //    if (altura == 0)
+            //    {
+            //        errores.Add(new Error("altura", "La altura es obligatoria"));
+            //    }
 
-                if (peso == 0)
-                {
-                    errores.Add(new Error("peso", "El peso es obligatorio"));
-                }
-            }
+            //    if (peso == 0)
+            //    {
+            //        errores.Add(new Error("peso", "El peso es obligatorio"));
+            //    }
+            //}
 
-            if (errores.Count == 0)
-            {
-                if(user.Role.ToLower() == "cliente")
-                {
-                    await this.repo.RegistrarCliente(user.Nombre, user.Apellidos, user.Dni, user.Email, user.Password, user.Role, altura, peso, edad, sexo);
-                }
-                else
-                {
-                    await this.repo.RegistrarUsuario(user.Nombre, user.Apellidos, user.Dni, user.Email, user.Password, user.Role);
-                }
-                return RedirectToAction("Index", "Client");
-            }
-            else
-            {
-                return View(errores);
-            }
+            //if (errores.Count == 0)
+            //{
+            //    if(user.Role.ToLower() == "cliente")
+            //    {
+            //        await this.repo.RegistrarCliente(user.Nombre, user.Apellidos, user.Dni, user.Email, user.Password, user.Role, altura, peso, edad, sexo);
+            //    }
+            //    else
+            //    {
+            //        await this.repo.RegistrarUsuario(user.Nombre, user.Apellidos, user.Dni, user.Email, user.Password, user.Role);
+            //    }
+            //    return RedirectToAction("Index", "Client");
+            //}
+            //else
+            //{
+            //    return View(errores);
+            //}
+            return View();
         }
     }
 }
