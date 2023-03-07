@@ -10,6 +10,10 @@ namespace FitLife.Repositories
 
         Usuario FindUsuario(int idUsuario);
 
+        Usuario FindUsuarioByEmail(string email);
+
+        Usuario FindUsuarioByDNI(string dni);
+
         PerfilUsuario FindPerfilUsuario(int idUsuario);
 
         Task RegistrarUsuario(string nombre, string apellidos, string dni, string email, string password, string role);

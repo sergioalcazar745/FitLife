@@ -2,7 +2,7 @@
 
 namespace FitLife.Controllers
 {
-    public class CoachController : Controller
+    public class EntrenadorController : Controller
     {
         public IActionResult Index()
         {

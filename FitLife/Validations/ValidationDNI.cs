@@ -5,9 +5,16 @@ namespace FitLife.Validations
 {
     public class ValidationDNI: ValidationAttribute
     {
-        public override bool IsValid(object? value)
+        public override bool IsValid(object value)
         {
-            return HelperValidationDNI.CheckDNI((string)value);
+            if(value is not null)
+            {
+                return HelperValidationDNI.CheckDNI((string)value);
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

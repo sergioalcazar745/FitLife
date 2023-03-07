@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FitLife.Controllers
 {
-    public class ClientController : Controller
+    public class ClienteController : Controller
     {
         IRepository repo;
 
-        public ClientController(IRepository repo)
+        public ClienteController(IRepository repo)
         {
             this.repo = repo;
         }

@@ -4,6 +4,7 @@ using FitLife.Repositories;
 using FitLife.Extension;
 using System.Text.RegularExpressions;
 using FitLife.Helpers;
+using Newtonsoft.Json;
 
 namespace FitLife.Controllers
 {
@@ -15,9 +16,10 @@ namespace FitLife.Controllers
             this.repo = repo;
         }
 
-        public IActionResult Index(string? error)
+        public IActionResult Index()
         {
-            if(error is not null)
+            string error = TempData["ErrorLogin"] as string;
+            if (error != null)
             {
                 ViewData["Error"] = error;
             }            
@@ -26,9 +28,10 @@ namespace FitLife.Controllers
 
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public IActionResult Index(Singin signin)
+        public IActionResult Index(string email, string password)
         {
-            Usuario usuario = this.repo.Login(signin.Email, signin.Password);
+            TempData.Remove("ErrorLogin");
+            Usuario usuario = this.repo.Login(email, password);
             if(usuario is not null)
             {
                 HttpContext.Session.SetObject("user", usuario);
@@ -36,96 +39,79 @@ namespace FitLife.Controllers
             }
             else
             {
-                return RedirectToAction("Index", new { error = "El correo electronico o la contraseña son incorrectos" });
+                TempData["ErrorLogin"] = "El correo electronico o la contraseña son incorrectos";
+                return RedirectToAction("Index");
             }            
         }
 
-        public IActionResult Register()
+        public IActionResult RegisterUsuario()
         {
             return View();
         }
 
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public async Task<IActionResult> Register(Usuario user, int edad, int altura, int peso, string sexo, string repeatpassword)
+        public async Task<IActionResult> RegisterUsuario(UsuarioValidation usuario)
         {
-            //List<Error> errores = new List<Error>();
-            //Regex rgEmail = new Regex("/^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$/");
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
 
-            //if (string.IsNullOrEmpty(user.Nombre))
-            //{
-            //    errores.Add(new Error("nombre", "El nombre es obligatorio"));
-            //}
+            Usuario usuarioEmail = this.repo.FindUsuarioByEmail(usuario.Email);
+            if (usuarioEmail is not null)
+            {
+                ViewData["ErrorRegister"] = "Parece que el correo ya existe.";
+                return View();
+            }
 
-            //if (string.IsNullOrEmpty(user.Apellidos))
-            //{
-            //    errores.Add(new Error("apellidos", "Los apellidos son obligatorios"));
-            //}
+            Usuario usuarioDNI = this.repo.FindUsuarioByDNI(usuario.Dni);
+            if (usuarioDNI is not null)
+            {
+                ViewData["ErrorRegister"] = "Parece que el DNI ya existe.";
+                return View();
+            }
 
-            //if (string.IsNullOrEmpty(user.Dni))
-            //{
-            //    errores.Add(new Error("dni", "El DNI es obligatorio"));
-            //}
-            //else if (!HelperValidacion.CheckDNI(user.Dni))
-            //{
-            //    errores.Add(new Error("dni", "Formato incorrecto"));
-            //}
+            if (usuario.Role.ToLower() != "cliente")
+            {
+                await this.repo.RegistrarUsuario(usuario.Nombre, usuario.Apellidos, usuario.Dni, usuario.Email, usuario.Password, usuario.Role);
+                return RedirectToAction("Index", "Cliente");
+            }
 
-            //if (string.IsNullOrEmpty(user.Email))
-            //{
-            //    errores.Add(new Error("email", "El email es obligatorio"));
-            //}
-            //else if (rgEmail.IsMatch(user.Email))
-            //{
-            //    errores.Add(new Error("email", "Formato incorrecto"));
-            //}
+            TempData["Usuario"] = JsonConvert.SerializeObject(usuario);
+            return RedirectToAction("RegisterPerfil");
+        }
 
-            //if (string.IsNullOrEmpty(user.Password))
-            //{
-            //    errores.Add(new Error("password", "La password es obligatoria"));
-            //}
-            //else
-            //{
-            //    if(user.Password != repeatpassword)
-            //    {
-            //        errores.Add(new Error("repeatpassword", "Las contraseñas no coinciden"));
-            //    }
-            //}
+        public async Task<IActionResult> RegisterPerfil()
+        {
+            return View();
+        }
 
-            //if(user.Role.ToLower() == "cliente")
-            //{
-            //    if (edad == 0)
-            //    {
-            //        errores.Add(new Error("edad", "La edad es obligatoria"));
-            //    }
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> RegisterPerfil(PerfilUsuario perfil)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
 
-            //    if (altura == 0)
-            //    {
-            //        errores.Add(new Error("altura", "La altura es obligatoria"));
-            //    }
+            UsuarioValidation usuario = JsonConvert.DeserializeObject<UsuarioValidation>(TempData["Usuario"].ToString());
+            await this.repo.RegistrarCliente(usuario.Nombre, usuario.Apellidos, usuario.Dni, usuario.Email,
+                usuario.Password, usuario.Role, perfil.Altura, perfil.Peso, perfil.Edad, perfil.Sexo);
 
-            //    if (peso == 0)
-            //    {
-            //        errores.Add(new Error("peso", "El peso es obligatorio"));
-            //    }
-            //}
+            return RedirectToAction("Index", "Cliente");
+        }
 
-            //if (errores.Count == 0)
-            //{
-            //    if(user.Role.ToLower() == "cliente")
-            //    {
-            //        await this.repo.RegistrarCliente(user.Nombre, user.Apellidos, user.Dni, user.Email, user.Password, user.Role, altura, peso, edad, sexo);
-            //    }
-            //    else
-            //    {
-            //        await this.repo.RegistrarUsuario(user.Nombre, user.Apellidos, user.Dni, user.Email, user.Password, user.Role);
-            //    }
-            //    return RedirectToAction("Index", "Client");
-            //}
-            //else
-            //{
-            //    return View(errores);
-            //}
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public IActionResult ForgotPassword(string email)
+        {
             return View();
         }
     }

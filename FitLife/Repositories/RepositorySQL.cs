@@ -82,6 +82,22 @@ namespace FitLife.Repositories
             return consulta.FirstOrDefault();
         }
 
+        public Usuario FindUsuarioByEmail(string email)
+        {
+            var consulta = from datos in this.context.Usuarios.AsEnumerable()
+                           where datos.Email == email
+                           select datos;
+            return consulta.FirstOrDefault();
+        }
+
+        public Usuario FindUsuarioByDNI(string dni)
+        {
+            var consulta = from datos in this.context.Usuarios.AsEnumerable()
+                           where datos.Dni == dni
+                           select datos;
+            return consulta.FirstOrDefault();
+        }
+
         public PerfilUsuario FindPerfilUsuario(int idUsuario)
         {
             var consulta = from datos in this.context.PerfilUsuarios.AsEnumerable()
