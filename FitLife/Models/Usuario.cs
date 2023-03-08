@@ -22,6 +22,12 @@ namespace FitLife.Models
         [Column("EMAIL")]
         public string Email { get; set; }
 
+        [Column("PASSWORDENCRYPT")]
+        public byte[] PasswordEncrypt { get; set; }
+
+        [Column("SALT")]
+        public string Salt { get; set; }
+
         [Column("PASSWORD")]
         public string Password { get; set; }
 

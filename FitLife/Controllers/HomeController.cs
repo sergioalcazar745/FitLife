@@ -5,6 +5,7 @@ using FitLife.Extension;
 using System.Text.RegularExpressions;
 using FitLife.Helpers;
 using Newtonsoft.Json;
+using MvcCryptographyBBDD.Helpers;
 
 namespace FitLife.Controllers
 {
@@ -18,11 +19,6 @@ namespace FitLife.Controllers
 
         public IActionResult Index()
         {
-            string error = TempData["ErrorLogin"] as string;
-            if (error != null)
-            {
-                ViewData["Error"] = error;
-            }            
             return View();
         }
 
@@ -30,18 +26,26 @@ namespace FitLife.Controllers
         [HttpPost]
         public IActionResult Index(string email, string password)
         {
-            TempData.Remove("ErrorLogin");
-            Usuario usuario = this.repo.Login(email, password);
-            if(usuario is not null)
+            Usuario usuario = this.repo.Login(email);
+            if (usuario is null)
             {
-                HttpContext.Session.SetObject("user", usuario);
-                return RedirectToAction("Index", "Client");
+                ViewData["Error"] = "El correo electronico no existe.";
+                return View();
             }
             else
             {
-                TempData["ErrorLogin"] = "El correo electronico o la contraseña son incorrectos";
-                return RedirectToAction("Index");
-            }            
+                byte[] passwordencrypt = HelperCryptography.EncryptPassword(password, usuario.Salt);
+                if(HelperCryptography.CompareArrays(passwordencrypt, usuario.PasswordEncrypt))
+                {
+                    HttpContext.Session.SetObject("user", usuario);
+                    return RedirectToAction("Index", "Client");
+                }
+                else
+                {
+                    ViewData["Error"] = "La contraseña es incorrecta.";
+                    return View();
+                }
+            }
         }
 
         public IActionResult RegisterUsuario()
@@ -58,27 +62,33 @@ namespace FitLife.Controllers
                 return View();
             }
 
-            Usuario usuarioEmail = this.repo.FindUsuarioByEmail(usuario.Email);
-            if (usuarioEmail is not null)
+            Usuario usuarioValidate = this.repo.FindUsuarioByEmailAndDNI(usuario.Email, usuario.Dni);
+            if (usuarioValidate is not null)
             {
-                ViewData["ErrorRegister"] = "Parece que el correo ya existe.";
-                return View();
+                if (usuarioValidate.Email == usuario.Email)
+                {
+                    ViewData["ErrorRegister"] = "Parece que el correo ya existe.";
+                    return View();
+                }
+                else if (usuarioValidate.Dni == usuario.Dni)
+                {
+                    ViewData["ErrorRegister"] = "Parece que el DNI ya existe.";
+                    return View();
+                }
             }
 
-            Usuario usuarioDNI = this.repo.FindUsuarioByDNI(usuario.Dni);
-            if (usuarioDNI is not null)
-            {
-                ViewData["ErrorRegister"] = "Parece que el DNI ya existe.";
-                return View();
-            }
+            string salt = HelperCryptography.GenerateSalt();
+            byte[] passwordencrypt = HelperCryptography.EncryptPassword(usuario.Password, salt);
 
             if (usuario.Role.ToLower() != "cliente")
             {
-                await this.repo.RegistrarUsuario(usuario.Nombre, usuario.Apellidos, usuario.Dni, usuario.Email, usuario.Password, usuario.Role);
+                await this.repo.RegistrarUsuario(usuario.Nombre, usuario.Apellidos, usuario.Dni, usuario.Email, passwordencrypt, salt, usuario.Password, usuario.Role);
                 return RedirectToAction("Index", "Cliente");
             }
 
             TempData["Usuario"] = JsonConvert.SerializeObject(usuario);
+            TempData["Salt"] = salt;
+            TempData["PasswordEncrypt"] = passwordencrypt;
             return RedirectToAction("RegisterPerfil");
         }
 
@@ -97,8 +107,9 @@ namespace FitLife.Controllers
             }
 
             UsuarioValidation usuario = JsonConvert.DeserializeObject<UsuarioValidation>(TempData["Usuario"].ToString());
-            await this.repo.RegistrarCliente(usuario.Nombre, usuario.Apellidos, usuario.Dni, usuario.Email,
-                usuario.Password, usuario.Role, perfil.Altura, perfil.Peso, perfil.Edad, perfil.Sexo);
+            byte[] passwordencrypt = JsonConvert.DeserializeObject<byte[]>(TempData["PasswordEncrypt"].ToString());
+            await this.repo.RegistrarCliente(usuario.Nombre, usuario.Apellidos, usuario.Dni, usuario.Email, passwordencrypt,
+                TempData["Salt"] as string, usuario.Password, usuario.Role, perfil.Altura, perfil.Peso, perfil.Edad, perfil.Sexo);
 
             return RedirectToAction("Index", "Cliente");
         }
