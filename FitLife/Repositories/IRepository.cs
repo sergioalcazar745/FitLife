@@ -6,8 +6,6 @@ namespace FitLife.Repositories
     {
         Usuario Login(string email);
 
-        void Logout(int id);
-
         Usuario FindUsuario(int idUsuario);
 
         Usuario FindUsuarioByEmailAndDNI(string email, string dni);
@@ -17,5 +15,7 @@ namespace FitLife.Repositories
         Task RegistrarUsuario(string nombre, string apellidos, string dni, string email, byte[] passwordencrypt, string salt, string password, string role);
 
         Task RegistrarCliente(string nombre, string apellidos, string dni, string email, byte[] passwordencrypt, string salt, string password, string role, int altura, int peso, int edad, string sexo);
+
+        void FindSolicitud(int idUsuario);
     }
 }

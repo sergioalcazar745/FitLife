@@ -11,13 +11,15 @@ builder.Services.AddAntiforgery();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(10);
+    options.IdleTimeout = TimeSpan.FromSeconds(15);
 });
+builder.Services.AddMemoryCache();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
 app.UseStaticFiles();
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",

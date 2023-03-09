@@ -6,15 +6,18 @@ using System.Text.RegularExpressions;
 using FitLife.Helpers;
 using Newtonsoft.Json;
 using MvcCryptographyBBDD.Helpers;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace FitLife.Controllers
 {
     public class HomeController : Controller
     {
         IRepository repo;
-        public HomeController(IRepository repo)
+        IMemoryCache memoryCache;
+        public HomeController(IRepository repo, IMemoryCache memoryCache)
         {
             this.repo = repo;
+            this.memoryCache = memoryCache;
         }
 
         public IActionResult Index()
@@ -38,7 +41,7 @@ namespace FitLife.Controllers
                 if(HelperCryptography.CompareArrays(passwordencrypt, usuario.PasswordEncrypt))
                 {
                     HttpContext.Session.SetObject("user", usuario);
-                    return RedirectToAction("Index", "Client");
+                    return RedirectToAction("Index", "Cliente");
                 }
                 else
                 {
@@ -80,38 +83,70 @@ namespace FitLife.Controllers
             string salt = HelperCryptography.GenerateSalt();
             byte[] passwordencrypt = HelperCryptography.EncryptPassword(usuario.Password, salt);
 
+            Usuario usuarioEF = new Usuario();
+            usuarioEF.Nombre = usuario.Nombre;
+            usuarioEF.Apellidos = usuario.Apellidos;
+            usuarioEF.Email = usuario.Email;
+            usuarioEF.Dni = usuario.Dni;
+            usuarioEF.Password = usuario.Password;
+            usuarioEF.PasswordEncrypt = passwordencrypt;
+            usuarioEF.Salt = salt;
+            usuarioEF.Role = usuario.Role;
+
+            this.memoryCache.Set("Usuario", usuarioEF);
+
             if (usuario.Role.ToLower() != "cliente")
             {
-                await this.repo.RegistrarUsuario(usuario.Nombre, usuario.Apellidos, usuario.Dni, usuario.Email, passwordencrypt, salt, usuario.Password, usuario.Role);
-                return RedirectToAction("Index", "Cliente");
+                return RedirectToAction("EnviarEmailConfirmacion");
             }
-
-            TempData["Usuario"] = JsonConvert.SerializeObject(usuario);
-            TempData["Salt"] = salt;
-            TempData["PasswordEncrypt"] = passwordencrypt;
-            return RedirectToAction("RegisterPerfil");
+            else
+            {
+                return RedirectToAction("RegisterPerfil");
+            }
         }
 
-        public async Task<IActionResult> RegisterPerfil()
+        public IActionResult RegisterPerfil()
         {
             return View();
         }
 
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public async Task<IActionResult> RegisterPerfil(PerfilUsuario perfil)
+        public async Task<IActionResult> RegisterPerfil(PerfilValidation perfil)
         {
             if (!ModelState.IsValid)
             {
                 return View();
             }
 
-            UsuarioValidation usuario = JsonConvert.DeserializeObject<UsuarioValidation>(TempData["Usuario"].ToString());
-            byte[] passwordencrypt = JsonConvert.DeserializeObject<byte[]>(TempData["PasswordEncrypt"].ToString());
-            await this.repo.RegistrarCliente(usuario.Nombre, usuario.Apellidos, usuario.Dni, usuario.Email, passwordencrypt,
-                TempData["Salt"] as string, usuario.Password, usuario.Role, perfil.Altura, perfil.Peso, perfil.Edad, perfil.Sexo);
+            this.memoryCache.Set("Perfil", perfil);
 
-            return RedirectToAction("Index", "Cliente");
+            return RedirectToAction("EnviarEmailConfirmacion");
+        }
+
+        public IActionResult EnviarEmailConfirmacion()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EnviarEmailConfirmacionComprobar()
+        {
+            //Buscar en la tabla Solicitud si existe el token. Si existe le devolvemos a la página sino redireccionamos
+            Usuario usuario = this.memoryCache.Get<Usuario>("Usuario");
+            if (usuario.Role.ToLower() == "cliente")
+            {
+                PerfilValidation perfil = this.memoryCache.Get<PerfilValidation>("Perfil");
+                await this.repo.RegistrarCliente(usuario.Nombre, usuario.Apellidos, usuario.Dni, usuario.Email, usuario.PasswordEncrypt,
+                    usuario.Salt, usuario.Password, usuario.Role, perfil.Altura, perfil.Peso, perfil.Edad, perfil.Sexo);
+            }
+            else
+            {
+                await this.repo.RegistrarUsuario(usuario.Nombre, usuario.Apellidos, usuario.Dni, usuario.Email, usuario.PasswordEncrypt,
+                   usuario.Salt, usuario.Password, usuario.Role);
+            }
+
+            return View();
         }
 
         public IActionResult ForgotPassword()
