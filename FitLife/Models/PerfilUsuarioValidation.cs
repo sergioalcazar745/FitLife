@@ -2,7 +2,7 @@
 
 namespace FitLife.Models
 {
-    public class PerfilValidation
+    public class PerfilUsuarioValidation
     {
         [Required(ErrorMessage = "La edad es obligatorio.")]
         [Range(18, 90, ErrorMessage = "La edad minima es 18 y máxima 90.")]

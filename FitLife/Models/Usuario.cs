@@ -33,5 +33,8 @@ namespace FitLife.Models
 
         [Column("ROLE")]
         public string Role { get; set; }
+
+        [Column("ESTADO")]
+        public bool Estado { get; set; }
     }
 }
