@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FitLife.Models;
 using FitLife.Repositories;
-using FitLife.Extension;
+using FitLife.Extensions;
 using System.Text.RegularExpressions;
 using FitLife.Helpers;
 using Newtonsoft.Json;
 using MvcCryptographyBBDD.Helpers;
 using Microsoft.Extensions.Caching.Memory;
+using MvcCoreUtilidades.Helpers;
+using System;
 
 namespace FitLife.Controllers
 {
@@ -14,10 +16,12 @@ namespace FitLife.Controllers
     {
         IRepository repo;
         IMemoryCache memoryCache;
-        public HomeController(IRepository repo, IMemoryCache memoryCache)
+        HelperMail helperMail;
+        public HomeController(IRepository repo, IMemoryCache memoryCache, HelperMail helperMail)
         {
             this.repo = repo;
             this.memoryCache = memoryCache;
+            this.helperMail = helperMail;
         }
 
         public IActionResult Index()
@@ -27,9 +31,9 @@ namespace FitLife.Controllers
 
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public IActionResult Index(string email, string password)
+        public async Task<IActionResult> Index(string email, string password)
         {
-            Usuario usuario = this.repo.Login(email);
+            Usuario usuario = await this.repo.Login(email);
             if (usuario is null)
             {
                 ViewData["Error"] = "El correo electronico no existe.";
@@ -37,18 +41,33 @@ namespace FitLife.Controllers
             }
             else
             {
-                byte[] passwordencrypt = HelperCryptography.EncryptPassword(password, usuario.Salt);
-                if(HelperCryptography.CompareArrays(passwordencrypt, usuario.PasswordEncrypt))
+                if(usuario.Estado == true)
                 {
-                    HttpContext.Session.SetObject("user", usuario);
-                    return RedirectToAction("Index", "Cliente");
+                    byte[] passwordencrypt = HelperCryptography.EncryptPassword(password, usuario.Salt);
+                    if (HelperCryptography.CompareArrays(passwordencrypt, usuario.PasswordEncrypt))
+                    {
+                        HttpContext.Session.SetObject("user", usuario);
+                        HttpContext.Session.GetObject<Usuario>("user");
+                        return RedirectToAction("Index", "Cliente");
+                    }
+                    else
+                    {
+                        ViewData["Error"] = "La contraseña es incorrecta.";
+                        return View();
+                    }
                 }
                 else
                 {
-                    ViewData["Error"] = "La contraseña es incorrecta.";
-                    return View();
+                    await this.EnviarConfirmacion(usuario.IdUsuario, usuario.Email);
+                    return RedirectToAction("EnviarEmailConfirmacion", new {email = usuario.Email, accion = "register"});
                 }
             }
+        }
+
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Remove("user");
+            return RedirectToAction("Index");
         }
 
         public IActionResult RegisterUsuario()
@@ -65,7 +84,7 @@ namespace FitLife.Controllers
                 return View();
             }
 
-            Usuario usuarioValidate = this.repo.FindUsuarioByEmailAndDNI(usuario.Email, usuario.Dni);
+            Usuario usuarioValidate = await this.repo.FindUsuarioByEmailOrDNI(usuario.Email, usuario.Dni);
             if (usuarioValidate is not null)
             {
                 if (usuarioValidate.Email == usuario.Email)
@@ -88,11 +107,8 @@ namespace FitLife.Controllers
                 int idusuario = await this.repo.RegistrarUsuario(usuario.Nombre, usuario.Apellidos, usuario.Dni, usuario.Email, passwordencrypt,
                 salt, usuario.Password, usuario.Role);
 
-                string saltConfirmacion = HelperCryptography.GenerateSalt();
-                await this.repo.RegistrarSolicitud(saltConfirmacion, idusuario);
-                this.memoryCache.Set("Token", saltConfirmacion);
-                this.memoryCache.Set("Idusuario", idusuario);
-                return RedirectToAction("EnviarEmailConfirmacion");
+                await this.EnviarConfirmacion(idusuario, usuario.Email);
+                return RedirectToAction("EnviarEmailConfirmacion", new {email = usuario.Email, accion = "register"});
             }
             else
             {
@@ -105,7 +121,6 @@ namespace FitLife.Controllers
                 usuarioEF.PasswordEncrypt = passwordencrypt;
                 usuarioEF.Salt = salt;
                 usuarioEF.Role = usuario.Role;
-
                 this.memoryCache.Set("Usuario", usuarioEF);
                 return RedirectToAction("RegisterPerfil");
             }
@@ -128,42 +143,65 @@ namespace FitLife.Controllers
             Usuario usuario = this.memoryCache.Get<Usuario>("Usuario");
             int idusuario = await this.repo.RegistrarCliente(usuario.Nombre, usuario.Apellidos, usuario.Dni, usuario.Email, usuario.PasswordEncrypt,
              usuario.Salt, usuario.Password, usuario.Role, perfil.Altura, perfil.Peso, perfil.Edad, perfil.Sexo);
+            usuario.IdUsuario = idusuario;
 
             this.memoryCache.Remove("Usuario");
-            string saltConfirmacion = HelperCryptography.GenerateSalt();
-            await this.repo.RegistrarSolicitud(saltConfirmacion, idusuario);
-            this.memoryCache.Set("Token", saltConfirmacion);
-            this.memoryCache.Set("Idusuario", idusuario);
 
-            return RedirectToAction("EnviarEmailConfirmacion");
+            await this.EnviarConfirmacion(idusuario, usuario.Email);
+            return RedirectToAction("EnviarEmailConfirmacion", new {email = usuario.Email, accion = "register"});
         }
 
-        public IActionResult EnviarEmailConfirmacion()
+        public async Task<IActionResult> EnviarEmailConfirmacion(string email, string accion)
         {
-            //Enviar email
+            ViewData["Email"] = email;
+            TempData["Action"] = accion;
             return View();
         }
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
-        public async Task<IActionResult> EnviarEmailConfirmacionComprobar()
+        public async Task<IActionResult> EnviarEmailConfirmacion(int codigo)
         {
-            int idusuario = this.memoryCache.Get<int>("Idusuario");
-            string token = this.memoryCache.Get<string>("Token");
-            Solicitud solicitud = this.repo.FindSolicitud(idusuario);
+            int idusuario = this.memoryCache.Get<int>("IdUsuario");
+            string salt = this.memoryCache.Get<string>("Salt");
+            Solicitud solicitud = await this.repo.FindSolicitud(idusuario);
 
-            if(solicitud is not null)
+            if (solicitud is not null)
             {
-                if(solicitud.Salt == token)
+                if (solicitud.Salt == salt)
                 {
-                    this.repo.DeleteSolicitud(solicitud.IdUsuario);
-                    //Cambiar el estado del usuario
-                    this.memoryCache.Remove("Idusuario");
-                    this.memoryCache.Remove("Token");
-                    return RedirectToAction("Index", "Cliente");
+                    if(solicitud.Codigo == codigo)
+                    {
+                        await this.repo.DeleteSolicitudUpdateEstadoUsuario(solicitud.IdUsuario);
+                        this.memoryCache.Remove("Salt");
+                        string action = TempData["Action"] as string;
+                        if(action == "password")
+                        {
+                            return RedirectToAction("NuevaPassword");
+                        }
+                        else
+                        {
+                            this.memoryCache.Remove("IdUsuario");
+                            return RedirectToAction("Index", "Cliente");
+                        }
+                    }
+                    else
+                    {
+                        ViewData["Error"] = "Codigo incorrecto";
+                        return View();
+                    }
+                }
+                else
+                {
+                    ViewData["Error"] = "Parece que no es el mismo dispositivo.";
+                    return View();
                 }
             }
-
-            return RedirectToAction("EnviarEmailConfirmacion");
+            else
+            {
+                ViewData["Error"] = "No hemos encontrado ninguna confirmacion.";
+                return View();
+            }
         }
 
         public IActionResult ForgotPassword()
@@ -173,9 +211,60 @@ namespace FitLife.Controllers
 
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public IActionResult ForgotPassword(string email)
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            Usuario usuario = await this.repo.FindUsuarioByEmail(email);
+            if (usuario is not null)
+            {
+                await this.EnviarConfirmacion(usuario.IdUsuario, usuario.Email);
+                return RedirectToAction("EnviarEmailConfirmacion", new { email = usuario.Email, accion = "password" });
+            }
+            else
+            {
+                ViewData["Error"] = "No existe ese correo";
+                return View();
+            }
+        }
+
+        public IActionResult NuevaPassword()
         {
             return View();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> NuevaPassword(PasswordsValidation passwords)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+
+            int idusuario = this.memoryCache.Get<int>("IdUsuario");
+            string salt = HelperCryptography.GenerateSalt();
+            byte[] passwordencrypt = HelperCryptography.EncryptPassword(passwords.Password, salt);
+            await this.repo.UpdatePassword(idusuario, passwords.Password, salt, passwordencrypt);
+
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult Perfil()
+        {
+            return View();
+        }
+
+        #region METODOS
+        public async Task EnviarConfirmacion(int idusuario, string email)
+        {
+            this.memoryCache.Set("IdUsuario", idusuario);
+            string saltConfirmacion = HelperCryptography.GenerateSalt();
+            this.memoryCache.Set("Salt", saltConfirmacion);
+            Random random = new Random();
+            int codigo = random.Next(1000, 15000);
+            await this.repo.RegistrarSolicitud(saltConfirmacion, codigo, idusuario);
+            string html = "<p style='font-size: 18px'>Hemos recibido un alta en nuestra web. El código de confirmacion es el siguiente<br/></p>" +
+                "<h2>"+codigo+"</<h2>";
+            await this.helperMail.SendMailAsync(email, "Confirmación", html);
+        }
+        #endregion
     }
 }

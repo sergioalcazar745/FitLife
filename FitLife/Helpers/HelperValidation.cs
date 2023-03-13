@@ -1,6 +1,6 @@
 ﻿namespace FitLife.Helpers
 {
-    public static class HelperValidationDNI
+    public static class HelperValidation
     {
         public static bool CheckDNI(string dni)
         {

@@ -19,7 +19,7 @@ namespace FitLife.Models
         public string Dni { get; set; }
 
         [Required(ErrorMessage = "El email es obligatorio.")]
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Formato incorrecto.")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "La password es obligatoria.")]

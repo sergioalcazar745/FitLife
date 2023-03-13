@@ -9,7 +9,7 @@ namespace FitLife.Validations
         {
             if(value is not null)
             {
-                return HelperValidationDNI.CheckDNI((string)value);
+                return HelperValidation.CheckDNI((string)value);
             }
             else
             {

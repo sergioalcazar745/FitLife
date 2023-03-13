@@ -4,13 +4,15 @@ namespace FitLife.Repositories
 {
     public interface IRepository
     {
-        Usuario Login(string email);
+        Task<Usuario> Login(string email);
 
-        Usuario FindUsuario(int idUsuario);
+        Task<Usuario> FindUsuario(int idUsuario);
 
-        Usuario FindUsuarioByEmailAndDNI(string email, string dni);
+        Task<Usuario> FindUsuarioByEmail(string email);
 
-        PerfilUsuario FindPerfilUsuario(int idUsuario);
+        Task<Usuario> FindUsuarioByEmailOrDNI(string email, string dni);
+
+        Task<PerfilUsuario> FindPerfilUsuario(int idUsuario);
 
         Task<int> RegistrarUsuario(string nombre, string apellidos, string dni, string email, byte[] passwordencrypt, string salt, string password, string role);
 
@@ -18,10 +20,16 @@ namespace FitLife.Repositories
 
         Task UpdateEstadoUsuario(int idusuario);
 
-        Task RegistrarSolicitud(string salt, int idusuario);
+        Task UpdatePassword(int idusuario, string password, string salt, byte[] passwordencrypt);
 
-        Solicitud FindSolicitud(int idUsuario);
+        Task RegistrarSolicitud(string salt, int codigo, int idusuario);
+
+        Task<Solicitud> FindSolicitud(int idUsuario);
 
         Task DeleteSolicitud(int idusuario);
+
+        Task DeleteSolicitudUpdateEstadoUsuario(int idusuario);
+
+        Task<List<Usuario>> FindPerfilUsuarioByIdProfesional(int idusuario);
     }
 }

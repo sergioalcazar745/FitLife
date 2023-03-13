@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Runtime.CompilerServices;
 
-namespace FitLife.Extension
+namespace FitLife.Extensions
 {
     public static class SessionExtension
     {

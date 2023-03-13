@@ -4,43 +4,86 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using MvcCryptographyBBDD.Helpers;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics.Metrics;
 using System.Net;
 
 #region PROCEDURES
-//CREATE PROCEDURE SP_REGISTER_USER
-//(@NOMBRE NVARCHAR(50), @APELLIDOS NVARCHAR(50), @DNI NVARCHAR(50), @EMAIL NVARCHAR(50), @PASSWORDENCRYPT VARBINARY(MAX), 
-//@SALT NVARCHAR(50), @PASSWORD NVARCHAR(50), @ROLE NVARCHAR(50), @IDUSUARIO INT OUT)
+//CREATE PROCEDURE SP_REGISTER_CLIENTE
+//(@NOMBRE NVARCHAR(50), @APELLIDOS NVARCHAR(50), @DNI NVARCHAR(50), @EMAIL NVARCHAR(MAX), @PASSWORDENCRYPT VARBINARY(MAX), @SALT NVARCHAR(50), @PASSWORD NVARCHAR(50), @ROLE NVARCHAR(50), 
+//@ALTURA INT, @PESO INT, @EDAD INT, @SEXO NVARCHAR(50), @IDUSUARIO INT OUT)
 //AS
-//DECLARE @ID INT
-//	SELECT @ID = MAX(IDUSUARIO) FROM USUARIOS
-//	IF @ID IS NULL
+//    DECLARE @IDPERFIL INT
+//	SELECT @IDUSUARIO = MAX(IDUSUARIO) FROM USUARIOS
+//	SELECT @IDPERFIL = MAX(IDPERFILUSUARIO) FROM PERFILUSUARIO
+//	IF @IDUSUARIO IS NULL
 //	BEGIN
-//	SET @ID = 1
+//	SET @IDUSUARIO = 1
+//	PRINT 'YES USU'
 //	END
 //	ELSE
-//	BEGIN
-//	SET @ID = @ID + 1
+//	BEGIN 
+//	SET @IDUSUARIO = @IDUSUARIO + 1
+//	PRINT 'NO USU'
 //	END
-//	INSERT INTO USUARIOS VALUES(@ID, @NOMBRE, @APELLIDOS, @DNI, @EMAIL, @PASSWORDENCRYPT, @SALT, @PASSWORD, @ROLE, 0)
+
+//	IF @IDPERFIL IS NULL
+//	BEGIN
+//	SET @IDPERFIL = 1
+//	PRINT 'YES PERFIL'
+//	END
+//	ELSE
+//	BEGIN 
+//	SET @IDPERFIL = @IDPERFIL + 1
+//	PRINT 'NO PERFIL'
+//	END
+//	INSERT INTO USUARIOS VALUES(@IDUSUARIO, @NOMBRE, @APELLIDOS, @DNI, @EMAIL, @PASSWORDENCRYPT, @SALT, @PASSWORD, @ROLE, 0)
+//	INSERT INTO PERFILUSUARIO VALUES(@IDPERFIL, @EDAD, @SEXO, @ALTURA, @PESO, @IDUSUARIO, NULL, NULL)
 //GO
 
 //CREATE PROCEDURE SP_REGISTER_USER
 //(@NOMBRE NVARCHAR(50), @APELLIDOS NVARCHAR(50), @DNI NVARCHAR(50), @EMAIL NVARCHAR(50), @PASSWORDENCRYPT VARBINARY(MAX), 
 //@SALT NVARCHAR(50), @PASSWORD NVARCHAR(50), @ROLE NVARCHAR(50), @IDUSUARIO INT OUT)
 //AS
-//DECLARE @ID INT
-//	SELECT @ID = MAX(IDUSUARIO) FROM USUARIOS
-//	IF @ID IS NULL
+//    SELECT @IDUSUARIO = MAX(IDUSUARIO) FROM USUARIOS
+//	IF @IDUSUARIO IS NULL
 //	BEGIN
-//	SET @ID = 1
+//	SET @IDUSUARIO = 1
 //	END
 //	ELSE
 //	BEGIN
-//	SET @ID = @ID + 1
+//	SET @IDUSUARIO = @IDUSUARIO + 1
 //	END
-//	INSERT INTO USUARIOS VALUES(@ID, @NOMBRE, @APELLIDOS, @DNI, @EMAIL, @PASSWORDENCRYPT, @SALT, @PASSWORD, @ROLE, 0)
+//	INSERT INTO USUARIOS VALUES(@IDUSUARIO, @NOMBRE, @APELLIDOS, @DNI, @EMAIL, @PASSWORDENCRYPT, @SALT, @PASSWORD, @ROLE, 0)
 //GO
+
+//CREATE PROCEDURE SP_REGISTER_SOLICITUD
+//(@SALT NVARCHAR(MAX), @CODIGO INT, @IDUSUARIO INT)
+//AS
+//    DECLARE @IDSOLICITUD INT
+
+//	SELECT @IDSOLICITUD = MAX(IDSOLICITUD) FROM SOLICITUD
+
+//	IF @IDSOLICITUD IS NULL
+//	BEGIN
+//		SET @IDSOLICITUD = 1
+//	END
+//	ELSE
+//	BEGIN
+//		SET @IDSOLICITUD = @IDSOLICITUD + 1
+//	END
+	
+//	DELETE FROM SOLICITUD WHERE IDUSUARIO = @IDUSUARIO
+//	INSERT INTO SOLICITUD VALUES(@IDSOLICITUD, @SALT, @CODIGO, @IDUSUARIO)
+//GO
+
+//CREATE PROCEDURE SP_DELETE_SOLICITUD_UPDATE_ESTADO_USUARIO
+//(@IDUSUARIO INT)
+//AS
+//    DELETE FROM SOLICITUD WHERE IDUSUARIO = @IDUSUARIO
+//	UPDATE USUARIOS SET ESTADO = 1 WHERE IDUSUARIO = @IDUSUARIO
+//GO
+
 #endregion
 
 namespace FitLife.Repositories
@@ -54,50 +97,55 @@ namespace FitLife.Repositories
         }
 
         #region REGISTRO
-        public Usuario Login(string email)
+        public async Task<Usuario> Login(string email)
         {
-            return this.context.Usuarios.FirstOrDefault(z => z.Email == email);
+            return await this.context.Usuarios.FirstOrDefaultAsync(z => z.Email == email);
         }
 
-        public Usuario FindUsuario(int idUsuario)
+        public async Task<Usuario> FindUsuario(int idUsuario)
         {
-            return this.context.Usuarios.FirstOrDefault(z => z.IdUsuario == idUsuario);
+            return await this.context.Usuarios.FirstOrDefaultAsync(z => z.IdUsuario == idUsuario);
         }
 
-        public Usuario FindUsuarioByEmailAndDNI(string email, string dni)
+        public async Task<Usuario> FindUsuarioByEmail(string email)
         {
-            return this.context.Usuarios.FirstOrDefault(z => z.Email == email || z.Dni == dni);
+            return await this.context.Usuarios.FirstOrDefaultAsync(z => z.Email == email);
         }
 
-        public PerfilUsuario FindPerfilUsuario(int idUsuario)
+        public async Task<Usuario> FindUsuarioByEmailOrDNI(string email, string dni)
         {
-            return this.context.PerfilUsuarios.FirstOrDefault(z => z.IdUsuario == idUsuario);
+            return await this.context.Usuarios.FirstOrDefaultAsync(z => z.Email == email || z.Dni == dni);
         }
 
-        public Solicitud FindSolicitud(int idUsuario)
+        public async Task<PerfilUsuario> FindPerfilUsuario(int idUsuario)
         {
-            return this.context.Solicitud.FirstOrDefault(z => z.IdUsuario == idUsuario);
+            return await this.context.PerfilUsuarios.FirstOrDefaultAsync(z => z.IdUsuario == idUsuario);
         }
 
-        public async Task RegistrarSolicitud(string salt, int idusuario)
+        public async Task<Solicitud> FindSolicitud(int idUsuario)
         {
-            Solicitud solicitud = new Solicitud();
-            solicitud.Salt = salt;
-            solicitud.IdUsuario = idusuario;
-            this.context.Solicitud.Add(solicitud);
-            await this.context.SaveChangesAsync();
+            return await this.context.Solicitud.FirstOrDefaultAsync(z => z.IdUsuario == idUsuario);
+        }
+
+        public async Task RegistrarSolicitud(string salt, int codigo, int idusuario)
+        {
+            string sql = "SP_REGISTER_SOLICITUD @SALT, @CODIGO, @IDUSUARIO";
+            SqlParameter parasalt= new SqlParameter("@SALT", salt);
+            SqlParameter paracodigo = new SqlParameter("@CODIGO", codigo);
+            SqlParameter paraidusuario = new SqlParameter("@IDUSUARIO", idusuario);
+            await this.context.Database.ExecuteSqlRawAsync(sql, parasalt, paracodigo, paraidusuario);
         }
 
         public async Task DeleteSolicitud(int idusuario)
         {
-            Solicitud solicitud = this.FindSolicitud(idusuario);
+            Solicitud solicitud = await this.FindSolicitud(idusuario);
             this.context.Solicitud.Remove(solicitud);
             await this.context.SaveChangesAsync();
         }
 
         public async Task<int> RegistrarCliente(string nombre, string apellidos, string dni, string email, byte[] passwordencrypt, string salt, string password, string role, int altura, int peso, int edad, string sexo)
         {
-            string sql = "SP_REGISTER_CLIENTE @NOMBRE, @APELLIDOS, @DNI, @EMAIL, @PASSWORDENCRYPT, @SALT, @PASSWORD, @ROLE, @ALTURA, @PESO, @EDAD, @SEXO";
+            string sql = "SP_REGISTER_CLIENTE @NOMBRE, @APELLIDOS, @DNI, @EMAIL, @PASSWORDENCRYPT, @SALT, @PASSWORD, @ROLE, @ALTURA, @PESO, @EDAD, @SEXO, @IDUSUARIO OUT";
             SqlParameter paraidusuario = new SqlParameter("@IDUSUARIO", -1);
             SqlParameter paranombre = new SqlParameter("@NOMBRE", nombre);
             SqlParameter paraapellidos = new SqlParameter("@APELLIDOS", apellidos);
@@ -111,14 +159,15 @@ namespace FitLife.Repositories
             SqlParameter parapeso = new SqlParameter("@PESO", peso);
             SqlParameter paraedad = new SqlParameter("@EDAD", edad);
             SqlParameter parasexo = new SqlParameter("@SEXO", sexo);
-            await this.context.Database.ExecuteSqlRawAsync(sql, paranombre, paraapellidos, paradni, paraemail, parapasswordencrypt, parasalt, parapassword, pararole, paraaltura, parapeso, paraedad, parasexo);
+            await this.context.Database.ExecuteSqlRawAsync(sql, paraidusuario, paraapellidos, paradni, paraemail, parapasswordencrypt, parasalt, parapassword, pararole, paraaltura, parapeso, paraedad, parasexo, paraidusuario);
             return int.Parse(paraidusuario.Value.ToString());
         }
 
         public async Task<int> RegistrarUsuario(string nombre, string apellidos, string dni, string email, byte[] passwordencrypt, string salt, string password, string role)
         {
-            string sql = "SP_REGISTER_USER @NOMBRE, @APELLIDOS, @DNI, @EMAIL, @PASSWORDENCRYPT, @SALT, @PASSWORD, @ROLE";
+            string sql = "SP_REGISTER_USER @NOMBRE, @APELLIDOS, @DNI, @EMAIL, @PASSWORDENCRYPT, @SALT, @PASSWORD, @ROLE, @IDUSUARIO OUT";
             SqlParameter paraidusuario = new SqlParameter("@IDUSUARIO", -1);
+            paraidusuario.Direction = ParameterDirection.Output;
             SqlParameter paranombre = new SqlParameter("@NOMBRE", nombre);
             SqlParameter paraapellidos = new SqlParameter("@APELLIDOS", apellidos);
             SqlParameter paradni = new SqlParameter("@DNI", dni);
@@ -127,15 +176,38 @@ namespace FitLife.Repositories
             SqlParameter parasalt = new SqlParameter("@SALT", salt);
             SqlParameter parapassword = new SqlParameter("@PASSWORD", password);
             SqlParameter pararole = new SqlParameter("@ROLE", role);
-            await this.context.Database.ExecuteSqlRawAsync(sql, paranombre, paraapellidos, paradni, paraemail, parapasswordencrypt, parasalt,  parapassword, pararole);
+            await this.context.Database.ExecuteSqlRawAsync(sql, paranombre, paraapellidos, paradni, paraemail, parapasswordencrypt, parasalt,  parapassword, pararole, paraidusuario);
             return int.Parse(paraidusuario.Value.ToString());
+        }
+
+        public async Task UpdatePassword(int idusuario, string password, string salt, byte[] passwordencrypt)
+        {
+            Usuario usuario = await this.FindUsuario(idusuario);
+            usuario.Password = password;
+            usuario.Salt = salt;
+            usuario.PasswordEncrypt = passwordencrypt;
+            await this.context.SaveChangesAsync();
         }
 
         public async Task UpdateEstadoUsuario(int idusuario)
         {
-            Usuario usuario = this.FindUsuario(idusuario);
+            Usuario usuario = await this.FindUsuario(idusuario);
             usuario.Estado = true;
             await this.context.SaveChangesAsync();
+        }
+
+        public async Task DeleteSolicitudUpdateEstadoUsuario(int idusuario)
+        {
+            string sql = "SP_DELETE_SOLICITUD_UPDATE_ESTADO_USUARIO @IDUSUARIO";
+            SqlParameter paraidusuario = new SqlParameter("@IDUSUARIO", idusuario);
+            await this.context.Database.ExecuteSqlRawAsync(sql, paraidusuario);
+        }
+        #endregion
+
+        #region ENTRENADOR
+        public List<Usuario> FindPerfilUsuarioByIdProfesional(int idusuario)
+        {
+            //inner join
         }
         #endregion
     }
