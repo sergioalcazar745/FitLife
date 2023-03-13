@@ -30,6 +30,6 @@ namespace FitLife.Repositories
 
         Task DeleteSolicitudUpdateEstadoUsuario(int idusuario);
 
-        Task<List<Usuario>> FindPerfilUsuarioByIdProfesional(int idusuario);
+        Task<List<UsuarioPerfil>> FindPerfilUsuarioByIdProfesional(int idusuario);
     }
 }

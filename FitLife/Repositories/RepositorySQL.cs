@@ -205,22 +205,27 @@ namespace FitLife.Repositories
         #endregion
 
         #region ENTRENADOR
-        public List<Usuario> FindPerfilUsuarioByIdProfesional(int idusuario)
+        public async Task<List<UsuarioPerfil>> FindPerfilUsuarioByIdProfesional(int idusuario)
         {
-            var consulta = from datos in this.context.Usuarios.AsEnumerable()
-                           join datos2 in this.context.PerfilUsuarios.AsEnumerable()
+            var consulta = from datos in this.context.Usuarios
+                           join datos2 in this.context.PerfilUsuarios
                            on datos.IdUsuario equals datos2.IdUsuario
-                           select new
+                           where datos2.IdUsuario == idusuario
+                           select new UsuarioPerfil
                            {
-                               datos.Nombre,
-                               datos.Apellidos,
-                               datos.Dni,
-                               datos.Email,
-                               datos2.Altura,
-                               datos2.Edad,
-                               datos2.Peso,
-                               datos2.Sexo
+                               IdUsuario = datos.IdUsuario,
+                               Nombre =  datos.Nombre,
+                               Apellidos = datos.Apellidos,
+                               Dni = datos.Dni,
+                               Email = datos.Email,
+                               Password = datos.Password,
+                               Role = datos.Role,
+                               Altura = datos2.Altura,
+                               Edad = datos2.Edad,
+                               Peso = datos2.Peso,
+                               Sexo = datos2.Sexo
                            };
+            return consulta.ToList();
         }
         #endregion
     }
