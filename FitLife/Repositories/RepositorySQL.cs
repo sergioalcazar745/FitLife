@@ -207,7 +207,20 @@ namespace FitLife.Repositories
         #region ENTRENADOR
         public List<Usuario> FindPerfilUsuarioByIdProfesional(int idusuario)
         {
-            //inner join
+            var consulta = from datos in this.context.Usuarios.AsEnumerable()
+                           join datos2 in this.context.PerfilUsuarios.AsEnumerable()
+                           on datos.IdUsuario equals datos2.IdUsuario
+                           select new
+                           {
+                               datos.Nombre,
+                               datos.Apellidos,
+                               datos.Dni,
+                               datos.Email,
+                               datos2.Altura,
+                               datos2.Edad,
+                               datos2.Peso,
+                               datos2.Sexo
+                           };
         }
         #endregion
     }
