@@ -4,24 +4,77 @@
     Layout = "_LogLayout";
 }
 
-@if (Model.Count > 0)
-{
-    @foreach (UsuarioPerfil usuario in Model)
-    {
-        <div class="m-3">
-            <a asp-controller="Entrenador" asp-action="DetallesCliente" asp-route-idcliente="@usuario.IdUsuario" class="block w-full mb-3 p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">@usuario.Nombre @usuario.Apellidos</h5>
-                <p class="font-normal text-gray-700 dark:text-gray-400">DNI: @usuario.Dni</p>
-                <p class="font-normal text-gray-700 dark:text-gray-400">Email: @usuario.Email</p>
-            </a>
-        </div>
-    }
 
+@section scriptbody{
+    <script>
+        $(document).ready(function () {
+            var listUsuarioPerfil = @Html.Raw(Json.Serialize(Model));
+            if(listUsuarioPerfil.length > 0){
+                for (const usuario of listUsuarioPerfil) {
+                    pintarClientes(listUsuarioPerfil)
+                }
+            }else{
+                $("#clientes").empty();
+                $("#clientes").append(`<h1 class='text-white text-center mt-4'>NO TIENES CLIENTES</h1>`)
+            }
+            $("#cliente-search").keyup(function (e) {
+                var tecla = e.target.value;
+                if (tecla != "") {
+                    const result = listUsuarioPerfil.filter(usuario => usuario.nombre.startsWith(tecla));
+                    if(result.length > 0){
+                        pintarClientes(result)
+                    }else{
+                        $("#clientes").empty();
+                        $("#clientes").append(`<h1 class='text-white text-center mt-4'>NO HAY RESULTADOS '${tecla}'</h1>`)
+                    }
+                }else{
+                    pintarClientes(listUsuarioPerfil)
+                }
+            });
+
+            function pintarClientes(list){
+                $("#clientes").empty();
+                for (const usuario of list) {
+                    $("#clientes").append(
+                    `
+                    <div class="m-3">
+                            <a href="Entrenador/DetallesCliente?idcliente=${usuario.idUsuario}" class="block w-full mb-3 p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                            <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">${usuario.nombre} ${usuario.apellidos}</h5>
+                            <p class="font-normal text-gray-700 dark:text-gray-400">DNI: ${usuario.dni}</p>
+                            <p class="font-normal text-gray-700 dark:text-gray-400">Email: ${usuario.email}</p>
+                        </a>
+                    </div>
+                    `)
+                }
+            }
+        })
+    </script>
 }
-else
-{
-    <h1 class="text-white">NO TIENES CLIENTES</h1>
-}
+
+<div class="mb-4">
+    <div class="relative w-full">
+        <input type="search" id="cliente-search" name="search"
+               class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-l-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
+               placeholder="Busca un cliente..."/>
+        <button type="submit"
+                class="absolute top-0 right-0 p-2.5 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <span class="sr-only">Search</span>
+        </button>
+    </div>
+    <div id="dropdown-search-cliente"
+         class="z-10 hidden absolute bg-white divide-y divide-gray-100 rounded-b-lg shadow dark:bg-gray-700" style="width: 40%">
+        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-button-2">
+            <li>Hola</li>
+        </ul>
+    </div>
+</div>
+<div id="clientes">
+</div>
 
 
 

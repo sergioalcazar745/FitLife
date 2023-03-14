@@ -140,6 +140,18 @@ namespace FitLife.Repositories
             return await consulta.FirstOrDefaultAsync();
         }
 
+        public async Task<List<UsuarioId>> FindUsuariosIdAsync()
+        {
+            var consulta = from datos in this.context.Usuarios
+                           where datos.Role == "cliente"
+                           select new UsuarioId
+                           {
+                               IdUsuario = datos.IdUsuario,
+                               Nombre = datos.Nombre
+                           };
+            return await consulta.ToListAsync();
+        }
+
         //public async Task<PerfilUsuario> FindPerfilUsuario(int idUsuario)
         //{
         //    return await this.context.PerfilUsuarios.FirstOrDefaultAsync(z => z.IdUsuario == idUsuario);
@@ -182,7 +194,7 @@ namespace FitLife.Repositories
             SqlParameter parapeso = new SqlParameter("@PESO", peso);
             SqlParameter paraedad = new SqlParameter("@EDAD", edad);
             SqlParameter parasexo = new SqlParameter("@SEXO", sexo);
-            await this.context.Database.ExecuteSqlRawAsync(sql, paraidusuario, paraapellidos, paradni, paraemail, parapasswordencrypt, parasalt, parapassword, pararole, paraaltura, parapeso, paraedad, parasexo, paraidusuario);
+            await this.context.Database.ExecuteSqlRawAsync(sql, paraidusuario, paranombre, paraapellidos, paradni, paraemail, parapasswordencrypt, parasalt, parapassword, pararole, paraaltura, parapeso, paraedad, parasexo, paraidusuario);
             return int.Parse(paraidusuario.Value.ToString());
         }
 

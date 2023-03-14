@@ -25,5 +25,10 @@ namespace FitLife.Controllers
             UsuarioPerfil usuario = await this.repo.FindClienteAsync(idcliente);
             return View(usuario);
         }
+        public async Task<IActionResult> _SearchClientePartial()
+        {
+            List<UsuarioId> usuarios = await this.repo.FindUsuariosIdAsync();
+            return PartialView("_SearchClientePartial", usuarios);
+        }
     }
 }

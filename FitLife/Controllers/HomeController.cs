@@ -145,8 +145,6 @@ namespace FitLife.Controllers
              usuario.Salt, usuario.Password, usuario.Role, perfil.Altura, perfil.Peso, perfil.Edad, perfil.Sexo);
             usuario.IdUsuario = idusuario;
 
-            this.memoryCache.Remove("Usuario");
-
             await this.EnviarConfirmacion(idusuario, usuario.Email);
             return RedirectToAction("EnviarEmailConfirmacion", new {email = usuario.Email, accion = "register"});
         }
@@ -181,7 +179,11 @@ namespace FitLife.Controllers
                         }
                         else
                         {
-                            this.memoryCache.Remove("IdUsuario");
+                            Usuario usuario = this.memoryCache.Get<Usuario>("Usuario");
+                            usuario.IdUsuario = idusuario;
+                            HttpContext.Session.SetObject("user", usuario);
+                            this.memoryCache.Remove("Usuario");
+                            this.memoryCache.Remove("IdUsuario");                            
                             return RedirectToAction("Index", "Cliente");
                         }
                     }
