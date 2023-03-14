@@ -4,15 +4,16 @@
     Layout = "_LogLayout";
 }
 
-@if(Model.Count > 0)
+@if (Model.Count > 0)
 {
     @foreach (UsuarioPerfil usuario in Model)
     {
-            <div class="m-3">
-                <a href="#" class="block w-full mb-3 p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">@usuario.Nombre</h5>
-                    <p class="font-normal text-gray-700 dark:text-gray-400">Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.</p>
-                </a>
+        <div class="m-3">
+            <a asp-controller="Entrenador" asp-action="DetallesCliente" asp-route-idcliente="@usuario.IdUsuario" class="block w-full mb-3 p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">@usuario.Nombre @usuario.Apellidos</h5>
+                <p class="font-normal text-gray-700 dark:text-gray-400">DNI: @usuario.Dni</p>
+                <p class="font-normal text-gray-700 dark:text-gray-400">Email: @usuario.Email</p>
+            </a>
         </div>
     }
 

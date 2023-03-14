@@ -4,32 +4,36 @@ namespace FitLife.Repositories
 {
     public interface IRepository
     {
-        Task<Usuario> Login(string email);
+        Task<Usuario> LoginAsync(string email);
 
-        Task<Usuario> FindUsuario(int idUsuario);
+        Task<Usuario> FindUsuarioAsync(int idUsuario);
 
-        Task<Usuario> FindUsuarioByEmail(string email);
+        Task<Usuario> FindUsuarioByEmailAsync(string email);
 
-        Task<Usuario> FindUsuarioByEmailOrDNI(string email, string dni);
+        Task<Usuario> FindUsuarioByEmailOrDNIAsync(string email, string dni);
 
-        Task<PerfilUsuario> FindPerfilUsuario(int idUsuario);
+        Task<UsuarioPerfil> FindClienteAsync(int idusuario);
 
-        Task<int> RegistrarUsuario(string nombre, string apellidos, string dni, string email, byte[] passwordencrypt, string salt, string password, string role);
+        //Task<PerfilUsuario> FindPerfilUsuario(int idUsuario);
 
-        Task<int> RegistrarCliente(string nombre, string apellidos, string dni, string email, byte[] passwordencrypt, string salt, string password, string role, int altura, int peso, int edad, string sexo);
+        Task<int> RegistrarUsuarioAsync(string nombre, string apellidos, string dni, string email, byte[] passwordencrypt, string salt, string password, string role);
 
-        Task UpdateEstadoUsuario(int idusuario);
+        Task<int> RegistrarClienteAsync(string nombre, string apellidos, string dni, string email, byte[] passwordencrypt, string salt, string password, string role, int altura, int peso, int edad, string sexo);
 
-        Task UpdatePassword(int idusuario, string password, string salt, byte[] passwordencrypt);
+        Task UpdateEstadoUsuarioAsync(int idusuario);
 
-        Task RegistrarSolicitud(string salt, int codigo, int idusuario);
+        Task UpdatePasswordAsync(int idusuario, string password, string salt, byte[] passwordencrypt);
 
-        Task<Solicitud> FindSolicitud(int idUsuario);
+        Task RegistrarSolicitudAsync(string salt, int codigo, int idusuario);
 
-        Task DeleteSolicitud(int idusuario);
+        Task<Solicitud> FindSolicitudAsync(int idUsuario);
 
-        Task DeleteSolicitudUpdateEstadoUsuario(int idusuario);
+        Task DeleteSolicitudAsync(int idusuario);
 
-        Task<List<UsuarioPerfil>> FindPerfilUsuarioByIdProfesional(int idusuario);
+        Task DeleteSolicitudUpdateEstadoUsuarioAsync(int idusuario);
+
+        Task<List<UsuarioPerfil>> FindPerfilUsuariosByIdEntrenadorAsync(int idusuario);
+
+        Task<List<UsuarioPerfil>> FindPerfilUsuariosByIdNutricionistaAsync(int idusuario);
     }
 }

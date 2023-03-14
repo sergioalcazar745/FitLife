@@ -97,37 +97,60 @@ namespace FitLife.Repositories
         }
 
         #region REGISTRO
-        public async Task<Usuario> Login(string email)
+        public async Task<Usuario> LoginAsync(string email)
         {
             return await this.context.Usuarios.FirstOrDefaultAsync(z => z.Email == email);
         }
 
-        public async Task<Usuario> FindUsuario(int idUsuario)
+        public async Task<Usuario> FindUsuarioAsync(int idUsuario)
         {
             return await this.context.Usuarios.FirstOrDefaultAsync(z => z.IdUsuario == idUsuario);
         }
 
-        public async Task<Usuario> FindUsuarioByEmail(string email)
+        public async Task<Usuario> FindUsuarioByEmailAsync(string email)
         {
             return await this.context.Usuarios.FirstOrDefaultAsync(z => z.Email == email);
         }
 
-        public async Task<Usuario> FindUsuarioByEmailOrDNI(string email, string dni)
+        public async Task<Usuario> FindUsuarioByEmailOrDNIAsync(string email, string dni)
         {
             return await this.context.Usuarios.FirstOrDefaultAsync(z => z.Email == email || z.Dni == dni);
         }
 
-        public async Task<PerfilUsuario> FindPerfilUsuario(int idUsuario)
+        public async Task<UsuarioPerfil> FindClienteAsync(int idusuario)
         {
-            return await this.context.PerfilUsuarios.FirstOrDefaultAsync(z => z.IdUsuario == idUsuario);
+            var consulta = from datos in this.context.Usuarios
+                           join datos2 in this.context.PerfilUsuarios
+                           on datos.IdUsuario equals datos2.IdUsuario
+                           where datos2.IdUsuario == idusuario
+                           select new UsuarioPerfil
+                           {
+                               IdUsuario = datos.IdUsuario,
+                               Nombre = datos.Nombre,
+                               Apellidos = datos.Apellidos,
+                               Dni = datos.Dni,
+                               Email = datos.Email,
+                               Password = datos.Password,
+                               Role = datos.Role,
+                               Altura = datos2.Altura,
+                               Edad = datos2.Edad,
+                               Peso = datos2.Peso,
+                               Sexo = datos2.Sexo
+                           };
+            return await consulta.FirstOrDefaultAsync();
         }
 
-        public async Task<Solicitud> FindSolicitud(int idUsuario)
+        //public async Task<PerfilUsuario> FindPerfilUsuario(int idUsuario)
+        //{
+        //    return await this.context.PerfilUsuarios.FirstOrDefaultAsync(z => z.IdUsuario == idUsuario);
+        //}
+
+        public async Task<Solicitud> FindSolicitudAsync(int idUsuario)
         {
             return await this.context.Solicitud.FirstOrDefaultAsync(z => z.IdUsuario == idUsuario);
         }
 
-        public async Task RegistrarSolicitud(string salt, int codigo, int idusuario)
+        public async Task RegistrarSolicitudAsync(string salt, int codigo, int idusuario)
         {
             string sql = "SP_REGISTER_SOLICITUD @SALT, @CODIGO, @IDUSUARIO";
             SqlParameter parasalt= new SqlParameter("@SALT", salt);
@@ -136,14 +159,14 @@ namespace FitLife.Repositories
             await this.context.Database.ExecuteSqlRawAsync(sql, parasalt, paracodigo, paraidusuario);
         }
 
-        public async Task DeleteSolicitud(int idusuario)
+        public async Task DeleteSolicitudAsync(int idusuario)
         {
-            Solicitud solicitud = await this.FindSolicitud(idusuario);
+            Solicitud solicitud = await this.FindSolicitudAsync(idusuario);
             this.context.Solicitud.Remove(solicitud);
             await this.context.SaveChangesAsync();
         }
 
-        public async Task<int> RegistrarCliente(string nombre, string apellidos, string dni, string email, byte[] passwordencrypt, string salt, string password, string role, int altura, int peso, int edad, string sexo)
+        public async Task<int> RegistrarClienteAsync(string nombre, string apellidos, string dni, string email, byte[] passwordencrypt, string salt, string password, string role, int altura, int peso, int edad, string sexo)
         {
             string sql = "SP_REGISTER_CLIENTE @NOMBRE, @APELLIDOS, @DNI, @EMAIL, @PASSWORDENCRYPT, @SALT, @PASSWORD, @ROLE, @ALTURA, @PESO, @EDAD, @SEXO, @IDUSUARIO OUT";
             SqlParameter paraidusuario = new SqlParameter("@IDUSUARIO", -1);
@@ -163,7 +186,7 @@ namespace FitLife.Repositories
             return int.Parse(paraidusuario.Value.ToString());
         }
 
-        public async Task<int> RegistrarUsuario(string nombre, string apellidos, string dni, string email, byte[] passwordencrypt, string salt, string password, string role)
+        public async Task<int> RegistrarUsuarioAsync(string nombre, string apellidos, string dni, string email, byte[] passwordencrypt, string salt, string password, string role)
         {
             string sql = "SP_REGISTER_USER @NOMBRE, @APELLIDOS, @DNI, @EMAIL, @PASSWORDENCRYPT, @SALT, @PASSWORD, @ROLE, @IDUSUARIO OUT";
             SqlParameter paraidusuario = new SqlParameter("@IDUSUARIO", -1);
@@ -180,23 +203,23 @@ namespace FitLife.Repositories
             return int.Parse(paraidusuario.Value.ToString());
         }
 
-        public async Task UpdatePassword(int idusuario, string password, string salt, byte[] passwordencrypt)
+        public async Task UpdatePasswordAsync(int idusuario, string password, string salt, byte[] passwordencrypt)
         {
-            Usuario usuario = await this.FindUsuario(idusuario);
+            Usuario usuario = await this.FindUsuarioAsync(idusuario);
             usuario.Password = password;
             usuario.Salt = salt;
             usuario.PasswordEncrypt = passwordencrypt;
             await this.context.SaveChangesAsync();
         }
 
-        public async Task UpdateEstadoUsuario(int idusuario)
+        public async Task UpdateEstadoUsuarioAsync(int idusuario)
         {
-            Usuario usuario = await this.FindUsuario(idusuario);
+            Usuario usuario = await this.FindUsuarioAsync(idusuario);
             usuario.Estado = true;
             await this.context.SaveChangesAsync();
         }
 
-        public async Task DeleteSolicitudUpdateEstadoUsuario(int idusuario)
+        public async Task DeleteSolicitudUpdateEstadoUsuarioAsync(int idusuario)
         {
             string sql = "SP_DELETE_SOLICITUD_UPDATE_ESTADO_USUARIO @IDUSUARIO";
             SqlParameter paraidusuario = new SqlParameter("@IDUSUARIO", idusuario);
@@ -205,16 +228,41 @@ namespace FitLife.Repositories
         #endregion
 
         #region ENTRENADOR
-        public async Task<List<UsuarioPerfil>> FindPerfilUsuarioByIdProfesional(int idusuario)
+        public async Task<List<UsuarioPerfil>> FindPerfilUsuariosByIdEntrenadorAsync(int idusuario)
         {
             var consulta = from datos in this.context.Usuarios
                            join datos2 in this.context.PerfilUsuarios
                            on datos.IdUsuario equals datos2.IdUsuario
-                           where datos2.IdUsuario == idusuario
+                           where datos2.IdEntrenador == idusuario
                            select new UsuarioPerfil
                            {
                                IdUsuario = datos.IdUsuario,
                                Nombre =  datos.Nombre,
+                               Apellidos = datos.Apellidos,
+                               Dni = datos.Dni,
+                               Email = datos.Email,
+                               Password = datos.Password,
+                               Role = datos.Role,
+                               Altura = datos2.Altura,
+                               Edad = datos2.Edad,
+                               Peso = datos2.Peso,
+                               Sexo = datos2.Sexo
+                           };
+            return await consulta.ToListAsync();
+        }
+        #endregion
+
+        #region NUTRICIONISTA
+        public async Task<List<UsuarioPerfil>> FindPerfilUsuariosByIdNutricionistaAsync(int idusuario)
+        {
+            var consulta = from datos in this.context.Usuarios
+                           join datos2 in this.context.PerfilUsuarios
+                           on datos.IdUsuario equals datos2.IdUsuario
+                           where datos2.IdNutricionista == idusuario
+                           select new UsuarioPerfil
+                           {
+                               IdUsuario = datos.IdUsuario,
+                               Nombre = datos.Nombre,
                                Apellidos = datos.Apellidos,
                                Dni = datos.Dni,
                                Email = datos.Email,

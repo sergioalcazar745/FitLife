@@ -33,7 +33,7 @@ namespace FitLife.Controllers
         [HttpPost]
         public async Task<IActionResult> Index(string email, string password)
         {
-            Usuario usuario = await this.repo.Login(email);
+            Usuario usuario = await this.repo.LoginAsync(email);
             if (usuario is null)
             {
                 ViewData["Error"] = "El correo electronico no existe.";
@@ -84,7 +84,7 @@ namespace FitLife.Controllers
                 return View();
             }
 
-            Usuario usuarioValidate = await this.repo.FindUsuarioByEmailOrDNI(usuario.Email, usuario.Dni);
+            Usuario usuarioValidate = await this.repo.FindUsuarioByEmailOrDNIAsync(usuario.Email, usuario.Dni);
             if (usuarioValidate is not null)
             {
                 if (usuarioValidate.Email == usuario.Email)
@@ -104,7 +104,7 @@ namespace FitLife.Controllers
 
             if (usuario.Role.ToLower() != "cliente")
             {
-                int idusuario = await this.repo.RegistrarUsuario(usuario.Nombre, usuario.Apellidos, usuario.Dni, usuario.Email, passwordencrypt,
+                int idusuario = await this.repo.RegistrarUsuarioAsync(usuario.Nombre, usuario.Apellidos, usuario.Dni, usuario.Email, passwordencrypt,
                 salt, usuario.Password, usuario.Role);
 
                 await this.EnviarConfirmacion(idusuario, usuario.Email);
@@ -141,7 +141,7 @@ namespace FitLife.Controllers
             }
 
             Usuario usuario = this.memoryCache.Get<Usuario>("Usuario");
-            int idusuario = await this.repo.RegistrarCliente(usuario.Nombre, usuario.Apellidos, usuario.Dni, usuario.Email, usuario.PasswordEncrypt,
+            int idusuario = await this.repo.RegistrarClienteAsync(usuario.Nombre, usuario.Apellidos, usuario.Dni, usuario.Email, usuario.PasswordEncrypt,
              usuario.Salt, usuario.Password, usuario.Role, perfil.Altura, perfil.Peso, perfil.Edad, perfil.Sexo);
             usuario.IdUsuario = idusuario;
 
@@ -164,7 +164,7 @@ namespace FitLife.Controllers
         {
             int idusuario = this.memoryCache.Get<int>("IdUsuario");
             string salt = this.memoryCache.Get<string>("Salt");
-            Solicitud solicitud = await this.repo.FindSolicitud(idusuario);
+            Solicitud solicitud = await this.repo.FindSolicitudAsync(idusuario);
 
             if (solicitud is not null)
             {
@@ -172,7 +172,7 @@ namespace FitLife.Controllers
                 {
                     if(solicitud.Codigo == codigo)
                     {
-                        await this.repo.DeleteSolicitudUpdateEstadoUsuario(solicitud.IdUsuario);
+                        await this.repo.DeleteSolicitudUpdateEstadoUsuarioAsync(solicitud.IdUsuario);
                         this.memoryCache.Remove("Salt");
                         string action = TempData["Action"] as string;
                         if(action == "password")
@@ -213,7 +213,7 @@ namespace FitLife.Controllers
         [HttpPost]
         public async Task<IActionResult> ForgotPassword(string email)
         {
-            Usuario usuario = await this.repo.FindUsuarioByEmail(email);
+            Usuario usuario = await this.repo.FindUsuarioByEmailAsync(email);
             if (usuario is not null)
             {
                 await this.EnviarConfirmacion(usuario.IdUsuario, usuario.Email);
@@ -242,7 +242,7 @@ namespace FitLife.Controllers
             int idusuario = this.memoryCache.Get<int>("IdUsuario");
             string salt = HelperCryptography.GenerateSalt();
             byte[] passwordencrypt = HelperCryptography.EncryptPassword(passwords.Password, salt);
-            await this.repo.UpdatePassword(idusuario, passwords.Password, salt, passwordencrypt);
+            await this.repo.UpdatePasswordAsync(idusuario, passwords.Password, salt, passwordencrypt);
 
             return RedirectToAction("Index");
         }
@@ -260,7 +260,7 @@ namespace FitLife.Controllers
             this.memoryCache.Set("Salt", saltConfirmacion);
             Random random = new Random();
             int codigo = random.Next(1000, 15000);
-            await this.repo.RegistrarSolicitud(saltConfirmacion, codigo, idusuario);
+            await this.repo.RegistrarSolicitudAsync(saltConfirmacion, codigo, idusuario);
             string html = "<p style='font-size: 18px'>Hemos recibido un alta en nuestra web. El código de confirmacion es el siguiente<br/></p>" +
                 "<h2>"+codigo+"</<h2>";
             await this.helperMail.SendMailAsync(email, "Confirmación", html);
