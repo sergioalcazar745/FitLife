@@ -1,12 +1,59 @@
-﻿@model List<UsuarioId>
+﻿@model List<UsuarioIdEmail>
 
-<ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-button-2">
-    @foreach (UsuarioId usuario in Model)
-    {
-        <li>
-            <a asp-controller="" asp-action="">
+@section scriptbody{
+    <script>
+        $(document).ready(function(){
+            alert("Hola")
+            var listUsuario = @Html.Raw(Json.Serialize(Model));
+            pintarClientes();
+            function pintarClientes(){
+                console.log("Pinta")
+                for(listUsuario of listaUsuario){
+                    $("#lista").append(
+                    `
+                    <li class="pb-3 sm:pb-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-shrink-0">
+                                <img class="w-8 h-8 rounded-full" src="~/images/cliente.png" alt="imagen">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+                                    ${usuario.Nombre}
+                                </p>
+                                <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                                   ${usuario.Email}
+                                </p>
+                            </div>
+                            <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                                <button type="button" onclick="añadirCliente(${usuario.idUsuario})" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Añadir</button>
+                            </div>
+                        </div>
+                    </li>
+                    `)
+                }
+            }
 
-            </a>
-        </li>
-    }
-</ul>
+            $("#cliente-search-add").keyup(function (e) {
+                var tecla = e.target.value;
+                console.log("Tecla: " + tecla)
+            })
+
+            function añadirCliente(){
+                console.log("Hola")
+            }
+        })
+    </script>
+}
+
+<div class="mb-4">
+    <div class="relative w-full">
+        <input type="search" id="cliente-search-add" name="search"
+               class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-l-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
+               placeholder="Busca un cliente..." />
+    </div>
+</div>
+<div id="clientes-new">
+    <ul class="max-w-md divide-y divide-gray-200 dark:divide-gray-700" id="lista">
+        
+    </ul>
+</div>

@@ -16,7 +16,7 @@ namespace FitLife.Controllers
         public async Task<IActionResult> Index()
         {
             Usuario usuario = HttpContext.Session.GetObject<Usuario>("user");
-            List <UsuarioPerfil> clientes = await this.repo.FindPerfilUsuariosByIdEntrenadorAsync(usuario.IdUsuario);
+            List <UsuarioPerfil> clientes = await this.repo.GetClientesAsync();
             return View(clientes);
         }
 
@@ -27,7 +27,7 @@ namespace FitLife.Controllers
         }
         public async Task<IActionResult> _SearchClientePartial()
         {
-            List<UsuarioId> usuarios = await this.repo.FindUsuariosIdAsync();
+            List<UsuarioIdEmail> usuarios = await this.repo.FindUsuariosIdAsync();
             return PartialView("_SearchClientePartial", usuarios);
         }
     }

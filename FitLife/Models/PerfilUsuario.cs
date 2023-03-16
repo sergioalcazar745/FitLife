@@ -28,7 +28,7 @@ namespace FitLife.Models
         [Column("IDENTRENADOR")]
         public int IdEntrenador { get; set; }
 
-        [Column("IDNUTRICIONISTA")]
-        public int IdNutricionista { get; set; }
+        [Column("IDDIETISTA")]
+        public int IdDietista { get; set; }
     }
 }

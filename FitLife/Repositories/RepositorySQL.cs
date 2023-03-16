@@ -140,14 +140,39 @@ namespace FitLife.Repositories
             return await consulta.FirstOrDefaultAsync();
         }
 
-        public async Task<List<UsuarioId>> FindUsuariosIdAsync()
+        public async Task<List<UsuarioPerfil>> GetClientesAsync()
+        {
+            var consulta = from datos in this.context.Usuarios
+                           join datos2 in this.context.PerfilUsuarios
+                           on datos.IdUsuario equals datos2.IdUsuario
+                           select new UsuarioPerfil
+                           {
+                               IdUsuario = datos.IdUsuario,
+                               Nombre = datos.Nombre,
+                               Apellidos = datos.Apellidos,
+                               Dni = datos.Dni,
+                               Email = datos.Email,
+                               Password = datos.Password,
+                               Role = datos.Role,
+                               Altura = datos2.Altura,
+                               Edad = datos2.Edad,
+                               Peso = datos2.Peso,
+                               Sexo = datos2.Sexo,
+                               IdEntrenador = datos2.IdEntrenador,
+                               IdDietista = datos2.IdDietista
+                           };
+            return await consulta.ToListAsync();
+        }
+
+        public async Task<List<UsuarioIdEmail>> FindUsuariosIdAsync()
         {
             var consulta = from datos in this.context.Usuarios
                            where datos.Role == "cliente"
-                           select new UsuarioId
+                           select new UsuarioIdEmail
                            {
                                IdUsuario = datos.IdUsuario,
-                               Nombre = datos.Nombre
+                               Email = datos.Email,
+                               Nombre = datos.Nombre + datos.Apellidos
                            };
             return await consulta.ToListAsync();
         }
@@ -270,7 +295,7 @@ namespace FitLife.Repositories
             var consulta = from datos in this.context.Usuarios
                            join datos2 in this.context.PerfilUsuarios
                            on datos.IdUsuario equals datos2.IdUsuario
-                           where datos2.IdNutricionista == idusuario
+                           where datos2.IdDietista == idusuario
                            select new UsuarioPerfil
                            {
                                IdUsuario = datos.IdUsuario,

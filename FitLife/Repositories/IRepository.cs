@@ -12,9 +12,7 @@ namespace FitLife.Repositories
 
         Task<Usuario> FindUsuarioByEmailOrDNIAsync(string email, string dni);
 
-        Task<UsuarioPerfil> FindClienteAsync(int idusuario);
-
-        Task<List<UsuarioId>> FindUsuariosIdAsync();
+        Task<List<UsuarioIdEmail>> FindUsuariosIdAsync();
 
         //Task<PerfilUsuario> FindPerfilUsuario(int idUsuario);
 
@@ -37,5 +35,9 @@ namespace FitLife.Repositories
         Task<List<UsuarioPerfil>> FindPerfilUsuariosByIdEntrenadorAsync(int idusuario);
 
         Task<List<UsuarioPerfil>> FindPerfilUsuariosByIdNutricionistaAsync(int idusuario);
+
+        Task<UsuarioPerfil> FindClienteAsync(int idusuario);
+
+        Task<List<UsuarioPerfil>> GetClientesAsync();
     }
 }

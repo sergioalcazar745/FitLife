@@ -4,26 +4,34 @@
     Layout = "_LogLayout";
 }
 
+@{
+    Usuario usuario = Context.Session.GetObject<Usuario>("user");
+}
+
+
 
 @section scriptbody{
     <script>
-        $(document).ready(function() {
-            var listUsuarioPerfil = @Html.Raw(Json.Serialize(Model));
+        $(document).ready(function () {
+            var listUsuarios = @Html.Raw(Json.Serialize(Model));
+            var listUsuarioPerfil = listUsuarios.filter(usuario => usuario.role == "cliente" && usuario.idEntrenador == @usuario.IdUsuario);
             if (listUsuarioPerfil.length > 0) {
                 for (const usuario of listUsuarioPerfil) {
-                    pintarClientes(listUsuarioPerfil)
+                    pintarClientesEntrenador(listUsuarioPerfil)
                 }
             } else {
                 $("#clientes").empty();
                 $("#clientes").append(`<h1 class='text-white text-center mt-4'>NO TIENES CLIENTES</h1>`)
             }
-            $("#cliente-search").keyup(function(e) {
+
+            $("#cliente-search").keyup(function (e) {
+                $("#añadir-tab").hide();
                 var tecla = e.target.value;
                 if (tecla != "") {
                     const result = listUsuarioPerfil.filter(usuario => usuario.nombre.includes(tecla) || usuario.apellidos.includes(tecla));
                     if (result.length > 0) {
                         $("#añadir").show();
-                        pintarClientes(result)
+                        pintarClientesEntrenador(result)
                     } else {
                         $("#clientes").empty();
                         $("#añadir").hide();
@@ -31,112 +39,216 @@
                     }
                 } else {
                     $("#añadir").show();
+                    pintarClientesEntrenador(listUsuarioPerfil)
+                }
+            });
+
+            $("#cliente-search-add").keyup(function (e) {
+                var tecla = e.target.value;
+                console.log("Joder: " + tecla)
+                if (tecla != "") {
+                    const result = listUsuarios.filter(usuario => usuario.nombre.includes(tecla) || usuario.apellidos.includes(tecla));
+                    if (result.length > 0) {
+                        pintarClientes(result)
+                    } else {
+                        $("#lista").empty();
+                        $("#clientes-new").append(`<h1 class='text-white text-center mt-4'>NO HAY RESULTADOS '${tecla}'</h1>`)
+                    }
+                } else {
                     pintarClientes(listUsuarioPerfil)
                 }
             });
 
-            function pintarClientes(list) {
+            $("#boton-añadir").click(function(){
+                $("#añadir-tab").show();
+            });
+
+            $("#boton-clientes").click(function(){
+                $("#añadir-tab").hide();
+            });
+
+            function pintarClientesEntrenador(list) {
                 $("#clientes").empty();
                 for (const usuario of list) {
                     $("#clientes").append(
                         `
-                                    <div class="m-3">
-                                            <a href="Entrenador/DetallesCliente?idcliente=${usuario.idUsuario}" class="block w-full mb-3 p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-                                            <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">${usuario.nombre} ${usuario.apellidos}</h5>
-                                            <p class="font-normal text-gray-700 dark:text-gray-400">DNI: ${usuario.dni}</p>
-                                            <p class="font-normal text-gray-700 dark:text-gray-400">Email: ${usuario.email}</p>
-                                        </a>
-                                    </div>
-                                    `)
+                        <div class="m-3">
+                            <a href="Entrenador/DetallesCliente?idcliente=${usuario.idUsuario}" class="block w-full mb-3 p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">${usuario.nombre} ${usuario.apellidos}</h5>
+                                <p class="font-normal text-gray-700 dark:text-gray-400">DNI: ${usuario.dni}</p>
+                                <p class="font-normal text-gray-700 dark:text-gray-400">Email: ${usuario.email}</p>
+                            </a>
+                        </div>
+                    `)
+                }
+            }
+
+            function pintarClientes(list) {
+                $("#lista").empty();
+                for (const usuario of list) {
+                    console.log(usuario)
+                    if(usuario.idEntrenador == @usuario.IdUsuario){
+                        $("#lista").append(
+                            `
+                            <li class="pb-3 sm:pb-4">
+                               <div class="flex items-center space-x-4">
+                                 <div class="flex-shrink-0">
+                                   <img class="w-8 h-8 rounded-full" src="/images/cliente.png" alt="imagen">
+                                 </div>
+                                 <div class="flex-1 min-w-0">
+                                     <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+                                         ${usuario.nombre}
+                                      </p>
+                                      <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                                          ${usuario.email}
+                                      </p>
+                                  </div>
+                                </div>
+                            </li>
+                            `)
+                    }else{
+                        $("#lista").append(
+                            `
+                            <li class="pb-3 sm:pb-4">
+                               <div class="flex items-center space-x-4">
+                                 <div class="flex-shrink-0">
+                                   <img class="w-8 h-8 rounded-full" src="~/images/cliente.png" alt="imagen">
+                                 </div>
+                                 <div class="flex-1 min-w-0">
+                                     <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+                                         ${usuario.nombre}
+                                      </p>
+                                      <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                                          ${usuario.email}
+                                      </p>
+                                  </div>
+                                  <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                                       <button type="button" onclick="añadirCliente(${usuario.idUsuario})" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Añadir</button>
+                                  </div>
+                                </div>
+                            </li>
+                            `)
+                    }
+                    
                 }
             }
         })
     </script>
 }
 
-    <div class="mb-4">
-        <div class="relative w-full">
-            <input type="search" id="cliente-search" name="search"
-               class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-l-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
-               placeholder="Busca un cliente..." />
+
+<div class="mb-4 border-b border-gray-200 dark:border-gray-700">
+    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="myTab" data-tabs-toggle="#myTabContent" role="tablist">
+        <li class="mr-2" role="presentation">
+            <button class="inline-block p-4 border-b-2 rounded-t-lg" id="boton-clientes" data-tabs-target="#clientes-tab" type="button" role="tab" aria-controls="profile" aria-selected="false">Clientes</button>
+        </li>
+        <li class="mr-2" role="presentation">
+            <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="boton-añadir" data-tabs-target="#añadir-tab" type="button" role="tab" aria-controls="dashboard" aria-selected="false">Añadir</button>
+        </li>
+    </ul>
+</div>
+<div id="myTabContent">
+    <div class="hidden p-4 rounded-lg" id="clientes-tab" role="tabpanel" aria-labelledby="profile-tab">
+        <div class="mb-4">
+            <div class="relative w-full">
+                <input type="search" id="cliente-search" name="search"
+                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-l-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
+                       placeholder="Busca un cliente..." />
+            </div>
+        </div>
+        <div id="clientes"></div>
+    </div>
+    <div class="hidden p-4 rounded-lg" id="añadir-tab" role="tabpanel" aria-labelledby="dashboard-tab">
+        <div class="mb-4">
+            <div class="relative w-full">
+                <input type="search" id="cliente-search-add" name="search"
+                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-l-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
+                       placeholder="Busca un cliente..." />
+            </div>
+        </div>
+        <div id="clientes-new">
+            <ul class="max-w-md divide-y divide-gray-200 dark:divide-gray-700" id="lista">
+            </ul>
         </div>
     </div>
+</div>
 
-    <!-- Modal toggle -->
-    <button data-modal-target="authentication-modal" data-modal-toggle="authentication-modal" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" type="button" id="añadir">
-        Añadir cliente
-    </button>
 
-    <div id="clientes">
-    </div>
 
-    <!-- Main modal -->
-    <div id="authentication-modal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] md:h-full">
-        <div class="relative w-full max-w-md">
-            <!-- Modal content -->
-            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-hide="authentication-modal">
-                    <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                    <span class="sr-only">Close modal</span>
-                </button>
-                <div class="px-6 py-6 lg:px-8" style="height: 400px">
-                    <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Añadir cliente</h3>
-                    <input type="email" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Busca un cliente">
-                    <div id="dropdown-search-cliente" class="z-10 bg-white divide-y divide-gray-100 rounded-lg shadow w-full dark:bg-gray-600" style="height: 260px; overflow-y: auto;">
-                        <ul class="text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
-                            <li>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Dashboard</a>
-                            </li>
-                            <li>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Settings</a>
-                            </li>
-                            <li>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Earnings</a>
-                            </li>
-                            <li>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
-                            </li>
-                            <li>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
-                            </li>
-                            <li>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
-                            </li>
-                            <li>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
-                            </li>
-                            <li>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
-                            </li>
-                            <li>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
-                            </li>
-                            <li>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
-                            </li>
-                            <li>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
-                            </li>
-                            <li>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
-                            </li>
-                            <li>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
-                            </li>
-                            <li>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
-                            </li>
+@*<!-- Modal toggle -->
+<button data-modal-target="authentication-modal" data-modal-toggle="authentication-modal" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" type="button" id="añadir">
+    Añadir cliente
+</button>
 
-                            <li>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
-                            </li>
 
-                        </ul>
-                    </div>
+
+<!-- Main modal -->
+<div id="authentication-modal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] md:h-full">
+    <div class="relative w-full max-w-md">
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-hide="authentication-modal">
+                <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                <span class="sr-only">Close modal</span>
+            </button>
+            <div class="px-6 py-6 lg:px-8" style="height: 400px">
+                <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Añadir cliente</h3>
+                <input type="email" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Busca un cliente">
+                <div id="dropdown-search-cliente" class="z-10 bg-white divide-y divide-gray-100 rounded-lg shadow w-full dark:bg-gray-600" style="height: 260px; overflow-y: auto;">
+                    <ul class="text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+                        <li>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Dashboard</a>
+                        </li>
+                        <li>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Settings</a>
+                        </li>
+                        <li>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Earnings</a>
+                        </li>
+                        <li>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
+                        </li>
+                        <li>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
+                        </li>
+                        <li>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
+                        </li>
+                        <li>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
+                        </li>
+                        <li>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
+                        </li>
+                        <li>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
+                        </li>
+                        <li>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
+                        </li>
+                        <li>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
+                        </li>
+                        <li>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
+                        </li>
+                        <li>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
+                        </li>
+                        <li>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
+                        </li>
+
+                        <li>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</a>
+                        </li>
+
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
+</div>*@
 
 
 
