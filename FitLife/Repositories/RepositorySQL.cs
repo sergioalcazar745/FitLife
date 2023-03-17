@@ -38,7 +38,7 @@ using System.Net;
 //	PRINT 'NO PERFIL'
 //	END
 //	INSERT INTO USUARIOS VALUES(@IDUSUARIO, @NOMBRE, @APELLIDOS, @DNI, @EMAIL, @PASSWORDENCRYPT, @SALT, @PASSWORD, @ROLE, 0)
-//	INSERT INTO PERFILUSUARIO VALUES(@IDPERFIL, @EDAD, @SEXO, @ALTURA, @PESO, @IDUSUARIO, NULL, NULL)
+//	INSERT INTO PERFILUSUARIO VALUES(@IDPERFIL, @EDAD, @SEXO, @ALTURA, @PESO, @IDUSUARIO, 0, 0)
 //GO
 
 //CREATE PROCEDURE SP_REGISTER_USER
@@ -72,7 +72,7 @@ using System.Net;
 //	BEGIN
 //		SET @IDSOLICITUD = @IDSOLICITUD + 1
 //	END
-	
+
 //	DELETE FROM SOLICITUD WHERE IDUSUARIO = @IDUSUARIO
 //	INSERT INTO SOLICITUD VALUES(@IDSOLICITUD, @SALT, @CODIGO, @IDUSUARIO)
 //GO
@@ -177,10 +177,10 @@ namespace FitLife.Repositories
             return await consulta.ToListAsync();
         }
 
-        //public async Task<PerfilUsuario> FindPerfilUsuario(int idUsuario)
-        //{
-        //    return await this.context.PerfilUsuarios.FirstOrDefaultAsync(z => z.IdUsuario == idUsuario);
-        //}
+        public async Task<PerfilUsuario> FindPerfilUsuario(int idUsuario)
+        {
+            return await this.context.PerfilUsuarios.FirstOrDefaultAsync(z => z.IdUsuario == idUsuario);
+        }
 
         public async Task<Solicitud> FindSolicitudAsync(int idUsuario)
         {
@@ -286,6 +286,13 @@ namespace FitLife.Repositories
                                Sexo = datos2.Sexo
                            };
             return await consulta.ToListAsync();
+        }
+
+        public async Task AñadirClienteEntrenador(int idcliente, int identrenador)
+        {
+            PerfilUsuario perfil = await this.FindPerfilUsuario(idcliente);
+            perfil.IdEntrenador = identrenador;
+            await this.context.SaveChangesAsync();
         }
         #endregion
 
