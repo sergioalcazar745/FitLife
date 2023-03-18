@@ -5,7 +5,7 @@
 }
 
 @{
-    Usuario usuario = Context.Session.GetObject<Usuario>("user");
+    int idUsuario = int.Parse(Context.User.FindFirstValue(ClaimTypes.NameIdentifier));
 }
 
 
@@ -14,7 +14,7 @@
     <script>
         $(document).ready(function() {
             var listUsuarios = @Html.Raw(Json.Serialize(Model));
-            var listUsuarioPerfil = listUsuarios.filter(usuario => usuario.role == "cliente" && usuario.idEntrenador == @usuario.IdUsuario);
+            var listUsuarioPerfil = listUsuarios.filter(usuario => usuario.role == "cliente" && usuario.idEntrenador == @idUsuario);
             if (listUsuarioPerfil.length > 0) {
                 for (const usuario of listUsuarioPerfil) {
                     pintarClientesEntrenador(listUsuarioPerfil)
@@ -138,7 +138,7 @@
     <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
         <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="myTab" data-tabs-toggle="#myTabContent" role="tablist">
             <li class="mr-2" role="presentation">
-                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="boton-clientes" data-tabs-target="#clientes-tab" type="button" role="tab" aria-controls="profile" aria-selected="false">Clientes</button>
+                <button class="inline-block p-4 border-b-2 rounded-t-lg border-bg-green-700 text-green-700" id="boton-clientes" data-tabs-target="#clientes-tab" type="button" role="tab" aria-controls="profile" aria-selected="false">Clientes</button>
             </li>
             <li class="mr-2" role="presentation">
                 <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="boton-añadir" data-tabs-target="#añadir-tab" type="button" role="tab" aria-controls="dashboard" aria-selected="false">Añadir</button>

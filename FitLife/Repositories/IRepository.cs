@@ -41,5 +41,7 @@ namespace FitLife.Repositories
         Task<List<UsuarioPerfil>> GetClientesAsync();
 
         Task AñadirClienteEntrenador(int idcliente, int identrenador);
+
+        Task EliminarClienteEntrenador(int idcliente);
     }
 }

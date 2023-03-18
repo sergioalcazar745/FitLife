@@ -9,15 +9,18 @@ using MvcCryptographyBBDD.Helpers;
 using Microsoft.Extensions.Caching.Memory;
 using MvcCoreUtilidades.Helpers;
 using System;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
 namespace FitLife.Controllers
 {
-    public class HomeController : Controller
+    public class ManagedController : Controller
     {
         IRepository repo;
         IMemoryCache memoryCache;
         HelperMail helperMail;
-        public HomeController(IRepository repo, IMemoryCache memoryCache, HelperMail helperMail)
+        public ManagedController(IRepository repo, IMemoryCache memoryCache, HelperMail helperMail)
         {
             this.repo = repo;
             this.memoryCache = memoryCache;
@@ -46,8 +49,8 @@ namespace FitLife.Controllers
                     byte[] passwordencrypt = HelperCryptography.EncryptPassword(password, usuario.Salt);
                     if (HelperCryptography.CompareArrays(passwordencrypt, usuario.PasswordEncrypt))
                     {
-                        HttpContext.Session.SetObject("user", usuario);
-                        HttpContext.Session.GetObject<Usuario>("user");
+                        ClaimsPrincipal userPrincipal = this.generarClaims(usuario);
+                        await HttpContext.SignInAsync (CookieAuthenticationDefaults.AuthenticationScheme, userPrincipal);
                         return RedirectToAction("Index", "Cliente");
                     }
                     else
@@ -64,9 +67,9 @@ namespace FitLife.Controllers
             }
         }
 
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            HttpContext.Session.Remove("user");
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index");
         }
 
@@ -181,7 +184,8 @@ namespace FitLife.Controllers
                         {
                             Usuario usuario = this.memoryCache.Get<Usuario>("Usuario");
                             usuario.IdUsuario = idusuario;
-                            HttpContext.Session.SetObject("user", usuario);
+                            ClaimsPrincipal userPrincipal = this.generarClaims(usuario);
+                            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, userPrincipal);
                             this.memoryCache.Remove("Usuario");
                             this.memoryCache.Remove("IdUsuario");                            
                             return RedirectToAction("Index", "Cliente");
@@ -249,7 +253,7 @@ namespace FitLife.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult Perfil()
+        public IActionResult ErrorAcceso()
         {
             return View();
         }
@@ -266,6 +270,23 @@ namespace FitLife.Controllers
             string html = "<p style='font-size: 18px'>Hemos recibido un alta en nuestra web. El código de confirmacion es el siguiente<br/></p>" +
                 "<h2>"+codigo+"</<h2>";
             await this.helperMail.SendMailAsync(email, "Confirmación", html);
+        }
+
+        public ClaimsPrincipal generarClaims(Usuario usuario)
+        {
+            ClaimsIdentity identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme,
+                                                        ClaimTypes.Name, ClaimTypes.Role);
+
+            Claim claimName = new Claim(ClaimTypes.Name, usuario.Nombre +" "+ usuario.Apellidos);
+            identity.AddClaim(claimName);
+            Claim claimId = new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString());
+            identity.AddClaim(claimId);
+            Claim claimRole = new Claim(ClaimTypes.Role, usuario.Role);
+            identity.AddClaim(claimRole);
+            Claim claimEmail = new Claim("Email", usuario.Email);
+            identity.AddClaim(claimEmail);
+            ClaimsPrincipal userPrincipal = new ClaimsPrincipal(identity);
+            return userPrincipal;
         }
         #endregion
     }

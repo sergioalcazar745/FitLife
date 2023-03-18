@@ -1,5 +1,7 @@
 ﻿@{
-    Usuario usuario = Context.Session.GetObject<Usuario>("user");
+    string nombreCompleto = Context.User.Identity.Name;
+    string email = Context.User.FindFirstValue("Email");
+    string role = Context.User.FindFirstValue(ClaimTypes.Role);
 }
 
 <!DOCTYPE html>
@@ -52,16 +54,16 @@
                      id="user-dropdown">
                     <div class="px-4 py-3">
                         <!--Poner nombre y correo-->
-                        <span class="block text-sm text-gray-900 dark:text-white">@usuario.Nombre @usuario.Apellidos</span>
-                        <span class="block text-sm font-medium text-gray-500 truncate dark:text-gray-400">@usuario.Email</span>
+                        <span class="block text-sm text-gray-900 dark:text-white">@nombreCompleto</span>
+                        <span class="block text-sm font-medium text-gray-500 truncate dark:text-gray-400">@email</span>
                     </div>
                     <ul class="py-2" aria-labelledby="user-menu-button">
                         <li>
-                            <a asp-action="Perfil" asp-controller="Home"
+                            <a asp-action="Perfil" asp-controller="@role[0].ToString().ToUpper()+@role.Substring(1)"
                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Perfil</a>
                         </li>
                         <li>
-                            <a asp-action="Logout" asp-controller="Home"
+                            <a asp-action="Logout" asp-controller="Managed"
                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
                                 Sign
                                 out
@@ -77,15 +79,15 @@
                     @*                    <img class="w-8 h-8 rounded-full"
                     src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                     alt="user photo">*@
-                    @if (usuario.Role == "cliente")
+                    @if (role == "cliente")
                     {
                         <img class="w-8 h-8 rounded-full" src="~/images/cliente.png" alt="user photo" />
                     }
-                    else if (usuario.Role == "entrenador")
+                    else if (role == "entrenador")
                     {
                         <img class="w-8 h-8 rounded-full" src="~/images/entrenador.png" alt="user photo" />
                     }
-                    else if (usuario.Role == "nutricionista")
+                    else if (role == "nutricionista")
                     {
                         <img class="w-8 h-8 rounded-full" src="~/images/nutricionista.png" alt="user photo" />
                     }
@@ -98,7 +100,7 @@
            class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
            aria-label="Sidebar">
         <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
-            <a asp-action="Index" asp-controller="Home" class="flex items-center pl-2.5 mb-5">
+            <a asp-action="Index" asp-controller="Managed" class="flex items-center pl-2.5 mb-5">
                 <img src="~/images/logo.png" class="h-6 mr-3 sm:h-7" alt="FitLife Logo" />
                 <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">FitLife</span>
             </a>
@@ -253,7 +255,7 @@
     </aside>
 
     <div class="p-4 sm:ml-64">
-        <div id="content" class="p-4">
+        <div id="content" class="px-4">
             <!-- border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 -->
             @*<h class="text-white">hola</h1>*@
             @RenderBody()

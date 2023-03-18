@@ -1,9 +1,20 @@
 using FitLife.Data;
 using FitLife.Repositories;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using MvcCoreUtilidades.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultSignInScheme =
+    CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme =
+    CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme =
+    CookieAuthenticationDefaults.AuthenticationScheme;
+}).AddCookie();
 
 string connectionString = builder.Configuration.GetConnectionString("SqlFitLife");
 builder.Services.AddTransient<IRepository, RepositorySQL>();
@@ -17,7 +28,7 @@ builder.Services.AddSession(options =>
 });
 builder.Services.AddMemoryCache();
 builder.Services.AddResponseCaching();
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options => options.EnableEndpointRouting = false);
 
 var app = builder.Build();
 
@@ -25,9 +36,15 @@ app.UseStaticFiles();
 app.UseSession();
 app.UseResponseCaching();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}"
-);
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseMvc(routes =>
+{
+    routes.MapRoute(
+        name: "default",
+        template: "{controller=Entrenador}/{action=CrearRutina}/{id?}");
+});
 
 app.Run();

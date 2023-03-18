@@ -294,6 +294,13 @@ namespace FitLife.Repositories
             perfil.IdEntrenador = identrenador;
             await this.context.SaveChangesAsync();
         }
+
+        public async Task EliminarClienteEntrenador(int idcliente)
+        {
+            PerfilUsuario perfilUsuario = await this.FindPerfilUsuario(idcliente);
+            perfilUsuario.IdEntrenador = 0;
+            await this.context.SaveChangesAsync();
+        }
         #endregion
 
         #region NUTRICIONISTA
