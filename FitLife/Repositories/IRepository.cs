@@ -40,8 +40,24 @@ namespace FitLife.Repositories
 
         Task<List<UsuarioPerfil>> GetClientesAsync();
 
-        Task AñadirClienteEntrenador(int idcliente, int identrenador);
+        Task AñadirClienteEntrenadorAsync(int idcliente, int identrenador);
 
-        Task EliminarClienteEntrenador(int idcliente);
+        Task EliminarClienteEntrenadorAsync(int idcliente);
+
+        Task<List<Ejercicio>> EjerciciosAsync();
+
+        Task<Rutina> FindRutinaByFechaAsync(string fecha);
+
+        Task<Rutina> FindRutinaByIdAsync(int idrutina);
+
+        Task<int> CrearRutinaAsync(string fecha, int idcliente, int identrenador);
+
+        Task RegistrarEjerciciosRutinaAsync(List<ModelEjercicio> ejercicios, int idrutina);
+
+        Task<int> GetMaxRutinaEjerciciosAsync();
+
+        Task<List<RutinaDia>> FindRutinaDiaAsync(string fecha);
+
+        Task RegisterComentarioRutinaAsync(string comentario, int idrutina);
     }
 }

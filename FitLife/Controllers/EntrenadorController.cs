@@ -25,7 +25,7 @@ namespace FitLife.Controllers
         public async Task<IActionResult> AñadirCliente(int idcliente)
         {
             int idUsuario = int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
-            await this.repo.AñadirClienteEntrenador(idcliente, idUsuario);
+            await this.repo.AñadirClienteEntrenadorAsync(idcliente, idUsuario);
             return RedirectToAction("Index");
         }
 
@@ -48,19 +48,40 @@ namespace FitLife.Controllers
 
         public async Task<IActionResult> EliminarCliente(int idcliente)
         {
-            await this.repo.EliminarClienteEntrenador(idcliente);
+            await this.repo.EliminarClienteEntrenadorAsync(idcliente);
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> CrearRutina()
+        public async Task<IActionResult> CrearRutina(int idcliente)
         {
-            return View();
+            List<Ejercicio> ejercicios = await this.repo.EjerciciosAsync();
+            ViewData["IDCLIENTE"] = idcliente;
+            return View(ejercicios);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CrearRutina(int idcliente)
+        public async Task<IActionResult> CrearRutina(ModelRutina rutina)
         {
-            return View();
+            int idrutina = await this.repo.CrearRutinaAsync(rutina.Fecha, rutina.IdCliente, int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)));           
+            await this.repo.RegistrarEjerciciosRutinaAsync(rutina.Ejercicios, idrutina);
+            return RedirectToAction("CrearRutina");
+        }
+
+        public async Task<IActionResult> _RutinaPartial(string fecha)
+        {
+            List<RutinaDia> rutina = await this.repo.FindRutinaDiaAsync(fecha);
+            if(rutina.Count == 0)
+            {
+                rutina = null;
+            }
+            return PartialView("_RutinaPartial", rutina);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> _RutinaPartial(int idrutina, string comentario)
+        {
+            await this.repo.RegisterComentarioRutinaAsync(comentario, idrutina);
+            return RedirectToAction("Cliente", "Index");
         }
     }
 }

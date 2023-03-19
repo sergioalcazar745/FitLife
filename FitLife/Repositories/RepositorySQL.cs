@@ -84,6 +84,21 @@ using System.Net;
 //	UPDATE USUARIOS SET ESTADO = 1 WHERE IDUSUARIO = @IDUSUARIO
 //GO
 
+//CREATE PROCEDURE SP_CREAR_RUTINA
+//(@IDCLIENTE INT, @IDENTRENADOR INT, @FECHA DATETIME, @IDRUTINA INT OUT)
+//AS
+//    SELECT @IDRUTINA = MAX(IDRUTINA) FROM RUTINAS
+//	IF @IDRUTINA IS NULL
+//	BEGIN
+//		SET @IDRUTINA = 1
+//	END
+//	ELSE
+//	BEGIN
+//		SET @IDRUTINA = @IDRUTINA + 1
+//	END
+//	INSERT INTO RUTINAS VALUES(@IDRUTINA, @IDCLIENTE, @IDENTRENADOR, @FECHA, '')
+//GO
+
 #endregion
 
 namespace FitLife.Repositories
@@ -288,19 +303,142 @@ namespace FitLife.Repositories
             return await consulta.ToListAsync();
         }
 
-        public async Task AñadirClienteEntrenador(int idcliente, int identrenador)
+        public async Task AñadirClienteEntrenadorAsync(int idcliente, int identrenador)
         {
             PerfilUsuario perfil = await this.FindPerfilUsuario(idcliente);
             perfil.IdEntrenador = identrenador;
             await this.context.SaveChangesAsync();
         }
 
-        public async Task EliminarClienteEntrenador(int idcliente)
+        public async Task EliminarClienteEntrenadorAsync(int idcliente)
         {
             PerfilUsuario perfilUsuario = await this.FindPerfilUsuario(idcliente);
             perfilUsuario.IdEntrenador = 0;
             await this.context.SaveChangesAsync();
         }
+
+        public async Task<List<Ejercicio>> EjerciciosAsync()
+        {
+            return await this.context.Ejercicios.ToListAsync();
+        }
+
+        public async Task<int> CrearRutinaAsync(string fecha, int idcliente, int identrenador)
+        {
+            //string sql = "SP_CREAR_RUTINA @IDCLIENTE, @IDENTRENADOR, @FECHA, @IDRUTINA OUT";
+            //SqlParameter paraidcliente = new SqlParameter("@IDCLIENTE", idcliente);
+            //SqlParameter paraentrenador = new SqlParameter("@IDENTRENADOR", identrenador);
+            //SqlParameter parafecha = new SqlParameter("@FECHA", DateTime.Parse(fecha));
+            //SqlParameter paraidrutina = new SqlParameter("@IDRUTINA", -1);
+            //paraidrutina.Direction = ParameterDirection.Output;
+            //this.context.Database.ExecuteSqlRawAsync(sql, paraidcliente, paraentrenador, parafecha, paraidrutina); 
+            //return (int)paraidrutina.Value;
+
+            Rutina rutinaCheck = await this.FindRutinaByFechaAsync(fecha);
+            if(rutinaCheck is not null)
+            {
+                int idrutina = await this.GetMaxRutinaAsync();
+                if (idrutina == 0)
+                {
+                    idrutina = 1;
+                }
+                Rutina rutina = new Rutina
+                {
+                    IdRutina = idrutina,
+                    IdCliente = idcliente,
+                    IdEntrenador = identrenador,
+                    Fecha = DateTime.Parse(fecha),
+                    Comentario = ""
+                };
+                await this.context.Rutinas.AddAsync(rutina);
+                await this.context.SaveChangesAsync();
+                return idrutina;
+            }
+            else
+            {
+                return 0;
+            }         
+        }
+
+        public async Task RegistrarEjerciciosRutinaAsync(List<ModelEjercicio> ejercicios, int idrutina)
+        {
+            int idrutinaejercicio = await this.GetMaxRutinaEjerciciosAsync();
+            if (idrutinaejercicio == 0)
+            {
+                idrutinaejercicio = 1;
+            }
+
+            foreach (ModelEjercicio ejercicio in ejercicios)
+            {
+                RutinaEjercicio ejercicioModel = new RutinaEjercicio
+                {
+
+                    IdRutinaEjercicio = idrutinaejercicio,
+                    IdRutina = idrutina,
+                    IdEjercicio = ejercicio.Ejercicio,
+                    Series = ejercicio.Series,
+                    Repeticiones = ejercicio.Repes,
+                    PausaBajada = ejercicio.Bajada,
+                    PausaSubida = ejercicio.Subida,
+                    PausaAguante = ejercicio.Aguante,
+                    Arroba = ejercicio.Arroba
+                };
+                await this.context.RutinaEjercicios.AddAsync(ejercicioModel);
+                idrutinaejercicio++;
+            }
+            await this.context.SaveChangesAsync();
+        }
+
+        public async Task<List<RutinaDia>> FindRutinaDiaAsync(string fecha)
+        {
+            var consulta = from datos in this.context.Rutinas
+                           join datos2 in this.context.RutinaEjercicios
+                           on datos.IdRutina equals datos2.IdRutina
+                           join datos3 in this.context.Ejercicios
+                           on datos2.IdEjercicio equals datos3.IdEjercicio
+                           where datos.Fecha == DateTime.Parse(fecha)
+                           select new RutinaDia
+                           {
+                               IdRutina = datos.IdRutina,
+                               Fecha = datos.Fecha,
+                               Series = datos2.Series,
+                               Repeticiones = datos2.Repeticiones,
+                               PausaSubida = datos2.PausaSubida,
+                               PausaBajada = datos2.PausaBajada,
+                               PausaAguante = datos2.PausaAguante,
+                               Arroba = datos2.Arroba,
+                               Comentario = datos.Comentario,
+                               Ejercicio = datos3.Nombre
+                           };
+            return await consulta.ToListAsync();
+        }
+
+        public async Task<Rutina> FindRutinaByFechaAsync(string fecha)
+        {
+            return this.context.Rutinas.FirstOrDefault(z => z.Fecha == DateTime.Parse(fecha));
+        }
+
+        public async Task<Rutina> FindRutinaByIdAsync(int idrutina)
+        {
+            return this.context.Rutinas.FirstOrDefault(z => z.IdRutina == idrutina);
+        }
+
+        public async Task<int> GetMaxRutinaEjerciciosAsync()
+        {
+            return this.context.RutinaEjercicios.Count();
+        }
+
+        public async Task<int> GetMaxRutinaAsync()
+        {
+            return this.context.Rutinas.Count();
+        }
+
+        public async Task RegisterComentarioRutinaAsync(string comentario, int idrutina)
+        {
+            Rutina rutina = await this.FindRutinaByIdAsync(idrutina);
+            rutina.Comentario = comentario;
+            await this.context.SaveChangesAsync();
+        }
+
         #endregion
 
         #region NUTRICIONISTA

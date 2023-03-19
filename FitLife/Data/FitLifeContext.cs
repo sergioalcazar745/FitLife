@@ -13,5 +13,11 @@ namespace FitLife.Data
         public DbSet<PerfilUsuario> PerfilUsuarios { get; set; }
 
         public DbSet<Solicitud> Solicitud { get; set; }
+
+        public DbSet<Ejercicio> Ejercicios { get; set; }
+
+        public DbSet<RutinaEjercicio> RutinaEjercicios { get; set; }
+
+        public DbSet<Rutina> Rutinas { get; set; }
     }
 }

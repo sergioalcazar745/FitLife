@@ -1,7 +1,11 @@
-﻿@*@model List<Ejercicio>*@
+﻿@model List<Ejercicio>
 
 @{
     Layout = "_LogLayout";
+}
+
+@{
+    int idcliente = (int)ViewData["IDCLIENTE"];
 }
 
 @section styles{
@@ -22,54 +26,75 @@
 
 @section scriptbody{
     <script>
+        var ejercicios = @Html.Raw(Json.Serialize(Model));
         var contador = 0;
         $(document).ready(function () {
             pintarEjercicio();
 
             $("#mas").click(function () {
+                console.log("Adios")
                 pintarEjercicio();
             })
 
+            $("#enviar").click(function(){
+                var listaEjercicios = [];
+                var formData = new FormData(document.querySelector('form'))
+                for(let i = 1; i <= contador; i++){
+                    var ejercicioname = formData.get("ejercicio" + i)
+                    var series = formData.get("series" + i)        
+                    var repes = formData.get("repes" + i)  
+                    var bajada = formData.get("bajada" + i)  
+                    var subida = formData.get("subida" + i)
+                    var aguante = formData.get("aguante" + i)
+                    var arroba = formData.get("arroba" + i)
+                    const ejercicio = { ejercicio: ejercicioname, series: series, repes: repes, bajada: bajada, subida: subida, aguante: aguante, arroba: arroba }
+                    console.log(ejercicio)
+                    listaEjercicios.push(ejercicio);
+                }
+                var fecha = formData.get("fecha")
+                $.post( "/Entrenador/CrearRutina", {fecha: fecha, ejercicios: listaEjercicios, idcliente: @idcliente}, function(){
+                    window.location.reload();
+                }, "json");
+            })
+
             function pintarEjercicio(){
+                console.log("Hola")
                 contador++;
                 var eliminar = pintarEliminar();
+                var ejerciciosSelect = pintarEjercicios();
                 $("#contenedor").append(
                 `
                 <section>
                        <div class="relative z-0 w-full mb-6 group border-t border-gray-700 pt-5">
                             <label for="ejercicio" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ejercicio</label>
-                            <select id="ejercicio${contador}" name="ejercicio${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                <option selected>Selecciona un ejercicio</option>
-                                <option value="US">United States</option>
-                                <option value="CA">Canada</option>
-                                <option value="FR">France</option>
-                                <option value="DE">Germany</option>
+                            <select name="ejercicio${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                ${ejerciciosSelect}
                             </select>
                         </div>
                         <div class="grid gap-6 contenedor-propiedades">
                             <div class="relative z-0 w-full mb-6 group">
-                                <label for="series${contador}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Series</label>
-                                <input type="number" id="series${contador}" name="series${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Series</label>
+                                <input type="number" value="0" min="0" max="10" name="series${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                             </div>
                             <div class="relative z-0 w-full mb-6 group">
-                                <label for="repes${contador}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Repes</label>
-                                <input type="number" id="repes${contador}" name="repes${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Repes</label>
+                                        <input type="number" value="0" min="0" max="10" name="repes${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                             </div>
                             <div class="relative z-0 w-full mb-6 group">
-                                <label for="bajada${contador}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Bajada</label>
-                                <input type="number" id="bajada${contador}" name="bajada${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Bajada</label>
+                                <input type="number" value="0" min="0" max="10" name="bajada${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                             </div>
                             <div class="relative z-0 w-full mb-6 group">
-                                 <label for="subida${contador}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subida</label>
-                                 <input type="number" id="subida${contador}" name="subida${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subida</label>
+                                 <input type="number" value="0" min="0" max="10" name="subida${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                             </div>
                             <div class="relative z-0 w-full mb-6 group">
-                                <label for="aguante${contador}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Aguante</label>
-                                <input type="number" id="aguante${contador}" name="aguante${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Aguante</label>
+                                <input type="number" value="0" min="0" max="10" name="aguante${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                             </div>
                             <div class="relative z-0 w-full mb-6 group">
-                                <label for="arroba${contador}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Arroba</label>
-                                <input type="number" id="arroba${contador}" name="arroba${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Arroba</label>
+                                <input type="number" value="0" min="0" max="10" name="arroba${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                             </div>
                             ${eliminar}
                         </div>
@@ -82,7 +107,7 @@
                 if(contador > 1){
                     resultado =  
                     `
-                    <div class="flex justify-start items-center z-0 w-full mb-6 group eliminar" onclick="clickEliminar(this)" style="margin-top: 2rem">
+                    <div class="flex justify-start items-center z-0 w-full mb-6 group eliminar" onclick="clickEliminar(this, ${contador})" style="margin-top: 2rem">
                         <img src="/images/eliminar.png" class="mb-6 cursor-pointer"/>
                     </div>
                     `
@@ -95,11 +120,31 @@
                 }    
                 return resultado;
             }
+
+            function pintarEjercicios(){
+                var resultado = "";
+                for(ejercicio of ejercicios){
+                    resultado += `<option value="${ejercicio.idEjercicio}">${ejercicio.nombre}</option>`;
+                }
+                return resultado;
+            }
         });
 
-        function clickEliminar(element) {
-            var abuelo = element.closest("section")
-            console.log("Abuelo: " + abuelo)
+        function clickEliminar(element, cont) {
+            var abuelo = element.closest("section");
+            var siguientes = $(abuelo).nextAll();
+            if(siguientes.length > 0){
+                $(siguientes).each(function(){
+                    var nameSelect = $(this).find("select").attr("name");
+                    var newNameSelect = nameSelect.substring(0, nameSelect.length - 1) + cont;
+                    $(this).find("select").attr("name", newNameSelect)
+
+                    var nameInput = $(this).find("input").attr("name");
+                    var newNameInput = nameInput.substring(0, nameInput.length - 1) + cont;
+                    $(this).find("input").attr("name", newNameInput)
+                    cont ++;
+                })
+            }
             abuelo.remove();
             contador--;
         }
@@ -111,51 +156,12 @@
 <form>
     <div class="mb-6">
         <label for="fecha" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha</label>
-        <input type="date" id="ml-2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@flowbite.com" required>
+        <input type="date" name = "fecha" id="fecha" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
     </div>
     <div id="contenedor">
-        @*<div class="relative z-0 w-full mb-6 group border-t border-gray-700 pt-5">
-            <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ejercicio</label>
-            <select id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                <option selected>Selecciona un ejercicio</option>
-                <option value="US">United States</option>
-                <option value="CA">Canada</option>
-                <option value="FR">France</option>
-                <option value="DE">Germany</option>
-            </select>
-        </div>
-        <div class="grid md:gap-6 contenedor-ejercicio">
-            <div class="relative z-0 w-full mb-6 group">
-                <label for="series" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Series</label>
-                <input type="number" id="series" name="series" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
-            </div>
-            <div class="relative z-0 w-full mb-6 group">
-                <label for="repes" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Repes</label>
-                <input type="number" id="repes" name="repes" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
-            </div>
-            <div class="relative z-0 w-full mb-6 group">
-                <label for="bajada" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Bajada</label>
-                <input type="number" id="bajada" name="bajada" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
-            </div>
-            <div class="relative z-0 w-full mb-6 group">
-                <label for="subida" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subida</label>
-                <input type="number" id="subida" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
-            </div>
-            <div class="relative z-0 w-full mb-6 group">
-                <label for="aguante" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Aguante</label>
-                <input type="number" id="aguante" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
-            </div>
-            <div class="relative z-0 w-full mb-6 group">
-                <label for="arroba" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Arroba</label>
-                <input type="number" id="arroba" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
-            </div>
-            <div class="flex justify-start items-center z-0 w-full mb-6 group" style="margin-top: 2rem">
-                <img src="~/images/eliminar.png" class="eliminar" class="mb-6 cursor-pointer" />
-            </div>
-        </div>*@
     </div>
     <div class="flex justify-center">
         <img src="~/images/agregar.png" id="mas" class="mb-6 cursor-pointer" />
     </div>
-    <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
+    <button type="button" id="enviar" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
 </form>

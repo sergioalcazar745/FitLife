@@ -44,7 +44,7 @@ app.UseMvc(routes =>
 {
     routes.MapRoute(
         name: "default",
-        template: "{controller=Entrenador}/{action=CrearRutina}/{id?}");
+        template: "{controller=Managed}/{action=Index}/{id?}");
 });
 
 app.Run();
