@@ -1,15 +1,10 @@
 ﻿@model List<RutinaDia>
 
-@*@if(Model == null)
-{
-    <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white text-center">@Model[0].Fecha.ToString("dd/MM/yyyy")</h3>
-}
-else
+@if(Model != null)
 {
     <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white text-center">@Model[0].Fecha.ToString("dd/MM/yyyy") - @Model[0].Nombre</h3>
-}*@
+}
 
-<h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white text-center">@Model[0].Fecha.ToString("dd/MM/yyyy")</h3>
 <div id="accordion-flush" data-accordion="collapse" data-active-classes="bg-white dark:bg-gray-900 text-gray-900 dark:text-white" data-inactive-classes="text-gray-500 dark:text-gray-400">
     @if (Model == null)
     {

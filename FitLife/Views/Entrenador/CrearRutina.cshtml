@@ -37,6 +37,7 @@
             })
 
             $("#enviar").click(function(){
+                console.log("Entra")
                 var listaEjercicios = [];
                 var formData = new FormData(document.querySelector('form'))
                 for(let i = 1; i <= contador; i++){
@@ -52,13 +53,28 @@
                     listaEjercicios.push(ejercicio);
                 }
                 var fecha = formData.get("fecha")
-                $.post( "/Entrenador/CrearRutina", {fecha: fecha, ejercicios: listaEjercicios, idcliente: @idcliente}, function(){
-                    window.location.reload();
+                var nombre = formData.get("nombre")
+                $.post( "/Entrenador/CrearRutina", {fecha: fecha, nombre: nombre, ejercicios: listaEjercicios, idcliente: @idcliente}, function(data){
+                    console.log(data)
+                    if(data == "Error"){
+                        console.log("entra al error")
+                        $("#error").append(
+                        `
+                        <div class="flex p-4 my-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-red-800 dark:text-red-400" role="alert">
+                            <svg aria-hidden="true" class="flex-shrink-0 inline w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                            <span class="sr-only">Info</span>
+                            <div>
+                                <span class="font-medium text-white">Ya existe una rutina para ese dia</span>
+                            </div>
+                        </div>
+                        `)
+                    }else{
+                        window.location.reload();
+                    }
                 }, "json");
             })
 
             function pintarEjercicio(){
-                console.log("Hola")
                 contador++;
                 var eliminar = pintarEliminar();
                 var ejerciciosSelect = pintarEjercicios();
@@ -74,27 +90,27 @@
                         <div class="grid gap-6 contenedor-propiedades">
                             <div class="relative z-0 w-full mb-6 group">
                                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Series</label>
-                                <input type="number" value="0" min="0" max="10" name="series${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                                <input type="number" value="0" min="0" max="10" name="series${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-gray-500 dark:focus:border-gray-500" required>
                             </div>
                             <div class="relative z-0 w-full mb-6 group">
                                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Repes</label>
-                                        <input type="number" value="0" min="0" max="10" name="repes${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                                <input type="number" value="0" min="0" max="10" name="repes${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-gray-500 dark:focus:border-gray-500" required>
                             </div>
                             <div class="relative z-0 w-full mb-6 group">
                                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Bajada</label>
-                                <input type="number" value="0" min="0" max="10" name="bajada${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                                <input type="number" value="0" min="0" max="10" name="bajada${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-gray-500 dark:focus:border-gray-500" required>
                             </div>
                             <div class="relative z-0 w-full mb-6 group">
-                                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subida</label>
-                                 <input type="number" value="0" min="0" max="10" name="subida${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subida</label>
+                                <input type="number" value="0" min="0" max="10" name="subida${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-gray-500 dark:focus:border-gray-500" required>
                             </div>
                             <div class="relative z-0 w-full mb-6 group">
                                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Aguante</label>
-                                <input type="number" value="0" min="0" max="10" name="aguante${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                                <input type="number" value="0" min="0" max="10" name="aguante${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-gray-500 dark:focus:border-gray-500" required>
                             </div>
                             <div class="relative z-0 w-full mb-6 group">
                                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Arroba</label>
-                                <input type="number" value="0" min="0" max="10" name="arroba${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                                <input type="number" value="0" min="0" max="10" name="arroba${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-gray-500 dark:focus:border-gray-500" required>
                             </div>
                             ${eliminar}
                         </div>
@@ -154,14 +170,20 @@
 
 
 <form>
+    <h1 class="text-white text-center text-4xl">AÑADIR RUTINA</h1>
+    <div id="error"></div>
     <div class="mb-6">
         <label for="fecha" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha</label>
         <input type="date" name = "fecha" id="fecha" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+    </div>
+    <div class="mb-6">
+        <label for="nombre" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
+        <input type="text" name="nombre" id="nombre" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
     </div>
     <div id="contenedor">
     </div>
     <div class="flex justify-center">
         <img src="~/images/agregar.png" id="mas" class="mb-6 cursor-pointer" />
     </div>
-    <button type="button" id="enviar" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Guardar</button>
+    <button type="button" id="enviar" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Añadir</button>
 </form>

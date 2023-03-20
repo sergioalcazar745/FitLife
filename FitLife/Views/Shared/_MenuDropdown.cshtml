@@ -1,0 +1,11 @@
+﻿@{
+    string role = Context.User.FindFirstValue(ClaimTypes.Role);
+}
+
+@if(role == "cliente"){
+    <img class="w-8 h-8 rounded-full" src="~/images/cliente.png" alt="user photo" />
+}else if(role == "entrenador"){
+    <img class="w-8 h-8 rounded-full" src="~/images/entrenador.png" alt="user photo" />
+}else if(role == "nutricionista"){
+    <img class="w-8 h-8 rounded-full" src="~/images/nutricionista.png" alt="user photo" />
+}

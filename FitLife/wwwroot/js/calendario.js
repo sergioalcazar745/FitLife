@@ -18,31 +18,11 @@ function app() {
     return {
         month: "",
         year: "",
-        modalShow: false,
+        idcliente: 0,
         no_of_days: [],
         blankdays: [],
         days: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
         events: [],
-            //{
-            //    event_date: new Date(2023, 1, 1),
-            //    event_title: "April Fool's Day",
-            //    event_theme: "blue",
-            //},
-            //{
-            //    event_date: new Date(2023, 1, 1),
-            //    event_title: "April Fool's Day",
-            //    event_theme: "blue",
-            //},
-            //{
-            //    event_date: new Date(2023, 1, 10),
-            //    event_title: "Birthday",
-            //    event_theme: "red",
-            //},
-            //{
-            //    event_date: new Date(2023, 1, 16),
-            //    event_title: "Upcoming Event",
-            //    event_theme: "green",
-            //},
         event_title: "",
         event_date: "",
         event_theme: "blue",
@@ -69,7 +49,9 @@ function app() {
             },
         ],
         openEventModal: false,
-        initDate() {
+        initDate(id) {
+            console.log("Solo una vez")
+            this.idcliente = id;
             let today = new Date();
             this.month = today.getMonth();
             this.year = today.getFullYear();
@@ -78,6 +60,9 @@ function app() {
                 this.month,
                 today.getDate()
             ).toDateString();
+        },
+        setIdCliente(id) {
+            console.log("ID: " + id)
         },
         isToday(date) {
             const today = new Date();
@@ -89,13 +74,23 @@ function app() {
             this.openEventModal = true;
             this.event_date = new Date(this.year, this.month, date).toDateString();
         },
-        async addEvent(operacion, idcliente) {
-            idcliente = 1;
+        async addEvent(operacion) {
+            var mes = 0;
+            console.log("Mes var: " + this.month)
+            if (operacion == 1) {
+                console.log("resto")
+                mes = this.month - 1;
+            } else if (operacion == 2 || operacion == 0) {
+                console.log("sumo")
+                mes = this.month + 1;
+            }
+            console.log(this.idcliente + "-" + mes + "-" + operacion)
             $("#loading-calendar").show();
             $("#content-calendar").hide();
-            fetch("/Entrenador/EventosMes?mes=3&idcliente=" + idcliente)
+            fetch("/Entrenador/EventosMes?mes=" + mes + "&idcliente=" + this.idcliente)
                 .then(res => res.json())
                 .then(data => {
+                    console.log(data)
                     this.events = []
                     for (d of data) {
                         var fecha = new Date(d.fecha);
@@ -137,6 +132,7 @@ function app() {
             } else if (operacion == 0) {
                 this.addEvent(0)
             }
+            console.log("Mes var2: " + this.month)
             let daysInMonth = new Date(this.year, this.month + 1, 0).getDate();
             console.log("DayInMonth: " + daysInMonth)
             // find where to start calendar day of week

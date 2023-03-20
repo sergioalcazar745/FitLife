@@ -47,11 +47,13 @@ namespace FitLife.Repositories
 
         Task<List<Ejercicio>> EjerciciosAsync();
 
-        Task<Rutina> FindRutinaByFechaAsync(string fecha);
+        Task<Rutina> FindRutinaByFechaClienteEntrenadorAsync(string fecha, int identrenador, int idcliente);
 
         Task<Rutina> FindRutinaByIdAsync(int idrutina);
 
-        Task<int> CrearRutinaAsync(string fecha, int idcliente, int identrenador);
+        Task<int> CrearRutinaAsync(string fecha, string nombre, int idcliente, int identrenador);
+
+        Task<List<RutinaId>> RutinasIdsAsync(int idcliente, int identrenador);
 
         Task RegistrarEjerciciosRutinaAsync(List<ModelEjercicio> ejercicios, int idrutina);
 
@@ -59,8 +61,14 @@ namespace FitLife.Repositories
 
         Task<List<RutinaDia>> FindRutinaDiaAsync(string fecha);
 
+        //Task<List<RutinaDia>> FilterRutina(DateTime fechainicio, DateTime fechafinal);
+
+        Task<List<ModelRutinaEjercicio>> EjerciciosRutina(int idrutina);
+
+        Task EliminarRutina(int idrutina);
+
         Task RegisterComentarioRutinaAsync(string comentario, int idrutina);
 
-        Task<List<Evento>> EventosMes(int idcliente, int identrenador, int mes);
+        Task<List<Evento>> EventosMesAsync(int idcliente, int identrenador, int mes);
     }
 }

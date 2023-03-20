@@ -49,9 +49,26 @@ namespace FitLife.Controllers
                     byte[] passwordencrypt = HelperCryptography.EncryptPassword(password, usuario.Salt);
                     if (HelperCryptography.CompareArrays(passwordencrypt, usuario.PasswordEncrypt))
                     {
-                        ClaimsPrincipal userPrincipal = this.generarClaims(usuario);
+                        ClaimsPrincipal userPrincipal = null;
+                        if(usuario.Role == "cliente")
+                        {
+                            PerfilUsuario perfil = await this.repo.FindPerfilUsuario(usuario.IdUsuario);
+                            userPrincipal = this.generarClaims(usuario, perfil);
+                        }
+                        else
+                        {
+                            userPrincipal = this.generarClaims(usuario, null);
+                        }
+
                         await HttpContext.SignInAsync (CookieAuthenticationDefaults.AuthenticationScheme, userPrincipal);
-                        return RedirectToAction("Index", "Cliente");
+                        if(usuario.Role == "cliente")
+                        {
+                            return RedirectToAction("Index", "Cliente");
+                        }
+                        else
+                        {
+                            return RedirectToAction("Index", "Entrenador");
+                        }
                     }
                     else
                     {
@@ -184,7 +201,16 @@ namespace FitLife.Controllers
                         {
                             Usuario usuario = this.memoryCache.Get<Usuario>("Usuario");
                             usuario.IdUsuario = idusuario;
-                            ClaimsPrincipal userPrincipal = this.generarClaims(usuario);
+                            ClaimsPrincipal userPrincipal = null;
+                            if (usuario.Role == "cliente")
+                            {
+                                PerfilUsuario perfil = await this.repo.FindPerfilUsuario(idusuario);
+                                userPrincipal = this.generarClaims(usuario, perfil);
+                            }
+                            else
+                            {
+                                userPrincipal = this.generarClaims(usuario, null);
+                            }
                             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, userPrincipal);
                             this.memoryCache.Remove("Usuario");
                             this.memoryCache.Remove("IdUsuario");                            
@@ -272,7 +298,7 @@ namespace FitLife.Controllers
             await this.helperMail.SendMailAsync(email, "Confirmación", html);
         }
 
-        public ClaimsPrincipal generarClaims(Usuario usuario)
+        public ClaimsPrincipal generarClaims(Usuario usuario, PerfilUsuario perfil)
         {
             ClaimsIdentity identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme,
                                                         ClaimTypes.Name, ClaimTypes.Role);
@@ -285,6 +311,13 @@ namespace FitLife.Controllers
             identity.AddClaim(claimRole);
             Claim claimEmail = new Claim("Email", usuario.Email);
             identity.AddClaim(claimEmail);
+            if(perfil is not null)
+            {
+                Claim claimEntrenador = new Claim("IdEntrenador", perfil.IdEntrenador.ToString());
+                identity.AddClaim(claimEntrenador);
+                Claim claimNutricionista = new Claim("IdNutricionista", perfil.IdDietista.ToString());
+                identity.AddClaim(claimNutricionista);
+            }
             ClaimsPrincipal userPrincipal = new ClaimsPrincipal(identity);
             return userPrincipal;
         }

@@ -8,7 +8,20 @@
     int idUsuario = int.Parse(Context.User.FindFirstValue(ClaimTypes.NameIdentifier));
 }
 
+@section styles{
+    <style>
+        .tabs-letter{
+            --tw-text-opacity: 1;
+            color: rgb(156 163 175/var(--tw-text-opacity)) !important;
+            border-color: rgb(156 163 175/var(--tw-text-opacity)) !important;
+        }
 
+        .tabs-border{
+            --tw-text-opacity: 1;
+            border-color: rgb(156 163 175/var(--tw-text-opacity)) !important;
+        }
+    </style>
+}
 
 @section scriptbody{
     <script>
@@ -28,7 +41,7 @@
                 $("#añadir-tab").hide();
                 var tecla = e.target.value;
                 if (tecla != "") {
-                    const result = listUsuarioPerfil.filter(usuario => usuario.nombre.includes(tecla) || usuario.apellidos.includes(tecla));
+                    const result = listUsuarioPerfil.filter(usuario => usuario.nombre.includes(tecla) || usuario.apellidos.includes(tecla) || usuario.email.includes(tecla) || usuario.dni.startsWith(tecla));
                     if (result.length > 0) {
                         $("#añadir").show();
                         pintarClientesEntrenador(result)
@@ -60,25 +73,29 @@
 
             $("#boton-añadir").click(function() {
                 $("#añadir-tab").show();
+                $(this).addClass("border-b-2")
+                $("#boton-clientes").removeClass("border-b-2")
             });
 
             $("#boton-clientes").click(function() {
                 $("#añadir-tab").hide();
+                $(this).addClass("border-b-2")
+                $("#boton-añadir").removeClass("border-b-2")
             });
 
             function pintarClientesEntrenador(list) {
                 $("#clientes").empty();
                 for (const usuario of list) {
                     $("#clientes").append(
-                        `
-                                                        <div class="m-3">
-                                                            <a href="Entrenador/DetallesCliente?idcliente=${usuario.idUsuario}" class="block w-full mb-3 p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-                                                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">${usuario.nombre} ${usuario.apellidos}</h5>
-                                                                <p class="font-normal text-gray-700 dark:text-gray-400">DNI: ${usuario.dni}</p>
-                                                                <p class="font-normal text-gray-700 dark:text-gray-400">Email: ${usuario.email}</p>
-                                                            </a>
-                                                        </div>
-                                                    `)
+                    `
+                        <div class="m-3">
+                           <a href="Entrenador/DetallesCliente?idcliente=${usuario.idUsuario}" class="block w-full mb-3 p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                              <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">${usuario.nombre} ${usuario.apellidos}</h5>
+                              <p class="font-normal text-gray-700 dark:text-gray-400">DNI: ${usuario.dni}</p>
+                              <p class="font-normal text-gray-700 dark:text-gray-400">Email: ${usuario.email}</p>
+                           </a>
+                        </div>
+                    `)
                 }
             }
 
@@ -87,23 +104,23 @@
                 for (const usuario of list) {
                     if (usuario.idEntrenador != 0) {
                         $("#lista").append(
-                            `
-                                                            <li class="pb-3 sm:py-4 hover:bg-gray-700 cursor-pointer rounded">
-                                                               <div class="flex items-center space-x-4">
-                                                                 <div class="flex-shrink-0">
-                                                                   <img class="w-8 h-8 rounded-full" src="/images/cliente.png" alt="imagen">
-                                                                 </div>
-                                                                 <div class="flex-1 min-w-0">
-                                                                     <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                                                                         ${usuario.nombre} ${usuario.apellidos}
-                                                                      </p>
-                                                                      <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                                                                          ${usuario.email}
-                                                                      </p>
-                                                                  </div>
-                                                                </div>
-                                                            </li>
-                                                            `)
+                        `
+                            <li class="pb-3 sm:py-4 hover:bg-gray-700 cursor-pointer rounded">
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-shrink-0">
+                                       <img class="w-8 h-8 rounded-full" src="/images/cliente.png" alt="imagen">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+                                           ${usuario.nombre} ${usuario.apellidos}
+                                        </p>
+                                        <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                                           ${usuario.email}
+                                        </p>
+                                    </div>
+                                </div>
+                            </li>
+                        `)
                     } else {
                         $("#lista").append(
                         `
@@ -137,31 +154,31 @@
 
     <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
         <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="myTab" data-tabs-toggle="#myTabContent" role="tablist">
-            <li class="mr-2" role="presentation">
-                <button class="inline-block p-4 border-b-2 rounded-t-lg border-bg-green-700 text-green-700" id="boton-clientes" data-tabs-target="#clientes-tab" type="button" role="tab" aria-controls="profile" aria-selected="false">Clientes</button>
+            <li class="mr-2">
+                <button class="tabs-letter tabs-border inline-block p-4 border-b-2 rounded-t-lg border-gray-400 text-gray-400" id="boton-clientes" data-tabs-target="#clientes-tab" type="button" role="tab" aria-controls="profile" aria-selected="false">Clientes</button>
             </li>
-            <li class="mr-2" role="presentation">
-                <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="boton-añadir" data-tabs-target="#añadir-tab" type="button" role="tab" aria-controls="dashboard" aria-selected="false">Añadir</button>
+            <li class="mr-2">
+                <button class="tabs-letter tabs-border inline-block p-4 rounded-t-lg border-gray-400 text-gray-400" id="boton-añadir" data-tabs-target="#añadir-tab" type="button" role="tab" aria-controls="dashboard" aria-selected="false">Añadir</button>
             </li>
         </ul>
     </div>
     <div id="myTabContent">
-        <div class="hidden p-4 rounded-lg" id="clientes-tab" role="tabpanel" aria-labelledby="profile-tab">
+        <div class="hidden rounded-lg" id="clientes-tab" role="tabpanel" aria-labelledby="profile-tab">
             <div class="mb-4">
                 <div class="relative w-full">
                     <input type="search" id="cliente-search" name="search"
-                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:border-l-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-green-500"
+                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-gray-500 focus:border-gray-500 dark:bg-gray-700 dark:border-l-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-gray-500"
                        placeholder="Busca un cliente..." />
                 </div>
             </div>
             <div id="clientes"></div>
         </div>
-        <div class="hidden p-4 rounded-lg" id="añadir-tab" role="tabpanel" aria-labelledby="dashboard-tab">
+        <div class="hidden rounded-lg" id="añadir-tab" role="tabpanel" aria-labelledby="dashboard-tab">
             <div class="mb-4">
                 <div class="relative w-full">
                     <input type="search" id="cliente-search-add" name="search"
-                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:border-l-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-green-500"
-                       placeholder="Busca un cliente..." />
+                       class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-gray-500 focus:border-gray-500 dark:bg-gray-700 dark:border-l-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-gray-500"
+                       placeholder="Añade un cliente" />
                 </div>
             </div>
             <div id="clientes-new">

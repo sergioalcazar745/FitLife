@@ -15,7 +15,7 @@
 }
 
 <div class="antialiased sans-serif bg-white dark:bg-gray-900 h-screen">
-    <div x-data="app()" x-init="[initDate(), getNoOfDays(0)]" x-cloak>
+    <div x-data="app()" x-init="[initDate(@idcliente), getNoOfDays(0)]" x-cloak>
         <div class="py-2 md:py-24">
             <div class="bg-white rounded-lg shadow overflow-hidden">
 
@@ -28,7 +28,7 @@
                         <!-- FLECHAS -->
                         <button type="button"
                                 class="leading-none rounded-lg transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 p-1 items-center"
-                                x-on:click="addEvent(1, @idcliente)">
+                                x-on:click="addEvent(1)">
                             <svg class="h-6 w-6 dark:text-white text-gray-500 inline-flex leading-none" fill="none" viewBox="0 0 24 24"
                                  stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -37,7 +37,7 @@
                         <div class="border-r inline-flex h-6"></div>
                         <button type="button"
                                 class="leading-none rounded-lg transition ease-in-out duration-100 inline-flex items-center cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 p-1"
-                                :disabled="this.month == 11 ? true : false" x-on:click="addEvent(2, @idcliente)">
+                                :disabled="this.month == 11 ? true : false" x-on:click="addEvent(2)">
                             <svg class="h-6 w-6 dark:text-white text-gray-500 inline-flex leading-none" fill="none" viewBox="0 0 24 24"
                                  stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />

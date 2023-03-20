@@ -3,6 +3,7 @@ using FitLife.Filters;
 using FitLife.Models;
 using FitLife.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System.Security.Claims;
 
@@ -12,9 +13,11 @@ namespace FitLife.Controllers
     public class EntrenadorController : Controller
     {
         private IRepository repo;
-        public EntrenadorController(IRepository repo)
+        IMemoryCache memoryCache;
+        public EntrenadorController(IRepository repo, IMemoryCache memoryCache)
         {
             this.repo = repo;
+            this.memoryCache = memoryCache;
         }
 
         public async Task<IActionResult> Index()
@@ -32,6 +35,7 @@ namespace FitLife.Controllers
 
         public async Task<IActionResult> DetallesCliente(int idcliente)
         {
+            this.memoryCache.Set("idcliente", idcliente);
             UsuarioPerfil usuario = await this.repo.FindClienteAsync(idcliente);
             return View(usuario);
         }
@@ -63,9 +67,13 @@ namespace FitLife.Controllers
         [HttpPost]
         public async Task<IActionResult> CrearRutina(ModelRutina rutina)
         {
-            int idrutina = await this.repo.CrearRutinaAsync(rutina.Fecha, rutina.IdCliente, int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)));           
+            int idrutina = await this.repo.CrearRutinaAsync(rutina.Fecha, rutina.Nombre, rutina.IdCliente, int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)));           
+            if(idrutina == 0)
+            {
+                return Json("Error");
+            }            
             await this.repo.RegistrarEjerciciosRutinaAsync(rutina.Ejercicios, idrutina);
-            return RedirectToAction("CrearRutina");
+            return Json("Success");
         }
 
         public async Task<IActionResult> _RutinaPartial(string fecha)
@@ -85,10 +93,38 @@ namespace FitLife.Controllers
             return RedirectToAction("Index", "Cliente");
         }
 
+        public async Task<IActionResult> Rutinas(int idcliente)
+        {
+            int identrenador = int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            List<RutinaId> rutinas = await this.repo.RutinasIdsAsync(idcliente, identrenador);
+            return View(rutinas);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Rutinas(DateTime fechainicio, DateTime fechafinal)
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> DetallesRutina(int idrutina)
+        {
+            Rutina rutina = await this.repo.FindRutinaByIdAsync(idrutina);
+            List<ModelRutinaEjercicio> ejercicio = await this.repo.EjerciciosRutina(idrutina);
+            ViewData["RUTINA"] = rutina;
+            return View(ejercicio);
+        }
+
+        public async Task<IActionResult> EliminarRutina (int idrutina)
+        {
+            int idcliente = this.memoryCache.Get<int>("idcliente");
+            await this.repo.EliminarRutina(idrutina);
+            return RedirectToAction("Rutinas", new { idcliente = idcliente });
+        }
+
         public async Task<IActionResult> EventosMes(int mes, int idcliente)
         {
-            List<Evento> eventos = await this.repo.EventosMes(idcliente, int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)), mes);
-            //string jsonString = JsonConvert.SerializeObject(eventos);
+            int identrenador = int.Parse(HttpContext.User.FindFirstValue("IdEntrenador"));
+            List<Evento> eventos = await this.repo.EventosMesAsync(idcliente, identrenador, mes);
             return Json(eventos);
         }
     }

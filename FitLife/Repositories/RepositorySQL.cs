@@ -99,6 +99,13 @@ using System.Net;
 //	INSERT INTO RUTINAS VALUES(@IDRUTINA, @IDCLIENTE, @IDENTRENADOR, @FECHA, '')
 //GO
 
+//CREATE PROCEDURE SP_ELIMINAR_RUTINA
+//(@IDRUTINA INT)
+//AS
+//    DELETE FROM RUTINAEJERCICIO WHERE IDRUTINA = @IDRUTINA
+//	DELETE FROM RUTINAS WHERE IDRUTINA = @IDRUTINA
+//GO
+
 #endregion
 
 namespace FitLife.Repositories
@@ -322,7 +329,7 @@ namespace FitLife.Repositories
             return await this.context.Ejercicios.ToListAsync();
         }
 
-        public async Task<int> CrearRutinaAsync(string fecha, int idcliente, int identrenador)
+        public async Task<int> CrearRutinaAsync(string fecha, string nombre, int idcliente, int identrenador)
         {
             //string sql = "SP_CREAR_RUTINA @IDCLIENTE, @IDENTRENADOR, @FECHA, @IDRUTINA OUT";
             //SqlParameter paraidcliente = new SqlParameter("@IDCLIENTE", idcliente);
@@ -333,21 +340,19 @@ namespace FitLife.Repositories
             //this.context.Database.ExecuteSqlRawAsync(sql, paraidcliente, paraentrenador, parafecha, paraidrutina); 
             //return (int)paraidrutina.Value;
 
-            Rutina rutinaCheck = await this.FindRutinaByFechaAsync(fecha);
-            if(rutinaCheck is not null)
+            Rutina rutinaCheck = await this.FindRutinaByFechaClienteEntrenadorAsync(fecha, identrenador, idcliente);
+            if(rutinaCheck is null)
             {
                 int idrutina = await this.GetMaxRutinaAsync();
-                if (idrutina == 0)
-                {
-                    idrutina = 1;
-                }
+                idrutina++;
                 Rutina rutina = new Rutina
                 {
                     IdRutina = idrutina,
                     IdCliente = idcliente,
                     IdEntrenador = identrenador,
                     Fecha = DateTime.Parse(fecha),
-                    Comentario = ""
+                    Comentario = "",
+                    Nombre = nombre
                 };
                 await this.context.Rutinas.AddAsync(rutina);
                 await this.context.SaveChangesAsync();
@@ -362,10 +367,7 @@ namespace FitLife.Repositories
         public async Task RegistrarEjerciciosRutinaAsync(List<ModelEjercicio> ejercicios, int idrutina)
         {
             int idrutinaejercicio = await this.GetMaxRutinaEjerciciosAsync();
-            if (idrutinaejercicio == 0)
-            {
-                idrutinaejercicio = 1;
-            }
+            idrutinaejercicio++;
 
             foreach (ModelEjercicio ejercicio in ejercicios)
             {
@@ -413,14 +415,66 @@ namespace FitLife.Repositories
             return await consulta.ToListAsync();
         }
 
-        public async Task<Rutina> FindRutinaByFechaAsync(string fecha)
+        public async Task<Rutina> FindRutinaByFechaClienteEntrenadorAsync(string fecha, int identrenador, int idcliente)
         {
-            return this.context.Rutinas.FirstOrDefault(z => z.Fecha == DateTime.Parse(fecha));
+            return this.context.Rutinas.FirstOrDefault(z => z.Fecha == DateTime.Parse(fecha) && z.IdEntrenador == identrenador && z.IdCliente == idcliente);
         }
 
         public async Task<Rutina> FindRutinaByIdAsync(int idrutina)
         {
             return this.context.Rutinas.FirstOrDefault(z => z.IdRutina == idrutina);
+        }
+
+        public async Task<List<RutinaId>> RutinasIdsAsync(int idcliente, int identrenador)
+        {
+            var consulta = from datos in this.context.Rutinas
+                           where datos.IdCliente == idcliente && datos.IdEntrenador == identrenador
+                           select new RutinaId
+                           {
+                               IdRutina = datos.IdRutina,
+                               Fecha = datos.Fecha,
+                               Nombre = datos.Nombre
+                           };
+            return await consulta.ToListAsync();
+        }
+
+        //public async Task<List<RutinaDia>> FilterRutina(DateTime fechainicio, DateTime fechafinal)
+        //{
+        //    var consulta = from datos in this.context.Rutinas
+        //                   where datos.Fecha >= fechainicio && datos.Fecha <= fechafinal
+        //                   select new RutinaId
+        //                   {
+        //                       IdRutina = datos.IdRutina,
+        //                       Fecha = datos.Fecha,
+        //                       Nombre = datos.Nombre
+        //                   };
+        //    return await consulta.ToListAsync();
+        //}
+
+        public async Task EliminarRutina(int idrutina)
+        {
+            string sql = "SP_ELIMINAR_RUTINA @IDRUTINA";
+            SqlParameter paraidrutina = new SqlParameter("@IDRUTINA", idrutina);
+            await this.context.Database.ExecuteSqlRawAsync(sql, paraidrutina);
+        }
+
+        public async Task<List<ModelRutinaEjercicio>> EjerciciosRutina(int idrutina)
+        {
+            var consulta = from datos in this.context.RutinaEjercicios
+                           join datos2 in this.context.Ejercicios
+                           on datos.IdEjercicio equals datos2.IdEjercicio
+                           where datos.IdRutina == idrutina
+                           select new ModelRutinaEjercicio
+                           {
+                               Nombre = datos2.Nombre,
+                               Series = datos.Series,
+                               Repeticiones = datos.Repeticiones,
+                               PausaSubida = datos.PausaSubida,
+                               PausaBajada = datos.PausaBajada,
+                               PausaAguante = datos.PausaAguante,
+                               Arroba = datos.Arroba
+                           };
+            return await consulta.ToListAsync();
         }
 
         public async Task<int> GetMaxRutinaEjerciciosAsync()
@@ -440,7 +494,7 @@ namespace FitLife.Repositories
             await this.context.SaveChangesAsync();
         }
 
-        public async Task<List<Evento>> EventosMes(int idcliente, int identrenador, int mes)
+        public async Task<List<Evento>> EventosMesAsync(int idcliente, int identrenador, int mes)
         {
             var consulta = from datos in this.context.Rutinas
                            where datos.IdCliente == idcliente && datos.IdEntrenador == identrenador &&
