@@ -1,8 +1,13 @@
 ﻿@model List<RutinaDia>
 
-@{
-    int contador = 1;
+@*@if(Model == null)
+{
+    <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white text-center">@Model[0].Fecha.ToString("dd/MM/yyyy")</h3>
 }
+else
+{
+    <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white text-center">@Model[0].Fecha.ToString("dd/MM/yyyy") - @Model[0].Nombre</h3>
+}*@
 
 <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white text-center">@Model[0].Fecha.ToString("dd/MM/yyyy")</h3>
 <div id="accordion-flush" data-accordion="collapse" data-active-classes="bg-white dark:bg-gray-900 text-gray-900 dark:text-white" data-inactive-classes="text-gray-500 dark:text-gray-400">
@@ -12,15 +17,18 @@
     }
     else
     {
+        int contador = 1;
         @foreach (var item in Model)
         {
+
+            string accodion = "accordion" + contador;
             <h2 id="accordion-flush-heading-1">
-                <button type="button" onclick="clickAcordeon(this)" class="flex items-center justify-between w-full py-5 px-3 font-medium text-left text-gray-500 border-b border-gray-200 dark:border-gray-400 dark:text-gray-400" data-accordion-target="#accordion-flush-body-1" data-expanded="false" aria-expanded="false" aria-controls="accordion-flush-body-1">
+                <button type="button" onclick="clickAcordeon(this)" class="flex items-center justify-between w-full py-5 px-3 font-medium text-left text-gray-500 border-b border-gray-200 dark:border-gray-400 dark:text-gray-400" data-accordion-target="#@accodion" data-expanded="false" aria-expanded="false" aria-controls="@accodion">
                     <span class="text-white">@item.Ejercicio</span>
                     <svg data-accordion-icon class="w-6 h-6 rotate-180 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                 </button>
             </h2>
-            <div id="accordion" class="hidden" aria-labelledby="accordion-flush-heading-1">
+            <div id="@accodion" class="hidden" aria-labelledby="accordion-flush-heading-1">
                 <div class="p-3 font-light border-b border-gray-200 dark:border-gray-400">
                     @if (item.Series != 0)
                     {
@@ -48,7 +56,7 @@
                     }
                 </div>
             </div>
-
+            contador++;
         }
         @using (Html.BeginForm("_RutinaPartial", "Entrenador", FormMethod.Post, new { @class = "px-3" }))
         {

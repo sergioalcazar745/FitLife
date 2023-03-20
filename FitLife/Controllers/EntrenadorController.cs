@@ -3,6 +3,7 @@ using FitLife.Filters;
 using FitLife.Models;
 using FitLife.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Security.Claims;
 
 namespace FitLife.Controllers
@@ -81,7 +82,14 @@ namespace FitLife.Controllers
         public async Task<IActionResult> _RutinaPartial(int idrutina, string comentario)
         {
             await this.repo.RegisterComentarioRutinaAsync(comentario, idrutina);
-            return RedirectToAction("Cliente", "Index");
+            return RedirectToAction("Index", "Cliente");
+        }
+
+        public async Task<IActionResult> EventosMes(int mes, int idcliente)
+        {
+            List<Evento> eventos = await this.repo.EventosMes(idcliente, int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)), mes);
+            //string jsonString = JsonConvert.SerializeObject(eventos);
+            return Json(eventos);
         }
     }
 }

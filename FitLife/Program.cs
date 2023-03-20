@@ -44,7 +44,7 @@ app.UseMvc(routes =>
 {
     routes.MapRoute(
         name: "default",
-        template: "{controller=Managed}/{action=Index}/{id?}");
+        template: "{controller=Cliente}/{action=Index}/{id?}");
 });
 
 app.Run();

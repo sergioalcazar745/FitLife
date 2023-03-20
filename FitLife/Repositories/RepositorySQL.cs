@@ -399,6 +399,7 @@ namespace FitLife.Repositories
                            select new RutinaDia
                            {
                                IdRutina = datos.IdRutina,
+                               Nombre = datos.Nombre,
                                Fecha = datos.Fecha,
                                Series = datos2.Series,
                                Repeticiones = datos2.Repeticiones,
@@ -438,6 +439,21 @@ namespace FitLife.Repositories
             rutina.Comentario = comentario;
             await this.context.SaveChangesAsync();
         }
+
+        public async Task<List<Evento>> EventosMes(int idcliente, int identrenador, int mes)
+        {
+            var consulta = from datos in this.context.Rutinas
+                           where datos.IdCliente == idcliente && datos.IdEntrenador == identrenador &&
+                           datos.Fecha.Month == mes
+                           select new Evento
+                           {
+                               Fecha = datos.Fecha,
+                               Nombre = datos.Nombre
+                           }
+                               ;
+            return await consulta.ToListAsync();
+        }
+
 
         #endregion
 

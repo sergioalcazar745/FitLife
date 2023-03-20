@@ -6,6 +6,8 @@ namespace FitLife.Models
     {
         public int IdRutina { get; set; }
 
+        public string Nombre { get; set; }
+
         public DateTime Fecha { get; set; }
 
         public string Comentario { get; set; }

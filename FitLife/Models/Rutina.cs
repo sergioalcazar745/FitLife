@@ -19,6 +19,9 @@ namespace FitLife.Models
         [Column("FECHA")]
         public DateTime Fecha { get; set; }
 
+        [Column("NOMBRE")]
+        public string Nombre { get; set; }
+
         [Column("COMENTARIO")]
         public string Comentario { get; set; }
     }

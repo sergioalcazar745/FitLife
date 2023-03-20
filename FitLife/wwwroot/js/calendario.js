@@ -18,31 +18,31 @@ function app() {
     return {
         month: "",
         year: "",
+        modalShow: false,
         no_of_days: [],
         blankdays: [],
         days: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-        events: [
-            {
-                event_date: new Date(2023, 1, 1),
-                event_title: "April Fool's Day",
-                event_theme: "blue",
-            },
-            {
-                event_date: new Date(2023, 1, 1),
-                event_title: "April Fool's Day",
-                event_theme: "blue",
-            },
-            {
-                event_date: new Date(2023, 1, 10),
-                event_title: "Birthday",
-                event_theme: "red",
-            },
-            {
-                event_date: new Date(2023, 1, 16),
-                event_title: "Upcoming Event",
-                event_theme: "green",
-            },
-        ],
+        events: [],
+            //{
+            //    event_date: new Date(2023, 1, 1),
+            //    event_title: "April Fool's Day",
+            //    event_theme: "blue",
+            //},
+            //{
+            //    event_date: new Date(2023, 1, 1),
+            //    event_title: "April Fool's Day",
+            //    event_theme: "blue",
+            //},
+            //{
+            //    event_date: new Date(2023, 1, 10),
+            //    event_title: "Birthday",
+            //    event_theme: "red",
+            //},
+            //{
+            //    event_date: new Date(2023, 1, 16),
+            //    event_title: "Upcoming Event",
+            //    event_theme: "green",
+            //},
         event_title: "",
         event_date: "",
         event_theme: "blue",
@@ -89,24 +89,31 @@ function app() {
             this.openEventModal = true;
             this.event_date = new Date(this.year, this.month, date).toDateString();
         },
-        addEvent() {
-            if (this.event_title == "") {
-                return;
-            }
-            this.events.push({
-                event_date: this.event_date,
-                event_title: this.event_title,
-                event_theme: this.event_theme,
-            });
-            console.log("Events: " + this.events);
-            // clear the form data
-            this.event_title = "";
-            this.event_date = "";
-            this.event_theme = "blue";
-            //close the modal
-            this.openEventModal = false;
+        async addEvent(operacion, idcliente) {
+            idcliente = 1;
+            $("#loading-calendar").show();
+            $("#content-calendar").hide();
+            fetch("/Entrenador/EventosMes?mes=3&idcliente=" + idcliente)
+                .then(res => res.json())
+                .then(data => {
+                    this.events = []
+                    for (d of data) {
+                        var fecha = new Date(d.fecha);
+                        this.events.push({
+                            event_date: fecha,
+                            event_title: d.nombre,
+                            event_theme: "blue",
+                        });
+                    }
+                    $("#loading-calendar").hide();
+                    if (operacion != 0) {
+                        this.getNoOfDays(operacion)
+                    }
+                    $("#content-calendar").show();
+                });
         },
         getNoOfDays(operacion) {
+            console.log(operacion)
             if (operacion == 1) {
                 console.log("Entro resto")
                 if (this.month - 1 < 0) {
@@ -127,6 +134,8 @@ function app() {
                     console.log("Sumo")
                     this.month++;
                 }
+            } else if (operacion == 0) {
+                this.addEvent(0)
             }
             let daysInMonth = new Date(this.year, this.month + 1, 0).getDate();
             console.log("DayInMonth: " + daysInMonth)

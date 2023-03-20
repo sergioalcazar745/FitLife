@@ -1,4 +1,5 @@
 ﻿using FitLife.Models;
+using System.Drawing;
 
 namespace FitLife.Repositories
 {
@@ -59,5 +60,7 @@ namespace FitLife.Repositories
         Task<List<RutinaDia>> FindRutinaDiaAsync(string fecha);
 
         Task RegisterComentarioRutinaAsync(string comentario, int idrutina);
+
+        Task<List<Evento>> EventosMes(int idcliente, int identrenador, int mes);
     }
 }
