@@ -61,9 +61,9 @@ namespace FitLife.Repositories
 
         Task<List<RutinaDia>> FindRutinaDiaAsync(string fecha);
 
-        //Task<List<RutinaDia>> FilterRutina(DateTime fechainicio, DateTime fechafinal);
+        Task<List<RutinaId>> FilterRutinaAsync(DateTime fechainicio, DateTime fechafinal, int idcliente, int identrenador);
 
-        Task<List<ModelRutinaEjercicio>> EjerciciosRutina(int idrutina);
+        Task<List<ModelEjercicio>> EjerciciosRutina(int idrutina);
 
         Task EliminarRutina(int idrutina);
 

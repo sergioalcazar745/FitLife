@@ -438,18 +438,19 @@ namespace FitLife.Repositories
             return await consulta.ToListAsync();
         }
 
-        //public async Task<List<RutinaDia>> FilterRutina(DateTime fechainicio, DateTime fechafinal)
-        //{
-        //    var consulta = from datos in this.context.Rutinas
-        //                   where datos.Fecha >= fechainicio && datos.Fecha <= fechafinal
-        //                   select new RutinaId
-        //                   {
-        //                       IdRutina = datos.IdRutina,
-        //                       Fecha = datos.Fecha,
-        //                       Nombre = datos.Nombre
-        //                   };
-        //    return await consulta.ToListAsync();
-        //}
+        public async Task<List<RutinaId>> FilterRutinaAsync(DateTime fechainicio, DateTime fechafinal, int idcliente, int identrenador)
+        {
+            var consulta = from datos in this.context.Rutinas
+                           where datos.Fecha >= fechainicio && datos.Fecha <= fechafinal && 
+                           datos.IdCliente == idcliente && datos.IdEntrenador == identrenador
+                           select new RutinaId
+                           {
+                               IdRutina = datos.IdRutina,
+                               Fecha = datos.Fecha,
+                               Nombre = datos.Nombre
+                           };
+            return await consulta.ToListAsync();
+        }
 
         public async Task EliminarRutina(int idrutina)
         {
@@ -458,21 +459,22 @@ namespace FitLife.Repositories
             await this.context.Database.ExecuteSqlRawAsync(sql, paraidrutina);
         }
 
-        public async Task<List<ModelRutinaEjercicio>> EjerciciosRutina(int idrutina)
+        public async Task<List<ModelEjercicio>> EjerciciosRutina(int idrutina)
         {
             var consulta = from datos in this.context.RutinaEjercicios
                            join datos2 in this.context.Ejercicios
                            on datos.IdEjercicio equals datos2.IdEjercicio
                            where datos.IdRutina == idrutina
-                           select new ModelRutinaEjercicio
+                           select new ModelEjercicio
                            {
-                               Nombre = datos2.Nombre,
+                               Ejercicio = datos.IdEjercicio,
                                Series = datos.Series,
-                               Repeticiones = datos.Repeticiones,
-                               PausaSubida = datos.PausaSubida,
-                               PausaBajada = datos.PausaBajada,
-                               PausaAguante = datos.PausaAguante,
-                               Arroba = datos.Arroba
+                               Repes = datos.Repeticiones,
+                               Subida = datos.PausaSubida,
+                               Bajada = datos.PausaBajada,
+                               Aguante = datos.PausaAguante,
+                               Arroba = datos.Arroba,
+                               IdRutinaEjercicio = datos.IdRutinaEjercicio
                            };
             return await consulta.ToListAsync();
         }

@@ -86,6 +86,7 @@ namespace FitLife.Controllers
 
         public async Task<IActionResult> Logout()
         {
+            this.memoryCache.Remove("idcliente");
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index");
         }

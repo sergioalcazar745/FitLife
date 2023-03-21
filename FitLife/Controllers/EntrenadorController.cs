@@ -104,15 +104,21 @@ namespace FitLife.Controllers
         [HttpPost]
         public async Task<IActionResult> Rutinas(DateTime fechainicio, DateTime fechafinal)
         {
-            return View();
+            int identrenador = int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            int idcliente = int.Parse(this.memoryCache.Get("idcliente").ToString());
+            List<RutinaId> rutinas = await this.repo.FilterRutinaAsync(fechainicio, fechafinal, idcliente, identrenador);
+            ViewData["FILTRO"] = rutinas.Count + " RESULTADOS";
+            return View(rutinas);
         }
 
         public async Task<IActionResult> DetallesRutina(int idrutina)
         {
             Rutina rutina = await this.repo.FindRutinaByIdAsync(idrutina);
-            List<ModelRutinaEjercicio> ejercicio = await this.repo.EjerciciosRutina(idrutina);
+            List<ModelEjercicio> ejercicios = await this.repo.EjerciciosRutina(idrutina);
+            List<Ejercicio> nombreEjercicio = await this.repo.EjerciciosAsync();
             ViewData["RUTINA"] = rutina;
-            return View(ejercicio);
+            ViewData["EJERCICIOS"] = nombreEjercicio;
+            return View(ejercicios);
         }
 
         public async Task<IActionResult> EliminarRutina (int idrutina)

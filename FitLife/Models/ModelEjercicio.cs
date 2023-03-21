@@ -2,6 +2,7 @@
 {
     public class ModelEjercicio
     {
+        public int IdRutinaEjercicio { get; set; }
         public int Ejercicio { get; set; }
         public int Series { get; set; }
         public int Repes { get; set; }
