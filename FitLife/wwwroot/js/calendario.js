@@ -74,17 +74,12 @@ function app() {
             this.openEventModal = true;
             this.event_date = new Date(this.year, this.month, date).toDateString();
         },
-        async addEvent(operacion) {
+        async addEvent() {
             var mes = 0;
             console.log("Mes var: " + this.month)
-            if (operacion == 1) {
-                console.log("resto")
-                mes = this.month - 1;
-            } else if (operacion == 2 || operacion == 0) {
-                console.log("sumo")
-                mes = this.month + 1;
-            }
-            console.log(this.idcliente + "-" + mes + "-" + operacion)
+            mes = this.month + 1;
+            console.log("Mes var despues: " + mes)
+            console.log(this.idcliente + "-" + mes)
             $("#loading-calendar").show();
             $("#content-calendar").hide();
             fetch("/Entrenador/EventosMes?mes=" + mes + "&idcliente=" + this.idcliente)
@@ -101,9 +96,6 @@ function app() {
                         });
                     }
                     $("#loading-calendar").hide();
-                    if (operacion != 0) {
-                        this.getNoOfDays(operacion)
-                    }
                     $("#content-calendar").show();
                 });
         },
@@ -119,6 +111,7 @@ function app() {
                     console.log("Resto")
                     this.month--;
                 }
+                this.addEvent()
             } else if (operacion == 2) {
                 console.log("Entro suma")
                 if (this.month + 1 > 11) {
@@ -129,8 +122,9 @@ function app() {
                     console.log("Sumo")
                     this.month++;
                 }
+                this.addEvent()
             } else if (operacion == 0) {
-                this.addEvent(0)
+                this.addEvent()
             }
             console.log("Mes var2: " + this.month)
             let daysInMonth = new Date(this.year, this.month + 1, 0).getDate();
@@ -151,7 +145,7 @@ function app() {
             this.blankdays = blankdaysArray;
             this.no_of_days = daysArray;
             //console.log("No of days: " + this.no_of_days)
-            //console.log("------------------------------------")
+            console.log("------------------------------------")
         },
     };
 }

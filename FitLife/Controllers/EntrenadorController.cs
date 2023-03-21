@@ -78,6 +78,7 @@ namespace FitLife.Controllers
 
         public async Task<IActionResult> _RutinaPartial(string fecha)
         {
+            //meter el idcliente e identrenador
             List<RutinaDia> rutina = await this.repo.FindRutinaDiaAsync(fecha);
             if(rutina.Count == 0)
             {

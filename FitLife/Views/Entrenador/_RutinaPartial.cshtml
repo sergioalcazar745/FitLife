@@ -53,11 +53,11 @@
             </div>
             contador++;
         }
-        @using (Html.BeginForm("_RutinaPartial", "Entrenador", FormMethod.Post, new { @class = "px-3" }))
+        @using (Html.BeginForm("_RutinaPartial", "Entrenador", FormMethod.Post))
         {
             <input type="hidden" name="idrutina" value="@Model[0].IdRutina" />
             <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white mt-6">Comentario</label>
-            <textarea id="message" name="comentario" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">@Model[0].Comentario</textarea>
+            <textarea id="message" style="resize: none;"  name="comentario" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">@Model[0].Comentario</textarea>
             <button type="submit" class="text-white mt-3 bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">Guardar</button>
         }
     }
