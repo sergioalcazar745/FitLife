@@ -39,43 +39,58 @@
                 pintarEjercicioNuevo();
             })
 
-            //$("#enviar").click(function () {
-            //    console.log("Entra")
-            //    var listaEjercicios = [];
-            //    var formData = new FormData(document.querySelector('form'))
-            //    for (let i = 1; i <= contador; i++) {
-            //        var ejercicioname = formData.get("ejercicio" + i)
-            //        var series = formData.get("series" + i)
-            //        var repes = formData.get("repes" + i)
-            //        var bajada = formData.get("bajada" + i)
-            //        var subida = formData.get("subida" + i)
-            //        var aguante = formData.get("aguante" + i)
-            //        var arroba = formData.get("arroba" + i)
-            //        const ejercicio = { ejercicio: ejercicioname, series: series, repes: repes, bajada: bajada, subida: subida, aguante: aguante, arroba: arroba }
-            //        console.log(ejercicio)
-            //        listaEjercicios.push(ejercicio);
-            //    }
-            //    var fecha = formData.get("fecha")
-            //    var nombre = formData.get("nombre")
-            //    $.post("/Entrenador/CrearRutina", { fecha: fecha, nombre: nombre, ejercicios: listaEjercicios, idcliente: }, function (data) {
-            //        console.log(data)
-            //        if (data == "Error") {
-            //            console.log("entra al error")
-            //            $("#error").append(
-            //                `
-            //                    <div class="flex p-4 my-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-red-800 dark:text-red-400" role="alert">
-            //                        <svg aria-hidden="true" class="flex-shrink-0 inline w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
-            //                        <span class="sr-only">Info</span>
-            //                        <div>
-            //                            <span class="font-medium text-white">Ya existe una rutina para ese dia</span>
-            //                        </div>
-            //                    </div>
-            //                    `)
-            //        } else {
-            //            window.location.reload();
-            //        }
-            //    }, "json");
-            //})
+            $("#enviar").click(function () {
+                console.log("Entra")
+                var listaEjerciciosActualizar = [];
+                var listaEjerciciosNuevos = [];
+                var formData = new FormData(document.querySelector('form'))
+                for (let i = 1; i <= contador; i++) {
+                    var section = $("input[name='series"+i+"']").closest("section");
+                    var ejercicioname = formData.get("ejercicio" + i)
+                    var series = formData.get("series" + i)
+                    var repes = formData.get("repes" + i)
+                    var bajada = formData.get("bajada" + i)
+                    var subida = formData.get("subida" + i)
+                    var aguante = formData.get("aguante" + i)
+                    var arroba = formData.get("arroba" + i)
+                    const ejercicio = { idRutinaEjercicio: 0, ejercicio: ejercicioname, series: series, repes: repes, bajada: bajada, subida: subida, aguante: aguante, arroba: arroba }
+                    if (section.attr("id") != undefined) {
+                        console.log("Si")
+                        ejercicio.idRutinaEjercicio = parseInt(section.attr("id"))
+                        listaEjerciciosActualizar.push(ejercicio);
+                    } else {
+                        console.log("no")
+                        listaEjerciciosNuevos.push(ejercicio);
+                    }
+                }
+                var fecha = formData.get("fecha")
+                var nombre = formData.get("nombre")
+                console.log("IdRutina: @rutina.IdRutina")
+                console.log("Fecha: " + fecha);
+                console.log("Nombre: " + nombre);
+                console.log(listaEliminar);
+                console.log(listaEjerciciosActualizar);
+                console.log(listaEjerciciosNuevos);
+                //EN PRINCIPIO YA ESTA LISTA PARA HACER LA PETICION
+                $.post("/Entrenador/ModificarRutina", { idrutina: @rutina.IdRutina, fecha: fecha, nombre: nombre, listaEliminar: listaEliminar, listaActualizar: listaEjerciciosActualizar, listaNuevos: listaEjerciciosNuevos}, function (data) {
+                    console.log("Resultado: " + data)
+                    //if (data == "Error") {
+                    //    console.log("entra al error")
+                    //    $("#error").append(
+                    //        `
+                    //            <div class="flex p-4 my-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-red-800 dark:text-red-400" role="alert">
+                    //                <svg aria-hidden="true" class="flex-shrink-0 inline w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                    //                <span class="sr-only">Info</span>
+                    //                <div>
+                    //                    <span class="font-medium text-white">Ya existe una rutina para ese dia</span>
+                    //                </div>
+                    //            </div>
+                    //            `)
+                    //} else {
+                    //    window.location.href = "/Entrenador/DetallesRutina?idrutina=@rutina.IdRutina";
+                    //}
+                }, "json");
+            })
 
             function pintarEjercicio() {
                 for(ejer of ejercicios){
@@ -83,7 +98,7 @@
                     var eliminar = pintarEliminar();
                     $("#contenedor").append(
                         `
-                                    <section id="${ejer.idRutinaEjercicio}">
+                         <section id="${ejer.idRutinaEjercicio}">
                                    <div class="relative z-0 w-full mb-6 group border-t border-gray-700 pt-5">
                                         <label for="ejercicio" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ejercicio</label>
                                         <select name="ejercicio${contador}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
@@ -201,6 +216,7 @@
         function clickEliminar(element, cont) {
             var abuelo = element.closest("section");
             if (abuelo.id != "") {
+                console.log("Elimino: " + abuelo.id)
                 listaEliminar.push(parseInt(abuelo.id))
             }
             var siguientes = $(abuelo).nextAll();

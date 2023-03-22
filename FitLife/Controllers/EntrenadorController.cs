@@ -76,6 +76,12 @@ namespace FitLife.Controllers
             return Json("Success");
         }
 
+        public async Task<IActionResult> ModificarRutina(RutinaEjerciciosModificar rutina)
+        {
+            //await this.repo.
+            return View();
+        }
+
         public async Task<IActionResult> _RutinaPartial(string fecha)
         {
             //meter el idcliente e identrenador

@@ -510,6 +510,39 @@ namespace FitLife.Repositories
             return await consulta.ToListAsync();
         }
 
+        public async Task EliminarEjerciciosRutina(List<int> ejercicios)
+        {
+            var consulta = from datos in this.context.RutinaEjercicios
+                           where ejercicios.Contains(datos.IdRutinaEjercicio)
+                           select datos;
+            List<RutinaEjercicio> rutinaEjercicios = await consulta.ToListAsync();
+            this.context.RutinaEjercicios.RemoveRange(rutinaEjercicios);
+        }
+
+        public async Task ModificarEjerciciosRutina(List<ModelEjercicio> ejercicios, int idrutina)
+        {
+            List<RutinaEjercicio> ejerciciosRutina = new List<RutinaEjercicio>();
+            foreach (ModelEjercicio ejercicio in ejercicios)
+            {
+                RutinaEjercicio ejercicioRutina = new RutinaEjercicio();
+                ejercicioRutina.IdRutinaEjercicio = ejercicio.IdRutinaEjercicio;
+                ejercicioRutina.IdRutina = idrutina;
+                ejercicioRutina.IdEjercicio = ejercicio.Ejercicio;
+                ejercicioRutina.Series = ejercicio.Series;
+                ejercicioRutina.Repeticiones = ejercicio.Repes;
+                ejercicioRutina.PausaBajada = ejercicio.Bajada;
+                ejercicioRutina.PausaSubida = ejercicio.Subida;
+                ejercicioRutina.PausaAguante = ejercicio.Aguante;
+                ejercicioRutina.Arroba = ejercicio.Arroba;
+                ejerciciosRutina.Add(ejercicioRutina);
+            }
+            this.context.RutinaEjercicios.UpdateRange(ejerciciosRutina);
+        }
+
+        public async Task ActualizarRutina(int idrutina, DateTime fecha, string nombre, string comentario)
+        {
+            
+        }
 
         #endregion
 

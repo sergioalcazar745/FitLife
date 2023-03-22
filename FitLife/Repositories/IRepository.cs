@@ -70,5 +70,11 @@ namespace FitLife.Repositories
         Task RegisterComentarioRutinaAsync(string comentario, int idrutina);
 
         Task<List<Evento>> EventosMesAsync(int idcliente, int identrenador, int mes);
+
+        Task EliminarEjerciciosRutina(List<int> ejercicios);
+
+        Task ModificarEjerciciosRutina(List<ModelEjercicio> ejercicios, int idrutina);
+
+        Task ActualizarRutina(int idrutina, DateTime fecha, string nombre, string comentario);
     }
 }
