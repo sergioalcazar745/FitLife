@@ -57,9 +57,7 @@ namespace FitLife.Repositories
 
         Task RegistrarEjerciciosRutinaAsync(List<ModelEjercicio> ejercicios, int idrutina);
 
-        Task<int> GetMaxRutinaEjerciciosAsync();
-
-        Task<List<RutinaDia>> FindRutinaDiaAsync(string fecha);
+        Task<List<RutinaDia>> FindRutinaDiaAsync(string fecha, int idcliente, int identrenador);
 
         Task<List<RutinaId>> FilterRutinaAsync(DateTime fechainicio, DateTime fechafinal, int idcliente, int identrenador);
 
@@ -75,6 +73,6 @@ namespace FitLife.Repositories
 
         Task ModificarEjerciciosRutina(List<ModelEjercicio> ejercicios, int idrutina);
 
-        Task ActualizarRutina(int idrutina, DateTime fecha, string nombre, string comentario);
+        Task ActualizarRutina(int idrutina, DateTime fecha, string nombre);
     }
 }

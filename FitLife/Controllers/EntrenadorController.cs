@@ -78,14 +78,39 @@ namespace FitLife.Controllers
 
         public async Task<IActionResult> ModificarRutina(RutinaEjerciciosModificar rutina)
         {
-            //await this.repo.
-            return View();
+            int idcliente = this.memoryCache.Get<int>("idcliente");
+            int identrenador = int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            Rutina rutinaCheck = await this.repo.FindRutinaByFechaClienteEntrenadorAsync(rutina.Fecha.ToString(), identrenador, idcliente);
+            if(rutinaCheck is not null)
+            {
+                if (rutinaCheck.Fecha != rutina.Fecha)
+                {
+                    return Json("Error");
+                }
+            }
+            await this.repo.ActualizarRutina(rutina.IdRutina, rutina.Fecha, rutina.Nombre);
+            if(rutina.ListaActualizar is not null)
+            {
+                await this.repo.ModificarEjerciciosRutina(rutina.ListaActualizar, rutina.IdRutina);
+            }
+
+            if(rutina.ListaNuevos is not null)
+            {
+                await this.repo.RegistrarEjerciciosRutinaAsync(rutina.ListaNuevos, rutina.IdRutina);
+            }
+
+            if(rutina.ListaEliminar is not null)
+            {
+                await this.repo.EliminarEjerciciosRutina(rutina.ListaEliminar);
+            }
+            return Json("Success");
         }
 
         public async Task<IActionResult> _RutinaPartial(string fecha)
         {
-            //meter el idcliente e identrenador
-            List<RutinaDia> rutina = await this.repo.FindRutinaDiaAsync(fecha);
+            int identrenador = int.Parse(HttpContext.User.FindFirstValue("IdEntrenador"));
+            int idcliente = int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier).ToString());
+            List<RutinaDia> rutina = await this.repo.FindRutinaDiaAsync(fecha, idcliente, identrenador);
             if(rutina.Count == 0)
             {
                 rutina = null;
@@ -100,8 +125,12 @@ namespace FitLife.Controllers
             return RedirectToAction("Index", "Cliente");
         }
 
-        public async Task<IActionResult> Rutinas(int idcliente)
+        public async Task<IActionResult> Rutinas(int idcliente, int? mensaje)
         {
+            if(mensaje is not null)
+            {
+                ViewData["MENSAJE"] = "La rutina ha sido guardado correctamente";
+            }
             int identrenador = int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
             List<RutinaId> rutinas = await this.repo.RutinasIdsAsync(idcliente, identrenador);
             return View(rutinas);
@@ -117,8 +146,12 @@ namespace FitLife.Controllers
             return View(rutinas);
         }
 
-        public async Task<IActionResult> DetallesRutina(int idrutina)
+        public async Task<IActionResult> DetallesRutina(int idrutina, int? mensaje)
         {
+            if(mensaje is not null)
+            {
+                ViewData["MENSAJE"] = "La rutina ha sido actualizada correctamente";
+            }
             Rutina rutina = await this.repo.FindRutinaByIdAsync(idrutina);
             List<ModelEjercicio> ejercicios = await this.repo.EjerciciosRutina(idrutina);
             List<Ejercicio> nombreEjercicio = await this.repo.EjerciciosAsync();

@@ -390,14 +390,14 @@ namespace FitLife.Repositories
             await this.context.SaveChangesAsync();
         }
 
-        public async Task<List<RutinaDia>> FindRutinaDiaAsync(string fecha)
+        public async Task<List<RutinaDia>> FindRutinaDiaAsync(string fecha, int idcliente, int identrenador)
         {
             var consulta = from datos in this.context.Rutinas
                            join datos2 in this.context.RutinaEjercicios
                            on datos.IdRutina equals datos2.IdRutina
                            join datos3 in this.context.Ejercicios
                            on datos2.IdEjercicio equals datos3.IdEjercicio
-                           where datos.Fecha == DateTime.Parse(fecha)
+                           where datos.Fecha == DateTime.Parse(fecha) && datos.IdCliente == idcliente && datos.IdEntrenador == identrenador
                            select new RutinaDia
                            {
                                IdRutina = datos.IdRutina,
@@ -427,14 +427,14 @@ namespace FitLife.Repositories
 
         public async Task<List<RutinaId>> RutinasIdsAsync(int idcliente, int identrenador)
         {
-            var consulta = from datos in this.context.Rutinas
+            var consulta = (from datos in this.context.Rutinas
                            where datos.IdCliente == idcliente && datos.IdEntrenador == identrenador
                            select new RutinaId
                            {
                                IdRutina = datos.IdRutina,
                                Fecha = datos.Fecha,
                                Nombre = datos.Nombre
-                           };
+                           }).OrderByDescending(z => z.Fecha);
             return await consulta.ToListAsync();
         }
 
@@ -481,12 +481,12 @@ namespace FitLife.Repositories
 
         public async Task<int> GetMaxRutinaEjerciciosAsync()
         {
-            return this.context.RutinaEjercicios.Count();
+            return this.context.RutinaEjercicios.Max(z => z.IdRutinaEjercicio);
         }
 
         public async Task<int> GetMaxRutinaAsync()
         {
-            return this.context.Rutinas.Count();
+            return this.context.Rutinas.Max(z => z.IdRutina);
         }
 
         public async Task RegisterComentarioRutinaAsync(string comentario, int idrutina)
@@ -517,11 +517,11 @@ namespace FitLife.Repositories
                            select datos;
             List<RutinaEjercicio> rutinaEjercicios = await consulta.ToListAsync();
             this.context.RutinaEjercicios.RemoveRange(rutinaEjercicios);
+            await this.context.SaveChangesAsync();
         }
 
         public async Task ModificarEjerciciosRutina(List<ModelEjercicio> ejercicios, int idrutina)
         {
-            List<RutinaEjercicio> ejerciciosRutina = new List<RutinaEjercicio>();
             foreach (ModelEjercicio ejercicio in ejercicios)
             {
                 RutinaEjercicio ejercicioRutina = new RutinaEjercicio();
@@ -534,14 +534,18 @@ namespace FitLife.Repositories
                 ejercicioRutina.PausaSubida = ejercicio.Subida;
                 ejercicioRutina.PausaAguante = ejercicio.Aguante;
                 ejercicioRutina.Arroba = ejercicio.Arroba;
-                ejerciciosRutina.Add(ejercicioRutina);
+                this.context.RutinaEjercicios.Update(ejercicioRutina);
             }
-            this.context.RutinaEjercicios.UpdateRange(ejerciciosRutina);
+            await this.context.SaveChangesAsync();
         }
 
-        public async Task ActualizarRutina(int idrutina, DateTime fecha, string nombre, string comentario)
+        public async Task ActualizarRutina(int idrutina, DateTime fecha, string nombre)
         {
-            
+            Rutina rutina = await this.FindRutinaByIdAsync(idrutina);
+            rutina.Fecha = fecha;
+            rutina.Nombre = nombre;
+            this.context.Rutinas.Update(rutina);
+            await this.context.SaveChangesAsync();
         }
 
         #endregion
