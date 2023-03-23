@@ -20,7 +20,7 @@ namespace FitLife.Controllers
             this.memoryCache = memoryCache;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Clientes()
         {
             List <UsuarioPerfil> clientes = await this.repo.GetClientesAsync();
             return View(clientes);

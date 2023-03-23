@@ -67,7 +67,7 @@ namespace FitLife.Controllers
                         }
                         else
                         {
-                            return RedirectToAction("Index", "Entrenador");
+                            return RedirectToAction("Clientes", "Entrenador");
                         }
                     }
                     else

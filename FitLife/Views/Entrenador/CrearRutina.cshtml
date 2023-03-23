@@ -76,6 +76,9 @@
 
             function pintarEjercicio(){
                 contador++;
+                if (contador + 1 > 10) {
+                    $("#mas").hide();
+                }
                 var eliminar = pintarEliminar();
                 var ejerciciosSelect = pintarEjercicios();
                 $("#contenedor").append(
@@ -163,6 +166,9 @@
             }
             abuelo.remove();
             contador--;
+            if (contador < 10) {
+                $("#mas").show();
+            }
         }
 
     </script>
