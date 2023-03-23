@@ -6,6 +6,7 @@
 
 @{
     int idUsuario = int.Parse(Context.User.FindFirstValue(ClaimTypes.NameIdentifier));
+    string role = Context.User.FindFirstValue(ClaimTypes.Role);
 }
 
 @section styles{
@@ -27,7 +28,18 @@
     <script>
         $(document).ready(function() {
             var listUsuarios = @Html.Raw(Json.Serialize(Model));
-            var listUsuarioPerfil = listUsuarios.filter(usuario => usuario.role == "cliente" && usuario.idEntrenador == @idUsuario);
+            var role = @Html.Raw(Json.Serialize(@role))
+            var listUsuarioPerfil = null;
+            if(role == "entrenador"){
+                console.log("coach")
+                listUsuarioPerfil = listUsuarios.filter(usuario => usuario.role == "cliente" && usuario.idEntrenador == @idUsuario);
+                console.log(listUsuarioPerfil)
+            }else if(role == "nutricionista"){
+                console.log("diestist")
+                listUsuarioPerfil = listUsuarios.filter(usuario => usuario.role == "cliente" && usuario.idDietista == @idUsuario);
+                console.log(listUsuarioPerfil)
+            }
+
             if (listUsuarioPerfil.length > 0) {
                 for (const usuario of listUsuarioPerfil) {
                     pintarClientesEntrenador(listUsuarioPerfil)
@@ -102,49 +114,93 @@
             function pintarClientes(list) {
                 $("#lista").empty();
                 for (const usuario of list) {
-                    if (usuario.idEntrenador != 0) {
-                        $("#lista").append(
-                        `
+                    if(role == "entrenador"){
+                        if (usuario.idEntrenador != 0) {
+                            $("#lista").append(
+                                `
+                                    <li class="pb-3 sm:py-4 hover:bg-gray-700 cursor-pointer rounded">
+                                        <div class="flex items-center space-x-4">
+                                            <div class="flex-shrink-0">
+                                               <img class="w-8 h-8 rounded-full" src="/images/cliente.png" alt="imagen">
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+                                                   ${usuario.nombre} ${usuario.apellidos}
+                                                </p>
+                                                <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                                                   ${usuario.email}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                `)
+                        } else {
+                            $("#lista").append(
+                                `
+                                <li class="pb-3 sm:py-4 hover:bg-gray-700 cursor-pointer rounded">
+                                    <div class="flex items-center space-x-4">
+                                       <div class="flex-shrink-0">
+                                          <img class="w-8 h-8 rounded-full" src="/images/cliente.png" alt="imagen">
+                                       </div>
+                                       <div class="flex-1 min-w-0">
+                                           <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+                                               ${usuario.nombre}
+                                           </p>
+                                           <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                                               ${usuario.email}
+                                           </p>
+                                       </div>
+                                       <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                                        <a href="/Entrenador/AñadirCliente?idcliente=${usuario.idUsuario}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Añadir</a>
+                                       </div>
+                                   </div>
+                                </li>
+                                `)
+                        }
+                    }else if(role == "nutricionista"){
+                        if (usuario.idDietista != 0) {
+                            $("#lista").append(
+                            `
+                                <li class="pb-3 sm:py-4 hover:bg-gray-700 cursor-pointer rounded">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex-shrink-0">
+                                           <img class="w-8 h-8 rounded-full" src="/images/cliente.png" alt="imagen">
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+                                               ${usuario.nombre} ${usuario.apellidos}
+                                            </p>
+                                            <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                                               ${usuario.email}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </li>
+                            `)
+                        } else {
+                            $("#lista").append(
+                            `
                             <li class="pb-3 sm:py-4 hover:bg-gray-700 cursor-pointer rounded">
                                 <div class="flex items-center space-x-4">
-                                    <div class="flex-shrink-0">
-                                       <img class="w-8 h-8 rounded-full" src="/images/cliente.png" alt="imagen">
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                                           ${usuario.nombre} ${usuario.apellidos}
-                                        </p>
-                                        <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                                   <div class="flex-shrink-0">
+                                      <img class="w-8 h-8 rounded-full" src="/images/cliente.png" alt="imagen">
+                                   </div>
+                                   <div class="flex-1 min-w-0">
+                                       <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+                                           ${usuario.nombre}
+                                       </p>
+                                       <p class="text-sm text-gray-500 truncate dark:text-gray-400">
                                            ${usuario.email}
-                                        </p>
-                                    </div>
-                                </div>
+                                       </p>
+                                   </div>
+                                   <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                                    <a href="/Entrenador/AñadirCliente?idcliente=${usuario.idUsuario}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Añadir</a>
+                                   </div>
+                               </div>
                             </li>
-                        `)
-                    } else {
-                        $("#lista").append(
-                        `
-                        <li class="pb-3 sm:py-4 hover:bg-gray-700 cursor-pointer rounded">
-                            <div class="flex items-center space-x-4">
-                               <div class="flex-shrink-0">
-                                  <img class="w-8 h-8 rounded-full" src="/images/cliente.png" alt="imagen">
-                               </div>
-                               <div class="flex-1 min-w-0">
-                                   <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                                       ${usuario.nombre}
-                                   </p>
-                                   <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                                       ${usuario.email}
-                                   </p>
-                               </div>
-                               <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                <a href="/Entrenador/AñadirCliente?idcliente=${usuario.idUsuario}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Añadir</a>
-                               </div>
-                           </div>
-                        </li>
-                        `)
+                            `)
+                        }
                     }
-
                 }
             }
         })

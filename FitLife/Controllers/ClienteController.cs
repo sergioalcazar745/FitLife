@@ -12,11 +12,19 @@ namespace FitLife.Controllers
             this.repo = repo;
         }
 
-        public IActionResult Index()
+        public IActionResult Calendario()
         {
             return View();
         }
 
+        public IActionResult Hoy()
+        {
+            return View();
+        }
 
+        public IActionResult Semana()
+        {
+            return View();
+        }
     }
 }

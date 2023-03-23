@@ -229,6 +229,7 @@ namespace FitLife.Repositories
         {
             string sql = "SP_REGISTER_CLIENTE @NOMBRE, @APELLIDOS, @DNI, @EMAIL, @PASSWORDENCRYPT, @SALT, @PASSWORD, @ROLE, @ALTURA, @PESO, @EDAD, @SEXO, @IDUSUARIO OUT";
             SqlParameter paraidusuario = new SqlParameter("@IDUSUARIO", -1);
+            paraidusuario.Direction = ParameterDirection.Output;
             SqlParameter paranombre = new SqlParameter("@NOMBRE", nombre);
             SqlParameter paraapellidos = new SqlParameter("@APELLIDOS", apellidos);
             SqlParameter paradni = new SqlParameter("@DNI", dni);
@@ -573,6 +574,32 @@ namespace FitLife.Repositories
                            };
             return consulta.ToList();
         }
+
+        public async Task AñadirClienteDietistaAsync(int idcliente, int dietista)
+        {
+            PerfilUsuario perfil = await this.FindPerfilUsuario(idcliente);
+            perfil.IdDietista = dietista;
+            await this.context.SaveChangesAsync();
+        }
+
+        public async Task<List<Comida>> Comidas()
+        {
+            return await this.context.Comidas.ToListAsync();
+        }
+
+        public async Task<List<Dieta>> Dietas(int idcliente)
+        {
+            var consulta = from datos in this.context.Dietas
+                           where datos.IdCliente == idcliente
+                           select datos;
+            return await consulta.ToListAsync();
+        }
+
+        public async Task DetallesDieta()
+        {
+
+        }
+
         #endregion
     }
 }

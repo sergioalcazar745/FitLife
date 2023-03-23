@@ -22,15 +22,22 @@ namespace FitLife.Controllers
 
         public async Task<IActionResult> Clientes()
         {
-            List <UsuarioPerfil> clientes = await this.repo.GetClientesAsync();
+            List<UsuarioPerfil> clientes = await this.repo.GetClientesAsync();
             return View(clientes);
         }
 
         public async Task<IActionResult> AñadirCliente(int idcliente)
         {
             int idUsuario = int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
-            await this.repo.AñadirClienteEntrenadorAsync(idcliente, idUsuario);
-            return RedirectToAction("Index");
+            string role = HttpContext.User.FindFirstValue(ClaimTypes.Role);
+            if(role == "entrenador")
+            {
+                await this.repo.AñadirClienteEntrenadorAsync(idcliente, idUsuario);
+            }else if(role == "nutricionista")
+            {
+                await this.repo.AñadirClienteDietistaAsync(idcliente, idUsuario);
+            }
+            return RedirectToAction("Clientes");
         }
 
         public async Task<IActionResult> DetallesCliente(int idcliente)
@@ -54,7 +61,7 @@ namespace FitLife.Controllers
         public async Task<IActionResult> EliminarCliente(int idcliente)
         {
             await this.repo.EliminarClienteEntrenadorAsync(idcliente);
-            return RedirectToAction("Index");
+            return RedirectToAction("Clientes");
         }
 
         public async Task<IActionResult> CrearRutina(int idcliente)
@@ -122,7 +129,7 @@ namespace FitLife.Controllers
         public async Task<IActionResult> _RutinaPartial(int idrutina, string comentario)
         {
             await this.repo.RegisterComentarioRutinaAsync(comentario, idrutina);
-            return RedirectToAction("Index", "Cliente");
+            return RedirectToAction("Calendario", "Cliente");
         }
 
         public async Task<IActionResult> Rutinas(int idcliente, int? mensaje)

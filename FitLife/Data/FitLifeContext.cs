@@ -19,5 +19,13 @@ namespace FitLife.Data
         public DbSet<RutinaEjercicio> RutinaEjercicios { get; set; }
 
         public DbSet<Rutina> Rutinas { get; set; }
+
+        public DbSet<Alimento> Alimentos { get; set; }
+
+        public DbSet<Comida> Comidas { get; set; }
+
+        public DbSet<ComidaAlimento> ComidaAlimentos { get; set; }
+
+        public DbSet<Dieta> Dietas { get; set; }
     }
 }

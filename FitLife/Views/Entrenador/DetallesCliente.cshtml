@@ -4,6 +4,10 @@
     Layout = "_LogLayout";
 }
 
+@{
+    string role = Context.User.FindFirstValue(ClaimTypes.Role);
+}
+
 <form>
     <div class="container mx-auto w-full overflow-hidden bg-white dark:bg-gray-700 dark:text-white text-gray-900 shadow sm:rounded-lg"
          style="margin-top: 20px">
@@ -87,14 +91,28 @@
                         class="focus:outline-none ml-3 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
                         Eliminar
                     </a>
-                    <a asp-controller="Entrenador" asp-action="CrearRutina" asp-route-idcliente="@Model.IdUsuario"
+                    @if (role == "entrenador")
+                    {
+                        <a asp-controller="Entrenador" asp-action="CrearRutina" asp-route-idcliente="@Model.IdUsuario"
                        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                        Añadir rutina
-                    </a>
-                    <a asp-controller="Entrenador" asp-action="Rutinas" asp-route-idcliente="@Model.IdUsuario"
+                            Añadir rutina
+                        </a>
+                        <a asp-controller="Entrenador" asp-action="Rutinas" asp-route-idcliente="@Model.IdUsuario"
                        class="ml-3 focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">
-                        Rutinas
-                    </a>
+                            Rutinas
+                        </a>
+                    }
+                    else if(role == "nutricionista")
+                    {
+                        <a asp-controller="Diestista" asp-action="AñadirDieta"
+                       class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                            Añadir dieta
+                        </a>
+                        <a asp-controller="Diestista" asp-action="Dietas"
+                       class="ml-3 focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">
+                            Dietas
+                        </a>
+                    }
                 </div>
             </dl>
         </div>

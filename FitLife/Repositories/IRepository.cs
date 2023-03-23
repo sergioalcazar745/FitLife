@@ -43,6 +43,8 @@ namespace FitLife.Repositories
 
         Task AñadirClienteEntrenadorAsync(int idcliente, int identrenador);
 
+        Task AñadirClienteDietistaAsync(int idcliente, int dietista);
+
         Task EliminarClienteEntrenadorAsync(int idcliente);
 
         Task<List<Ejercicio>> EjerciciosAsync();
@@ -74,5 +76,7 @@ namespace FitLife.Repositories
         Task ModificarEjerciciosRutina(List<ModelEjercicio> ejercicios, int idrutina);
 
         Task ActualizarRutina(int idrutina, DateTime fecha, string nombre);
+
+        Task<List<Dieta>> Dietas(int idcliente);
     }
 }

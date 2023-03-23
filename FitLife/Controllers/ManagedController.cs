@@ -63,7 +63,7 @@ namespace FitLife.Controllers
                         await HttpContext.SignInAsync (CookieAuthenticationDefaults.AuthenticationScheme, userPrincipal);
                         if(usuario.Role == "cliente")
                         {
-                            return RedirectToAction("Index", "Cliente");
+                            return RedirectToAction("Calendario", "Cliente");
                         }
                         else
                         {
@@ -215,7 +215,7 @@ namespace FitLife.Controllers
                             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, userPrincipal);
                             this.memoryCache.Remove("Usuario");
                             this.memoryCache.Remove("IdUsuario");                            
-                            return RedirectToAction("Index", "Cliente");
+                            return RedirectToAction("Calendario", "Cliente");
                         }
                     }
                     else
