@@ -77,6 +77,18 @@ namespace FitLife.Repositories
 
         Task ActualizarRutina(int idrutina, DateTime fecha, string nombre);
 
-        Task<List<Dieta>> Dietas(int idcliente);
+        Task<int> AñadirDieta(int idnutricionista, int idcliente, DateTime fecha, string nombre);
+
+        Task<List<Comida>> Comidas();
+
+        Task DetallesDieta(int iddieta);
+
+        Task<int> GetMaxComidaAlimento();
+
+        Task<int> GetMaxDietas();
+
+        Task<List<Alimento>> Alimentos();
+
+        Task AñadirAlimentosDieta(List<AlimentoAñadir> alimentosAñadir, int iddieta);
     }
 }

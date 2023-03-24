@@ -1,0 +1,114 @@
+﻿@{
+    Layout = "_LogLayout";
+}
+
+@section scriptbody{
+    <script>
+        $(document).ready(function() {
+            $("#añadir").click(function() {
+                var form = FormData($("form"));
+                var comida = form.get("comida");
+                var alimento = form.get("alimento");
+                var peso = form.get("peso")
+                $.post("/Dietista/AñadirAlimento", { comida: comida, alimento: alimento, peso: peso }, function(data) {
+                    if (data == "Success") {
+                        $("alimentos-"+comida).append(
+                            `
+                            <div class="block max-w-sm p-6 mt-1 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">${comida}</h5>
+                                <p class="${peso}</p>
+                            </div> 
+                            ` 
+                        )
+                    }
+                })
+            })
+        })
+    </script>
+}
+
+    <h1 class="my-10 text-white text-4xl text-center">AÑADIR DIETA</h1>
+
+    <section id="contenido" class="px-6">
+        <div class="mb-6">
+            <label for="fecha" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha</label>
+            <input type="date" name="fecha" id="fecha" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+        </div>
+        <div class="mb-6">
+            <label for="nombre" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
+            <input type="text" name="nombre" id="nombre" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+        </div>
+        <div class="flex justify-end">
+            <button data-modal-target="authentication-modal" data-modal-toggle="authentication-modal" class="block text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" type="button">
+                Añadir alimento
+            </button>
+        </div>
+        <div id="desayuno" class="hidden">
+            <h1 class="mb-10 text-white text-2xl pb-2 border-b border-gray-700">DESAYUNO</h1>
+            <div id="alimentos-desayuno" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            </div>
+        </div>
+        <div id="almuerzo" class="hidden">
+            <h1 class="mb-10 text-white text-2xl pb-2 border-b border-gray-700">ALMUERZO</h1>
+            <div id="alimentos-almuerzo" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            </div>
+        </div>
+        <div id="comida" class="hidden">
+            <h1 class="mb-10 text-white text-2xl pb-2 border-b border-gray-700">COMIDA</h1>
+            <div id="alimentos-comida" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            </div>
+        </div>
+        <div id="merienda" class="hidden">
+            <h1 class="mb-10 text-white text-2xl pb-2 border-b border-gray-700">MERIENDA</h1>
+            <div id="alimentos-merienda" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            </div>
+        </div>
+        <div id="cena" class="hidden">
+            <h1 class="mb-10 text-white text-2xl pb-2 border-b border-gray-700">CENA</h1>
+            <div id="alimentos-cena" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            </div>
+        </div>
+    </section>
+
+    <!-- Main modal -->
+    <div id="authentication-modal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] md:h-full">
+        <div class="relative w-full h-full max-w-md md:h-auto">
+            <!-- Modal content -->
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-hide="authentication-modal">
+                    <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+                <div class="px-6 py-6 lg:px-8">
+                    <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Añadir alimento</h3>
+                    <form class="space-y-6" action="#">
+                        <div>
+                            <label for="comida" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Comida</label>
+                            <select name="comida" id="comida" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                <option value="1">Pan</option>
+                                <option value="1">Arroz</option>
+                                <option value="1">Huevos</option>
+                                <option value="1">Atun</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="alimento" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Alimento</label>
+                            <select name="alimento" id="alimento" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                <option value="1">Pan</option>
+                                <option value="1">Arroz</option>
+                                <option value="1">Huevos</option>
+                                <option value="1">Atun</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="peso" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Alimento</label>
+                            <input type="number" value="0" min="0" max="10" name="peso" id="peso" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-gray-500 dark:focus:border-gray-500" required>
+                        </div>
+                        <div class="text-sm font-medium text-gray-500 dark:text-gray-300">
+                            <button id="añadir" class="text-blue-700 hover:underline dark:text-blue-500">Añadir</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div> 

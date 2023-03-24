@@ -1,10 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FitLife.Models
 {
     [Table("COMIDA")]
     public class Comida
     {
+        [Key]
         [Column("IDCOMIDA")]
         public int IdComida { get; set; }
 

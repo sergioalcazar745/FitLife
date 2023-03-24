@@ -575,6 +575,26 @@ namespace FitLife.Repositories
             return consulta.ToList();
         }
 
+        public async Task<int> AñadirDieta(int idnutricionista, int idcliente, DateTime fecha, string nombre)
+        {
+            int iddieta = await this.GetMaxDietas();
+            iddieta++;
+
+
+            Dieta dieta = new Dieta();
+            dieta.IdDieta = iddieta;
+            dieta.IdNutricionista = idnutricionista;
+            dieta.IdCliente = idcliente;
+            dieta.Fecha = fecha;
+            dieta.Nombre = nombre;
+            dieta.Comentario = "";
+
+            await this.context.Dietas.AddAsync(dieta);
+            await this.context.SaveChangesAsync();
+
+            return iddieta;
+        }
+
         public async Task AñadirClienteDietistaAsync(int idcliente, int dietista)
         {
             PerfilUsuario perfil = await this.FindPerfilUsuario(idcliente);
@@ -587,17 +607,67 @@ namespace FitLife.Repositories
             return await this.context.Comidas.ToListAsync();
         }
 
-        public async Task<List<Dieta>> Dietas(int idcliente)
+        public async Task<ModelDieta> DietasId(int idcliente)
         {
             var consulta = from datos in this.context.Dietas
                            where datos.IdCliente == idcliente
-                           select datos;
-            return await consulta.ToListAsync();
+                           select new ModelDieta
+                           {
+                               IdDieta = datos.IdDieta,
+                               Fecha = datos.Fecha,
+                               nombre = datos.Nombre
+                           };
+
+            return await consulta.FirstOrDefaultAsync();
         }
 
-        public async Task DetallesDieta()
+        public async Task<Dieta> DetallesDieta(int iddieta)
         {
+            var consulta = from datos in this.context.Dietas
+                           where datos.IdDieta == iddieta
+                           select datos;
 
+            return await consulta.FirstOrDefaultAsync();
+        }
+        
+        public async Task<int> GetMaxComidaAlimento()
+        {
+            return this.context.ComidaAlimentos.Max(z => z.IdComidaAlimento);
+        }
+
+        public async Task<int> GetMaxDietas()
+        {
+            return this.context.Dietas.Max(z => z.IdDieta);
+        }
+
+        public async Task<List<Alimento>> Alimentos()
+        {
+            return await this.context.Alimentos.ToListAsync();
+        }
+
+        public async Task AñadirAlimentosDieta(List<AlimentoAñadir> alimentosAñadir, int iddieta)
+        {
+            List<Alimento> alimentos = await this.Alimentos();
+            int idalimento = await this.GetMaxComidaAlimento();
+
+            foreach (AlimentoAñadir alimento in alimentosAñadir)
+            {
+                idalimento++;
+                Alimento alimentoCalculo = alimentos.Find(x => x.IdAlimento == alimento.Alimento);
+                ComidaAlimento al = new ComidaAlimento();
+                al.IdAlimento = alimento.Alimento;
+                al.IdComidaAlimento = idalimento;
+                al.IdDieta = iddieta;
+                al.Peso = alimento.Peso;
+                al.Kcal = (float)(alimento.Peso * alimentoCalculo.Kcal) / 100;
+                al.Carbohidratos = (float)(alimento.Peso * alimentoCalculo.Kcal) / 100;
+                al.Proteinas = (float)(alimento.Peso * alimentoCalculo.Kcal) / 100; 
+                al.Grasas = (float)(alimento.Peso * alimentoCalculo.Kcal) / 100;
+                al.Fibra = (float)(alimento.Peso * alimentoCalculo.Kcal) / 100;
+
+                await this.context.ComidaAlimentos.AddAsync(al);
+            }
+            await this.context.SaveChangesAsync();
         }
 
         #endregion
