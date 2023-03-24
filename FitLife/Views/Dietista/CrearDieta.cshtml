@@ -1,73 +1,108 @@
-﻿@{
+﻿@model List<Alimento>
+
+@{
     Layout = "_LogLayout";
 }
 
 @section scriptbody{
     <script>
+        var alimentos = @Html.Raw(Json.Serialize(Model))
+        var contador = 0;
         $(document).ready(function() {
             $("#añadir").click(function() {
-                var form = FormData($("form"));
-                var comida = form.get("comida");
-                var alimento = form.get("alimento");
-                var peso = form.get("peso")
-                $.post("/Dietista/AñadirAlimento", { comida: comida, alimento: alimento, peso: peso }, function(data) {
-                    if (data == "Success") {
-                        $("alimentos-"+comida).append(
-                            `
-                            <div class="block max-w-sm p-6 mt-1 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">${comida}</h5>
-                                <p class="${peso}</p>
-                            </div> 
-                            ` 
-                        )
-                    }
-                })
+                var fecha = $("input[name='fecha']").val();
+                var nombre = $("input[name='nombre']").val();
+                var comida = $("#comidaselect").val();
+                //console.log($("#comidaselect"))
+                var alimento = $("#alimento").val();
+                var peso = $("#peso").val();
+                console.log(fecha)
+                console.log(nombre)
+                console.log(comida)
+                console.log(alimento)
+                console.log(peso)
+                contador ++;
+                $.post("/Dietista/AñadirAlimento", { idalimentoañadir: contador, alimento: alimento, comida: comida, peso: peso }, function (alimento) {
+                    var div = alimento.comida[0].toLowerCase() + alimento.comida.substring(1)
+                    var nombreComida = alimentos.find(element => element.idAlimento == alimento.alimento)
+                    console.log(div)
+                    $("#" + div).removeClass("hidden")
+                    $("#alimentos-" + div).append(
+                        `
+                        <div class="block max-w-sm p-6 mt-1 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                            <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">${nombreComida.nombre}</h5>
+                            <p class="text-white">${peso} gr</p>
+                            <button type="button" data-id="${alimento.idAlimentoAñadir}" onclick="clickEliminar(this)" class="mt-3 focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Eliminar</button>
+                        </div>
+                        `
+                    )
+                    $("#close").click()
+                }, "json")
             })
         })
+
+        function clickEliminar(element){
+            var id = $(element).data("id");
+            $.post("/Dietista/EliminarAlimento", { id: id }, function (comida) {
+                console.log(comida)
+                $(element).closest("div").remove()
+                var nombre = $(element).siblings("h5").text()
+                nombre = nombre[0].toLowerCase() + nombre.substring(1);
+                console.log($("#alimentos-" + comida).children().length)
+                if ($("#alimentos-" + comida).children().length == 0) {
+                    $("#" + comida).addClass("hidden");
+                }
+            })
+        }
     </script>
 }
 
     <h1 class="my-10 text-white text-4xl text-center">AÑADIR DIETA</h1>
 
     <section id="contenido" class="px-6">
-        <div class="mb-6">
-            <label for="fecha" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha</label>
-            <input type="date" name="fecha" id="fecha" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
-        </div>
-        <div class="mb-6">
-            <label for="nombre" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
-            <input type="text" name="nombre" id="nombre" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
-        </div>
-        <div class="flex justify-end">
-            <button data-modal-target="authentication-modal" data-modal-toggle="authentication-modal" class="block text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" type="button">
-                Añadir alimento
-            </button>
-        </div>
-        <div id="desayuno" class="hidden">
-            <h1 class="mb-10 text-white text-2xl pb-2 border-b border-gray-700">DESAYUNO</h1>
-            <div id="alimentos-desayuno" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <form id="añadir-alimento" method="post">
+            <div class="mb-6">
+                <label for="fecha" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha</label>
+                <input type="date" name="fecha" id="fecha" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
             </div>
-        </div>
-        <div id="almuerzo" class="hidden">
-            <h1 class="mb-10 text-white text-2xl pb-2 border-b border-gray-700">ALMUERZO</h1>
-            <div id="alimentos-almuerzo" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="mb-6">
+                <label for="nombre" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
+                <input type="text" name="nombre" id="nombre" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
             </div>
-        </div>
-        <div id="comida" class="hidden">
-            <h1 class="mb-10 text-white text-2xl pb-2 border-b border-gray-700">COMIDA</h1>
-            <div id="alimentos-comida" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="flex justify-end">
+                <button data-modal-target="authentication-modal" data-modal-toggle="authentication-modal" class="block text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" type="button">
+                    Añadir alimento
+                </button>
             </div>
-        </div>
-        <div id="merienda" class="hidden">
-            <h1 class="mb-10 text-white text-2xl pb-2 border-b border-gray-700">MERIENDA</h1>
-            <div id="alimentos-merienda" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div id="desayuno" class="hidden">
+                <h1 class="mb-10 text-white text-2xl pb-2 border-b border-gray-700">DESAYUNO</h1>
+                <div id="alimentos-desayuno" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                </div>
             </div>
-        </div>
-        <div id="cena" class="hidden">
-            <h1 class="mb-10 text-white text-2xl pb-2 border-b border-gray-700">CENA</h1>
-            <div id="alimentos-cena" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div id="almuerzo" class="hidden">
+                <h1 class="my-10 text-white text-2xl pb-2 border-b border-gray-700">ALMUERZO</h1>
+                <div id="alimentos-almuerzo" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                </div>
             </div>
-        </div>
+            <div id="comida" class="hidden">
+                <h1 class="my-10 text-white text-2xl pb-2 border-b border-gray-700">COMIDA</h1>
+                <div id="alimentos-comida" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                </div>
+            </div>
+            <div id="merienda" class="hidden">
+                <h1 class="my-10 text-white text-2xl pb-2 border-b border-gray-700">MERIENDA</h1>
+                <div id="alimentos-merienda" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                </div>
+            </div>
+            <div id="cena" class="hidden">
+                <h1 class="my-10 text-white text-2xl pb-2 border-b border-gray-700">CENA</h1>
+                <div id="alimentos-cena" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                </div>
+            </div>
+            <div class="mt-3 pt-4 border-t border-gray-700">
+            <button type="submit" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Guardar</button>
+            </div>
+        </form>
     </section>
 
     <!-- Main modal -->
@@ -75,7 +110,7 @@
         <div class="relative w-full h-full max-w-md md:h-auto">
             <!-- Modal content -->
             <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-hide="authentication-modal">
+                <button type="button" id="close" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-hide="authentication-modal">
                     <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                     <span class="sr-only">Close modal</span>
                 </button>
@@ -83,29 +118,30 @@
                     <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Añadir alimento</h3>
                     <form class="space-y-6" action="#">
                         <div>
-                            <label for="comida" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Comida</label>
-                            <select name="comida" id="comida" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                <option value="1">Pan</option>
-                                <option value="1">Arroz</option>
-                                <option value="1">Huevos</option>
-                                <option value="1">Atun</option>
+                        <label for="comidaselect" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Comida</label>
+                        <select name="comidaselect" id="comidaselect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                <option value="Desayuno" selected>Desayuno</option>
+                                <option value="Almuerzo">Almuerzo</option>
+                                <option value="Comida">Comida</option>
+                                <option value="Merienda">Merienda</option>
+                                <option value="Cena">Cena</option>
                             </select>
                         </div>
                         <div>
                             <label for="alimento" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Alimento</label>
                             <select name="alimento" id="alimento" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                <option value="1">Pan</option>
-                                <option value="1">Arroz</option>
-                                <option value="1">Huevos</option>
-                                <option value="1">Atun</option>
+                            @foreach (Alimento alimento in Model)
+                            {
+                                <option value="@alimento.IdAlimento">@alimento.Nombre</option>
+                            }
                             </select>
                         </div>
                         <div>
-                            <label for="peso" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Alimento</label>
-                            <input type="number" value="0" min="0" max="10" name="peso" id="peso" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-gray-500 dark:focus:border-gray-500" required>
+                            <label for="peso" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Peso</label>
+                            <input type="number" value="0" min="1" name="peso" id="peso" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-gray-500 dark:focus:border-gray-500" required>
                         </div>
                         <div class="text-sm font-medium text-gray-500 dark:text-gray-300">
-                            <button id="añadir" class="text-blue-700 hover:underline dark:text-blue-500">Añadir</button>
+                            <button type="button" id="añadir" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Añadir</button>
                         </div>
                     </form>
                 </div>

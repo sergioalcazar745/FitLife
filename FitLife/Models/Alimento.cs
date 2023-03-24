@@ -14,21 +14,21 @@ namespace FitLife.Models
         public string Nombre { get; set; }
 
         [Column("PESO")]
-        public double Peso { get; set; }
+        public float Peso { get; set; }
 
         [Column("KCAL")]
-        public double Kcal { get; set; }
+        public float Kcal { get; set; }
 
         [Column("CARBOHIDRATOS")]
-        public double Carbohidratos { get; set; }
+        public float Carbohidratos { get; set; }
 
         [Column("PROTEINAS")]
-        public double Proteinas { get;set; }
+        public float Proteinas { get;set; }
 
         [Column("GRASAS")]
-        public double Grasas { get; set; }
+        public float Grasas { get; set; }
 
         [Column("FIBRA")]
-        public double Fibra { get; set; }
+        public float Fibra { get; set; }
     }
 }

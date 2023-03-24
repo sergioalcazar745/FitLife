@@ -607,7 +607,12 @@ namespace FitLife.Repositories
             return await this.context.Comidas.ToListAsync();
         }
 
-        public async Task<ModelDieta> DietasId(int idcliente)
+        public async Task<Dieta> GetDieta(int iddieta)
+        {
+            return await this.context.Dietas.FirstOrDefaultAsync();
+        }
+
+        public async Task<List<ModelDieta>> DietasId(int idcliente)
         {
             var consulta = from datos in this.context.Dietas
                            where datos.IdCliente == idcliente
@@ -618,56 +623,114 @@ namespace FitLife.Repositories
                                nombre = datos.Nombre
                            };
 
-            return await consulta.FirstOrDefaultAsync();
+            return await consulta.ToListAsync();
         }
 
-        public async Task<Dieta> DetallesDieta(int iddieta)
+        public async Task<List<ComidaAlimento>> DetallesDieta(int iddieta)
         {
             var consulta = from datos in this.context.Dietas
+                           from datos2 in this.context.ComidaAlimentos
                            where datos.IdDieta == iddieta
-                           select datos;
+                           select new ComidaAlimento
+                           {
+                               IdComidaAlimento = datos2.IdComidaAlimento,
+                               IdComida = datos2.IdComida,
+                               IdDieta = datos2.IdDieta,
+                               Peso = datos2.Peso,
+                               Kcal = datos2.Kcal,
+                               Carbohidratos = datos2.Carbohidratos,
+                               Proteinas = datos2.Proteinas,
+                               Grasas = datos2.Grasas,
+                               Fibra = datos2.Fibra
+                           };
 
-            return await consulta.FirstOrDefaultAsync();
+            return await consulta.ToListAsync();
         }
         
         public async Task<int> GetMaxComidaAlimento()
         {
-            return this.context.ComidaAlimentos.Max(z => z.IdComidaAlimento);
+            if(this.context.ComidaAlimentos.Count() == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return this.context.ComidaAlimentos.Max(z => z.IdComidaAlimento);
+            }
         }
 
         public async Task<int> GetMaxDietas()
         {
-            return this.context.Dietas.Max(z => z.IdDieta);
+            if(this.context.Dietas.Count() == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return this.context.Dietas.Max(z => z.IdDieta);
+            }
         }
 
         public async Task<List<Alimento>> Alimentos()
         {
-            return await this.context.Alimentos.ToListAsync();
+            var consulta = (from datos in this.context.Alimentos
+                            select datos).OrderBy(z => z.Nombre);
+            return await consulta.ToListAsync();
         }
 
-        public async Task AñadirAlimentosDieta(List<AlimentoAñadir> alimentosAñadir, int iddieta)
+        public async Task AñadirAlimentosDieta(List<AlimentoAñadir> alimentosAñadir, int iddieta, int comida)
         {
-            List<Alimento> alimentos = await this.Alimentos();
             int idalimento = await this.GetMaxComidaAlimento();
 
             foreach (AlimentoAñadir alimento in alimentosAñadir)
             {
                 idalimento++;
-                Alimento alimentoCalculo = alimentos.Find(x => x.IdAlimento == alimento.Alimento);
                 ComidaAlimento al = new ComidaAlimento();
                 al.IdAlimento = alimento.Alimento;
                 al.IdComidaAlimento = idalimento;
                 al.IdDieta = iddieta;
+                al.IdComida = 0;
                 al.Peso = alimento.Peso;
-                al.Kcal = (float)(alimento.Peso * alimentoCalculo.Kcal) / 100;
-                al.Carbohidratos = (float)(alimento.Peso * alimentoCalculo.Kcal) / 100;
-                al.Proteinas = (float)(alimento.Peso * alimentoCalculo.Kcal) / 100; 
-                al.Grasas = (float)(alimento.Peso * alimentoCalculo.Kcal) / 100;
-                al.Fibra = (float)(alimento.Peso * alimentoCalculo.Kcal) / 100;
+                al.Kcal = alimento.Kcal;
+                al.Carbohidratos = alimento.Carbohidratos;
+                al.Proteinas = alimento.Proteinas; 
+                al.Grasas = alimento.Grasas;
+                al.Fibra = alimento.Fibra;
 
                 await this.context.ComidaAlimentos.AddAsync(al);
             }
             await this.context.SaveChangesAsync();
+        }
+
+        public async Task<int> CrearComida(int iddieta, string nombre, float totalkcal)
+        {
+            int idcomida = await this.GetMaxComida();
+            Comida comida = new Comida();
+            comida.IdComida = idcomida;
+            comida.IdDieta = iddieta;
+            comida.Nombre = nombre;
+            comida.TotalKcal = totalkcal;
+            comida.Comentario = "";
+            await this.context.Comidas.AddAsync(comida);
+            await this.context.SaveChangesAsync();
+            return idcomida;
+        }
+
+        public async Task<int> GetMaxComida()
+        {
+            if(this.context.Comidas.Count() == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return this.context.Comidas.Max(z => z.IdComida);
+            }
+        }
+
+        public async Task<Alimento> GetAlimento(int idalimento)
+        {
+            return await this.context.Alimentos.FirstOrDefaultAsync(z => z.IdAlimento == idalimento);
         }
 
         #endregion

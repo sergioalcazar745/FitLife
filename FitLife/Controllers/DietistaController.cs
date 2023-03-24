@@ -9,9 +9,9 @@ namespace FitLife.Controllers
 {
     public class DietistaController : Controller
     {
-        RepositorySQL repo;
+        IRepository repo;
         IMemoryCache memory;
-        public DietistaController(RepositorySQL repo, IMemoryCache memory)
+        public DietistaController(IRepository repo, IMemoryCache memory)
         {
             this.repo = repo;
             this.memory = memory;
@@ -20,36 +20,62 @@ namespace FitLife.Controllers
         public async Task<IActionResult> Dietas()
         {
             int idcliente = this.memory.Get<int>("idcliente");
-            return View();
+            List<ModelDieta> dietas = await this.repo.DietasId(idcliente);
+            return View(dietas);
         }
 
         public async Task<IActionResult> DetallesDieta(int iddieta)
         {
             int idcliente = this.memory.Get<int>("idcliente");
-            List<ModelDieta> dietas = await this.repo.DietasId(idcliente);
-            return View();
+            Dieta dieta = await this.repo.GetDieta(iddieta);
+            List<ComidaAlimento> comidasalimento = await this.repo.DetallesDieta(idcliente);
+            ViewData["DIETA"] = dieta;
+            return View(comidasalimento);
         }
 
+        public async Task<IActionResult> CrearDieta()
+        {
+            HttpContext.Session.Remove("Alimentos");
+            HttpContext.Session.Remove("TotalKcal");
+            List<Alimento> alimentos = await this.repo.Alimentos();
+            return View(alimentos);
+        }
+
+        [HttpPost]
         public async Task<IActionResult> CrearDieta(DateTime fecha, string nombre)
         {
-            int idcliente = this.memory.Get<int>("idcliente");
             List<AlimentoAñadir> alimentos = HttpContext.Session.GetObject<List<AlimentoAñadir>>("Alimentos");
-            if(alimentos == null)
+            List<ModelKcal> totalkcal = HttpContext.Session.GetObject<List<ModelKcal>>("TotalKcal");
+            if(alimentos.Count() == 0)
             {
-                ViewData["MENSAJE"] = "No has introducido ningun alimento";
                 return View();
             }
 
-            int idnutricionista = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            int idcliente = this.memory.Get<int>("idcliente");
+            int idnutricionista = int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             int iddieta = await this.repo.AñadirDieta(idnutricionista, idcliente, fecha, nombre);
-            await this.repo.AñadirAlimentosDieta(alimentos, iddieta);
+            foreach (ModelKcal model in totalkcal)
+            {
+                if(model.TotalKcal > 0)
+                {
+                    int idcomida = await this.repo.CrearComida(iddieta, model.Comida, model.TotalKcal);
+                    List<AlimentoAñadir> alimentosAñadir = alimentos.FindAll(z => z.Comida == model.Comida);
+                    await this.repo.AñadirAlimentosDieta(alimentosAñadir, iddieta, idcomida);
+                }
+            }
             return RedirectToAction("Dietas");
         }
 
         [HttpPost]
-        public IActionResult AñadirAlimento(AlimentoAñadir alimento)
+        public async Task<IActionResult> AñadirAlimento(int idalimentoañadir, string comida, int alimento, int peso)
         {
+            AlimentoAñadir alimentoAñadir = new AlimentoAñadir();
+            alimentoAñadir.IdAlimentoAñadir = idalimentoañadir;
+            alimentoAñadir.Alimento = alimento;
+            alimentoAñadir.Comida = comida;
+            alimentoAñadir.Peso = peso;
+
             List<AlimentoAñadir> alimentos;
             if(HttpContext.Session.GetObject<List<AlimentoAñadir>>("Alimentos") == null)
             {
@@ -59,9 +85,47 @@ namespace FitLife.Controllers
             {
                 alimentos = HttpContext.Session.GetObject<List<AlimentoAñadir>>("Alimentos");
             }
-            alimentos.Add(alimento);
+
+            List<ModelKcal> totalkcals = null;
+            if (HttpContext.Session.GetObject<List<ModelKcal>>("TotalKcal") == null)
+            {
+                totalkcals = new List<ModelKcal>() {
+                new ModelKcal() { Comida = "Desayuno", TotalKcal= 0 },
+                new ModelKcal() { Comida = "Almuerzo", TotalKcal = 0 },
+                new ModelKcal() { Comida = "Comida", TotalKcal = 0 },
+                new ModelKcal() { Comida = "Merienda", TotalKcal = 0 },
+                new ModelKcal() { Comida = "Cena", TotalKcal = 0 } };
+            }
+            else
+            {
+                totalkcals = HttpContext.Session.GetObject<List<ModelKcal>>("TotalKcal");
+            }
+
+            Alimento alimentoCheck = await this.repo.GetAlimento(alimento);
+            alimentoAñadir.Kcal = (float)(alimentoCheck.Kcal * peso) / 100;
+            alimentoAñadir.Carbohidratos = (float)(alimentoAñadir.Kcal * alimentoCheck.Carbohidratos) / alimentoCheck.Kcal;
+            alimentoAñadir.Proteinas = (float)(alimentoAñadir.Kcal * alimentoCheck.Proteinas) / alimentoCheck.Kcal;
+            alimentoAñadir.Fibra = (float)(alimentoAñadir.Kcal * alimentoCheck.Fibra) / alimentoCheck.Kcal;
+            alimentoAñadir.Grasas = (float)(alimentoAñadir.Kcal * alimentoCheck.Grasas) / alimentoCheck.Kcal;
+
+            totalkcals.FirstOrDefault(z => z.Comida == comida).TotalKcal += alimentoAñadir.Kcal;
+            alimentos.Add(alimentoAñadir);
             HttpContext.Session.SetObject("Alimentos", alimentos);
-            return Json("Success");
+            HttpContext.Session.SetObject("TotalKcal", totalkcals);
+            return Json(alimentoAñadir);
+        }
+
+        [HttpPost]
+        public IActionResult EliminarAlimento(int id)
+        {
+            List<ModelKcal> totalkcals = HttpContext.Session.GetObject<List<ModelKcal>>("TotalKcal");
+            List<AlimentoAñadir> alimentos = HttpContext.Session.GetObject<List<AlimentoAñadir>>("Alimentos");
+            AlimentoAñadir alimento = alimentos.Find(x => x.IdAlimentoAñadir == id);
+            alimentos.Remove(alimento);
+            totalkcals.FirstOrDefault(z => z.Comida == alimento.Comida).TotalKcal -= alimento.Kcal;
+            HttpContext.Session.SetObject("Alimentos", alimentos);
+            HttpContext.Session.SetObject("TotalKcal", totalkcals);
+            return Json(alimento.Comida[0].ToString().ToLower() + alimento.Comida.Substring(1));
         }
     }
 }
