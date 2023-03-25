@@ -15,12 +15,12 @@
         string accodion = "accordion" + contador;
         <h2 id="accordion-flush-heading-1">
             <button type="button" onclick="clickAcordeon(this)" class="flex items-center justify-between w-full py-5 px-3 font-medium text-left text-gray-500 border-b border-gray-200 dark:border-gray-400 dark:text-gray-400" data-accordion-target="#@accodion" data-expanded="false" aria-expanded="false" aria-controls="@accodion">
-                <span class="text-white">Rutina -  - @Model.Rutinas[0].Nombre</span>
+                <span class="text-white">Rutina - @Model.Rutinas[0].Nombre</span>
                 <svg data-accordion-icon class="w-6 h-6 rotate-180 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
             </button>
         </h2>
         <div id="@accodion" class="hidden" aria-labelledby="accordion-flush-heading-1">
-            <div class="p-3 font-light border-b border-gray-200 dark:border-gray-400">
+            <div class="px-3 font-light border-b border-gray-200 dark:border-gray-500">
                 @foreach (var item in Model.Rutinas)
                 {
                     contador++;
@@ -70,45 +70,63 @@
             </div>
         </div>
     }
-    else
-    {
-        <h1 class="text-center text-white">NO TIENES RUTINA PARA ESTE DIA</h1>
-    }
 
     @if (Model.Dieta != null)
     {
+        double totaldieta = 0;
+        contador++;
         string accodion = "accordion" + contador;
         <h2 id="accordion-flush-heading-1">
             <button type="button" onclick="clickAcordeon(this)" class="flex items-center justify-between w-full py-5 px-3 font-medium text-left text-gray-500 border-b border-gray-200 dark:border-gray-400 dark:text-gray-400" data-accordion-target="#@accodion" data-expanded="false" aria-expanded="false" aria-controls="@accodion">
-                <span class="text-white">Dieta</span>
+                <span class="text-white">Dieta - @Model.Dieta.Nombre</span>
                 <svg data-accordion-icon class="w-6 h-6 rotate-180 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
             </button>
         </h2>
-        @*@foreach (ModelComidaAlimento item in Model.ComidaAlimentos)
-    {
-    string accodion = "accordion" + contador;
-    <h2 id="accordion-flush-heading-1">
-    <button type="button" onclick="clickAcordeon(this)" class="flex items-center justify-between w-full py-5 px-3 font-medium text-left text-gray-500 border-b border-gray-200 dark:border-gray-400 dark:text-gray-400" data-accordion-target="#@accodion" data-expanded="false" aria-expanded="false" aria-controls="@accodion">
-    <span class="text-white">@item.Comida.Nombre</span>
-    <svg data-accordion-icon class="w-6 h-6 rotate-180 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-    </button>
-    </h2>
-
-    <div id="@accodion" class="hidden" aria-labelledby="accordion-flush-heading-1">
-    <div class="p-3 font-light border-b border-gray-200 dark:border-gray-400">
-    @foreach (ModelComidaAlimentoNombre alimento in item.ComidaAlimento)
-    {
-    <p class="mb-2 text-white text-xl">Alimento: @alimento.Alimento</p>
-    <p class="mb-2 text-white dark:text-gray-400">Carbohidratos: @alimento.Carbohidratos</p>
-    <p class="mb-2 text-white dark:text-gray-400">Proteinas: @alimento.Proteinas</p>
-    <p class="mb-2 text-white dark:text-gray-400">Grasas: @alimento.Grasas</p>
-    <p class="mb-2 text-white dark:text-gray-400">Fibra: @alimento.Fibra</p>
-    <p class="mb-2 text-white dark:text-gray-400">Kcal: @alimento.Kcal</p>
+        <div id="@accodion" class="hidden" aria-labelledby="accordion-flush-heading-1">
+            <div class="p-3 font-light border-b border-gray-200 dark:border-gray-400">
+                @foreach (ModelComidaAlimento alimento in Model.ComidaAlimentos)
+                {
+                    double totalkcal = 0;
+                    contador++;
+                    accodion = "accordion" + contador;
+                    <h2 id="accordion-flush-heading-1">
+                        <button type="button" onclick="clickAcordeon(this)" class="flex items-center justify-between w-full py-5 px-3 font-medium text-left text-gray-500 border-b border-gray-200 dark:border-gray-400 dark:text-gray-400" data-accordion-target="#@accodion" data-expanded="false" aria-expanded="false" aria-controls="@accodion">
+                            <span class="text-white">@alimento.Comida.Nombre</span>
+                            <svg data-accordion-icon class="w-6 h-6 rotate-180 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        </button>
+                    </h2>
+                    <div id="@accodion" class="hidden" aria-labelledby="accordion-flush-heading-1">
+                        <div class="p-3 font-light border-b border-gray-200 dark:border-gray-400">
+                            @foreach (ModelComidaAlimentoNombre alimentocomida in alimento.ComidaAlimento)
+                            {
+                                <p class="mb-2 text-white text-xl">@alimentocomida.Alimento - @alimentocomida.Peso gr</p>
+                                <p class="mb-2 text-white dark:text-gray-400">Carbohidratos: @Math.Truncate(alimentocomida.Carbohidratos * 100)</p>
+                                <p class="mb-2 text-white dark:text-gray-400">Proteinas: @Math.Truncate(alimentocomida.Proteinas * 100)</p>
+                                <p class="mb-2 text-white dark:text-gray-400">Grasas: @Math.Truncate(alimentocomida.Grasas * 100)</p>
+                                <p class="mb-2 text-white dark:text-gray-400">Fibra: @Math.Truncate(alimentocomida.Fibra * 100)</p>
+                                <p class="mb-2 text-white dark:text-gray-400">Kcal: @Math.Truncate(alimentocomida.Kcal * 100)</p>
+                                totalkcal += @Math.Truncate(alimentocomida.Kcal * 100);
+                            }
+                            @{totaldieta += totalkcal;}
+                            <p class="mb-2 text-white pt-3 border-t border-gray-400">TOTAL KCALS: @totalkcal</p>
+                        </div>
+                    </div>
+                }
+                <p class="mb-2 text-white pt-3 border-t border-gray-400">TOTAL KCALS: @totaldieta</p>
+                @using (Html.BeginForm("DietaPartial", "Entrenador", FormMethod.Post))
+                {
+                    <input type="hidden" name="idrutina" value="@Model.Dieta.IdDieta" />
+                    <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white mt-6">Comentario</label>
+                    <textarea id="message" style="resize: none;" name="comentario" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">@Model.Dieta.Comentario</textarea>
+                    <button type="submit" class="text-white mt-3 bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">Guardar</button>
+                }
+            </div>
+        </div>
     }
-    </div>
-    </div>
-    contador++;
-    }*@
+
+    @if(Model.Dieta == null && Model.Rutinas == null)
+    {
+        <h1 class="text-center text-white">NO TIENES NADA PAUTADO</h1>
     }
 
 </div>

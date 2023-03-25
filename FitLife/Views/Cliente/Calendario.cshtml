@@ -144,13 +144,16 @@
         function clickAcordeon(element) {
             var expanded = $(element).data("expanded")
             console.log(expanded)
+            console.log($(element).data("accordion-target"))
             if (expanded == false) {
                 console.log("Entro")
                 $("" + $(element).data("accordion-target")).removeClass("hidden")
+                console.log($("" + $(element).data("accordion-target")))
                 $(element).data("expanded", true)
             } else if (expanded == true) {
                 console.log("Salgo")
                 $("" + $(element).data("accordion-target")).addClass("hidden")
+                console.log($("" + $(element).data("accordion-target")))
                 $(element).data("expanded", false)
             }
         }

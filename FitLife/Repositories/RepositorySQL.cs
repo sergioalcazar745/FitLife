@@ -782,6 +782,14 @@ namespace FitLife.Repositories
             return await consulta.ToListAsync();
         }
 
+        public async Task RegisterComentarioDietaAsync(int iddieta, string comentario)
+        {
+            Dieta dieta = await this.GetDieta(iddieta);
+            dieta.Comentario = comentario;
+            this.context.Dietas.Update(dieta);
+            await this.context.SaveChangesAsync();
+        }
+
         #endregion
     }
 }

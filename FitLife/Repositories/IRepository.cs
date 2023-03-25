@@ -108,5 +108,7 @@ namespace FitLife.Repositories
         Task<Dieta> GetDietaFecha(string fecha, int idcliente, int idnutricionista);
 
         Task<List<ModelComidaAlimentoNombre>> GetComidaAlimento(int iddieta, int idcomida);
+
+        Task RegisterComentarioDietaAsync(int iddieta, string comentario);
     }
 }

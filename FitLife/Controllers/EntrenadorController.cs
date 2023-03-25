@@ -147,9 +147,16 @@ namespace FitLife.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> _RutinaPartial(int idrutina, string comentario)
+        public async Task<IActionResult> RutinaPartial(int idrutina, string comentario)
         {
             await this.repo.RegisterComentarioRutinaAsync(comentario, idrutina);
+            return RedirectToAction("Calendario", "Cliente");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DietaPartial(int iddieta, string comentario)
+        {
+            await this.repo.RegisterComentarioDietaAsync(iddieta, comentario);
             return RedirectToAction("Calendario", "Cliente");
         }
 
