@@ -5,6 +5,7 @@ using FitLife.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Security.Claims;
 
 namespace FitLife.Controllers
@@ -116,13 +117,33 @@ namespace FitLife.Controllers
         public async Task<IActionResult> _RutinaPartial(string fecha)
         {
             int identrenador = int.Parse(HttpContext.User.FindFirstValue("IdEntrenador"));
+            int idnutricionista = int.Parse(HttpContext.User.FindFirstValue("IdNutricionista"));
             int idcliente = int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier).ToString());
+
+            ModelCalendario calendario = new ModelCalendario();
             List<RutinaDia> rutina = await this.repo.FindRutinaDiaAsync(fecha, idcliente, identrenador);
+            Dieta dieta = await this.repo.GetDietaFecha(fecha, idcliente, idnutricionista);
+            calendario.Dieta = dieta;
+
+            if(dieta != null)
+            {
+                List<Comida> comidas = await this.repo.GetComidas(dieta.IdDieta);
+                List<ModelComidaAlimento> modelComidaAlimento = new List<ModelComidaAlimento>();
+                foreach (Comida comida in comidas)
+                {
+                    List<ModelComidaAlimentoNombre> comidaalimento = await this.repo.GetComidaAlimento(dieta.IdDieta, comida.IdComida);
+                    ModelComidaAlimento model = new ModelComidaAlimento { Comida = comida, ComidaAlimento = comidaalimento };
+                    modelComidaAlimento.Add(model);
+                }
+                calendario.ComidaAlimentos = modelComidaAlimento;
+            }
+
             if(rutina.Count == 0)
             {
                 rutina = null;
             }
-            return PartialView("_RutinaPartial", rutina);
+            calendario.Rutinas = rutina;
+            return PartialView("_RutinaPartial", calendario);
         }
 
         [HttpPost]

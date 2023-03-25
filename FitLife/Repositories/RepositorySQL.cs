@@ -620,7 +620,7 @@ namespace FitLife.Repositories
                            {
                                IdDieta = datos.IdDieta,
                                Fecha = datos.Fecha,
-                               nombre = datos.Nombre
+                               Nombre = datos.Nombre
                            };
 
             return await consulta.ToListAsync();
@@ -678,7 +678,7 @@ namespace FitLife.Repositories
             return await consulta.ToListAsync();
         }
 
-        public async Task AñadirAlimentosDieta(List<AlimentoAñadir> alimentosAñadir, int iddieta, int comida)
+        public async Task AñadirAlimentosDieta(List<AlimentoAñadir> alimentosAñadir, int iddieta, int idcomida)
         {
             int idalimento = await this.GetMaxComidaAlimento();
 
@@ -689,7 +689,7 @@ namespace FitLife.Repositories
                 al.IdAlimento = alimento.Alimento;
                 al.IdComidaAlimento = idalimento;
                 al.IdDieta = iddieta;
-                al.IdComida = 0;
+                al.IdComida = idcomida;
                 al.Peso = alimento.Peso;
                 al.Kcal = alimento.Kcal;
                 al.Carbohidratos = alimento.Carbohidratos;
@@ -702,9 +702,10 @@ namespace FitLife.Repositories
             await this.context.SaveChangesAsync();
         }
 
-        public async Task<int> CrearComida(int iddieta, string nombre, float totalkcal)
+        public async Task<int> CrearComida(int iddieta, string nombre, double totalkcal)
         {
             int idcomida = await this.GetMaxComida();
+            idcomida++;
             Comida comida = new Comida();
             comida.IdComida = idcomida;
             comida.IdDieta = iddieta;
@@ -731,6 +732,54 @@ namespace FitLife.Repositories
         public async Task<Alimento> GetAlimento(int idalimento)
         {
             return await this.context.Alimentos.FirstOrDefaultAsync(z => z.IdAlimento == idalimento);
+        }
+
+        public async Task<List<ModelDieta>> FilterDietas(DateTime fechainicio, DateTime fechafinal, int idcliente, int idnutricionista)
+        {
+            var consulta = from datos in this.context.Dietas
+                           where datos.Fecha >= fechainicio && datos.Fecha <= fechafinal
+                           && datos.IdCliente == idcliente && datos.IdNutricionista == idnutricionista
+                           select new ModelDieta
+                           {
+                               IdDieta = datos.IdDieta,
+                               Fecha = datos.Fecha,
+                               Nombre = datos.Nombre
+                           };
+            return await consulta.ToListAsync();
+        }
+
+        public async Task<Dieta> GetDietaFecha(string fecha, int idcliente, int idnutricionista)
+        {
+            return await this.context.Dietas.FirstOrDefaultAsync(z => z.Fecha == DateTime.Parse(fecha) && z.IdCliente == idcliente && z.IdNutricionista == idnutricionista);
+        }
+
+        public async Task<List<Comida>> GetComidas(int iddieta)
+        {
+            var consulta = from datos in this.context.Comidas
+                           where datos.IdDieta == iddieta
+                           select datos;
+
+            return await consulta.ToListAsync();                            
+        }
+
+        public async Task<List<ModelComidaAlimentoNombre>> GetComidaAlimento(int iddieta, int idcomida)
+        {
+            var consulta = from datos in this.context.ComidaAlimentos
+                           join datos2 in this.context.Alimentos
+                           on datos.IdAlimento equals datos2.IdAlimento
+                           where datos.IdDieta == iddieta && datos.IdComida == idcomida
+                           select new ModelComidaAlimentoNombre
+                           {
+                               Alimento = datos2.Nombre,
+                               Carbohidratos = datos.Carbohidratos,
+                               Proteinas = datos.Proteinas,
+                               Grasas = datos.Grasas,
+                               Fibra = datos.Fibra,
+                               Kcal = datos.Kcal,
+                               Peso = datos.Peso
+                           };
+
+            return await consulta.ToListAsync();
         }
 
         #endregion

@@ -1,65 +1,115 @@
-﻿@model List<RutinaDia>
+﻿@model ModelCalendario
 
-@if(Model != null)
+@{
+    int contador = 1;
+}
+
+@if (Model.Rutinas != null)
 {
-    <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white text-center">@Model[0].Fecha.ToString("dd/MM/yyyy") - @Model[0].Nombre</h3>
+    <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white text-center">@Model.Rutinas[0].Fecha.ToString("dd/MM/yyyy")</h3>
 }
 
 <div id="accordion-flush" data-accordion="collapse" data-active-classes="bg-white dark:bg-gray-900 text-gray-900 dark:text-white" data-inactive-classes="text-gray-500 dark:text-gray-400">
-    @if (Model == null)
+    @if (Model.Rutinas != null)
     {
-        <h1 class="text-center text-white">NO TIENES RUTINA PARA ESTE DIA</h1>
+        string accodion = "accordion" + contador;
+        <h2 id="accordion-flush-heading-1">
+            <button type="button" onclick="clickAcordeon(this)" class="flex items-center justify-between w-full py-5 px-3 font-medium text-left text-gray-500 border-b border-gray-200 dark:border-gray-400 dark:text-gray-400" data-accordion-target="#@accodion" data-expanded="false" aria-expanded="false" aria-controls="@accodion">
+                <span class="text-white">Rutina -  - @Model.Rutinas[0].Nombre</span>
+                <svg data-accordion-icon class="w-6 h-6 rotate-180 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+        </h2>
+        <div id="@accodion" class="hidden" aria-labelledby="accordion-flush-heading-1">
+            <div class="p-3 font-light border-b border-gray-200 dark:border-gray-400">
+                @foreach (var item in Model.Rutinas)
+                {
+                    contador++;
+                    accodion = "accordion" + contador;
+                    <h2 id="accordion-flush-heading-1">
+                        <button type="button" onclick="clickAcordeon(this)" class="flex items-center justify-between w-full py-5 px-3 font-medium text-left text-gray-500 border-b border-gray-200 dark:border-gray-400 dark:text-gray-400" data-accordion-target="#@accodion" data-expanded="false" aria-expanded="false" aria-controls="@accodion">
+                            <span class="text-white">@item.Ejercicio</span>
+                            <svg data-accordion-icon class="w-6 h-6 rotate-180 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        </button>
+                    </h2>
+                    <div id="@accodion" class="hidden" aria-labelledby="accordion-flush-heading-1">
+                        <div class="p-3 font-light border-b border-gray-200 dark:border-gray-400">
+                            @if (item.Series != 0)
+                            {
+                                <p class="mb-2 text-white dark:text-gray-400">Series: @item.Series</p>
+                            }
+                            @if (item.Repeticiones != 0)
+                            {
+                                <p class="mb-2 text-white dark:text-gray-400">Repeticiones: @item.Repeticiones</p>
+                            }
+                            @if (item.PausaBajada != 0)
+                            {
+                                <p class="mb-2 text-white dark:text-gray-400">PausaBajada: @item.PausaBajada</p>
+                            }
+                            @if (item.PausaSubida != 0)
+                            {
+                                <p class="mb-2 text-white dark:text-gray-400">PausaSubida: @item.PausaSubida</p>
+                            }
+                            @if (item.PausaAguante != 0)
+                            {
+                                <p class="mb-2 text-white dark:text-gray-400">PausaAguante: @item.PausaAguante</p>
+                            }
+                            @if (item.Arroba != 0)
+                            {
+                                <p class="mb-2 text-white dark:text-gray-400">Arroba: @item.Arroba</p>
+                            }
+                        </div>
+                    </div>
+                }
+                @using (Html.BeginForm("_RutinaPartial", "Entrenador", FormMethod.Post))
+                {
+                    <input type="hidden" name="idrutina" value="@Model.Rutinas[0].IdRutina" />
+                    <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white mt-6">Comentario</label>
+                    <textarea id="message" style="resize: none;" name="comentario" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">@Model.Rutinas[0].Comentario</textarea>
+                    <button type="submit" class="text-white mt-3 bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">Guardar</button>
+                }
+            </div>
+        </div>
     }
     else
     {
-        int contador = 1;
-        @foreach (var item in Model)
-        {
-
-            string accodion = "accordion" + contador;
-            <h2 id="accordion-flush-heading-1">
-                <button type="button" onclick="clickAcordeon(this)" class="flex items-center justify-between w-full py-5 px-3 font-medium text-left text-gray-500 border-b border-gray-200 dark:border-gray-400 dark:text-gray-400" data-accordion-target="#@accodion" data-expanded="false" aria-expanded="false" aria-controls="@accodion">
-                    <span class="text-white">@item.Ejercicio</span>
-                    <svg data-accordion-icon class="w-6 h-6 rotate-180 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                </button>
-            </h2>
-            <div id="@accodion" class="hidden" aria-labelledby="accordion-flush-heading-1">
-                <div class="p-3 font-light border-b border-gray-200 dark:border-gray-400">
-                    @if (item.Series != 0)
-                    {
-                        <p class="mb-2 text-white dark:text-gray-400">Series: @item.Series</p>
-                    }
-                    @if (item.Repeticiones != 0)
-                    {
-                        <p class="mb-2 text-white dark:text-gray-400">Repeticiones: @item.Repeticiones</p>
-                    }
-                    @if (item.PausaBajada != 0)
-                    {
-                        <p class="mb-2 text-white dark:text-gray-400">PausaBajada: @item.PausaBajada</p>
-                    }
-                    @if (item.PausaSubida != 0)
-                    {
-                        <p class="mb-2 text-white dark:text-gray-400">PausaSubida: @item.PausaSubida</p>
-                    }
-                    @if (item.PausaAguante != 0)
-                    {
-                        <p class="mb-2 text-white dark:text-gray-400">PausaAguante: @item.PausaAguante</p>
-                    }
-                    @if (item.Arroba != 0)
-                    {
-                        <p class="mb-2 text-white dark:text-gray-400">Arroba: @item.Arroba</p>
-                    }
-                </div>
-            </div>
-            contador++;
-        }
-        @using (Html.BeginForm("_RutinaPartial", "Entrenador", FormMethod.Post))
-        {
-            <input type="hidden" name="idrutina" value="@Model[0].IdRutina" />
-            <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white mt-6">Comentario</label>
-            <textarea id="message" style="resize: none;"  name="comentario" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">@Model[0].Comentario</textarea>
-            <button type="submit" class="text-white mt-3 bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">Guardar</button>
-        }
+        <h1 class="text-center text-white">NO TIENES RUTINA PARA ESTE DIA</h1>
     }
+
+    @if (Model.Dieta != null)
+    {
+        string accodion = "accordion" + contador;
+        <h2 id="accordion-flush-heading-1">
+            <button type="button" onclick="clickAcordeon(this)" class="flex items-center justify-between w-full py-5 px-3 font-medium text-left text-gray-500 border-b border-gray-200 dark:border-gray-400 dark:text-gray-400" data-accordion-target="#@accodion" data-expanded="false" aria-expanded="false" aria-controls="@accodion">
+                <span class="text-white">Dieta</span>
+                <svg data-accordion-icon class="w-6 h-6 rotate-180 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+        </h2>
+        @*@foreach (ModelComidaAlimento item in Model.ComidaAlimentos)
+    {
+    string accodion = "accordion" + contador;
+    <h2 id="accordion-flush-heading-1">
+    <button type="button" onclick="clickAcordeon(this)" class="flex items-center justify-between w-full py-5 px-3 font-medium text-left text-gray-500 border-b border-gray-200 dark:border-gray-400 dark:text-gray-400" data-accordion-target="#@accodion" data-expanded="false" aria-expanded="false" aria-controls="@accodion">
+    <span class="text-white">@item.Comida.Nombre</span>
+    <svg data-accordion-icon class="w-6 h-6 rotate-180 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+    </button>
+    </h2>
+
+    <div id="@accodion" class="hidden" aria-labelledby="accordion-flush-heading-1">
+    <div class="p-3 font-light border-b border-gray-200 dark:border-gray-400">
+    @foreach (ModelComidaAlimentoNombre alimento in item.ComidaAlimento)
+    {
+    <p class="mb-2 text-white text-xl">Alimento: @alimento.Alimento</p>
+    <p class="mb-2 text-white dark:text-gray-400">Carbohidratos: @alimento.Carbohidratos</p>
+    <p class="mb-2 text-white dark:text-gray-400">Proteinas: @alimento.Proteinas</p>
+    <p class="mb-2 text-white dark:text-gray-400">Grasas: @alimento.Grasas</p>
+    <p class="mb-2 text-white dark:text-gray-400">Fibra: @alimento.Fibra</p>
+    <p class="mb-2 text-white dark:text-gray-400">Kcal: @alimento.Kcal</p>
+    }
+    </div>
+    </div>
+    contador++;
+    }*@
+    }
+
 </div>
 

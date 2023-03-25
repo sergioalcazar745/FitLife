@@ -3,6 +3,6 @@
     public class ModelKcal
     {
         public string Comida { get; set; }
-        public float TotalKcal { get; set; }
+        public double TotalKcal { get; set; }
     }
 }

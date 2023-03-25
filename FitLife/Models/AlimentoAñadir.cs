@@ -9,14 +9,14 @@
 
         public int Peso { get; set; }
 
-        public float Kcal { get; set; }
+        public double Kcal { get; set; }
 
-        public float Carbohidratos { get; set; }
+        public double Carbohidratos { get; set; }
 
-        public float Proteinas { get; set; }
+        public double Proteinas { get; set; }
 
-        public float Fibra { get; set; }
+        public double Fibra { get; set; }
 
-        public float Grasas { get; set; }
+        public double Grasas { get; set; }
     }
 }

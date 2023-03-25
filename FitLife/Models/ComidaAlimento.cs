@@ -20,21 +20,21 @@ namespace FitLife.Models
         public int IdAlimento { get; set; }
 
         [Column("PESO")]
-        public int Peso { get; set; }
+        public double Peso { get; set; }
 
         [Column("KCAL")]
-        public float Kcal { get; set; }
+        public double Kcal { get; set; }
 
         [Column("CARBOHIDRATOS")]
-        public float Carbohidratos { get; set; }
+        public double Carbohidratos { get; set; }
 
         [Column("PROTEINAS")]
-        public float Proteinas { get; set; }
+        public double Proteinas { get; set; }
 
         [Column("GRASAS")]
-        public float Grasas { get; set; }
+        public double Grasas { get; set; }
 
         [Column("FIBRA")]
-        public float Fibra { get; set; }
+        public double Fibra { get; set; }
     }
 }

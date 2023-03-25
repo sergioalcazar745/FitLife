@@ -95,10 +95,18 @@ namespace FitLife.Repositories
 
         Task AñadirAlimentosDieta(List<AlimentoAñadir> alimentosAñadir, int iddieta, int idcomida);
 
-        Task<int> CrearComida(int iddieta, string nombre, float totalkcal);
+        Task<int> CrearComida(int iddieta, string nombre, double totalkcal);
+
+        Task<List<Comida>> GetComidas(int iddieta);
 
         //Task<List<Alimento>> AlimentosContains(List<AlimentoAñadir> alimentos);
 
         Task<Alimento> GetAlimento(int idalimento);
+
+        Task<List<ModelDieta>> FilterDietas(DateTime fechainicio, DateTime fechafinal, int idcliente, int idnutricionista);
+
+        Task<Dieta> GetDietaFecha(string fecha, int idcliente, int idnutricionista);
+
+        Task<List<ModelComidaAlimentoNombre>> GetComidaAlimento(int iddieta, int idcomida);
     }
 }
