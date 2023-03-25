@@ -110,5 +110,11 @@ namespace FitLife.Repositories
         Task<List<ModelComidaAlimentoNombre>> GetComidaAlimento(int iddieta, int idcomida);
 
         Task RegisterComentarioDietaAsync(int iddieta, string comentario);
+
+        Task<List<Evento>> EventosMesDietaAsync(int idcliente, int idnutricionista, int mes);
+
+        Task<ComidaAlimento> FindComidaAlimento(int id);
+
+        Task EliminarComidaAlimento(int idcomidalimento);
     }
 }

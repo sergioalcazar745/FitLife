@@ -770,6 +770,8 @@ namespace FitLife.Repositories
                            where datos.IdDieta == iddieta && datos.IdComida == idcomida
                            select new ModelComidaAlimentoNombre
                            {
+                               IdComidaAlimento = datos.IdComidaAlimento,
+                               IdAlimento = datos2.IdAlimento,
                                Alimento = datos2.Nombre,
                                Carbohidratos = datos.Carbohidratos,
                                Proteinas = datos.Proteinas,
@@ -788,6 +790,32 @@ namespace FitLife.Repositories
             dieta.Comentario = comentario;
             this.context.Dietas.Update(dieta);
             await this.context.SaveChangesAsync();
+        }
+
+        public async Task<List<Evento>> EventosMesDietaAsync(int idcliente, int idnutrionista, int mes)
+        {
+            var consulta = from datos in this.context.Dietas
+                           where datos.IdCliente == idcliente && datos.IdNutricionista == idnutrionista &&
+                           datos.Fecha.Month == mes
+                           select new Evento
+                           {
+                               Fecha = datos.Fecha,
+                               Nombre = datos.Nombre
+                           }
+                               ;
+            return await consulta.ToListAsync();
+        }
+
+        public async Task EliminarComidaAlimento(int idcomidalimento)
+        {
+            ComidaAlimento comidaalimento = await this.FindComidaAlimento(idcomidalimento);
+            this.context.ComidaAlimentos.Remove(comidaalimento);
+            await this.context.SaveChangesAsync();
+        }
+
+        public async Task<ComidaAlimento> FindComidaAlimento(int idcomidaalimento)
+        {
+            return await this.context.ComidaAlimentos.FirstOrDefaultAsync(z => z.IdComidaAlimento == idcomidaalimento);
         }
 
         #endregion

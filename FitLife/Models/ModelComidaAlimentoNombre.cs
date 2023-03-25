@@ -4,6 +4,9 @@ namespace FitLife.Models
 {
     public class ModelComidaAlimentoNombre
     {
+        public int IdComidaAlimento { get; set; }
+
+        public int IdAlimento { get; set; }
 
         public string Alimento { get; set; }
 

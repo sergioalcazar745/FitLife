@@ -85,14 +85,23 @@ function app() {
             fetch("/Entrenador/EventosMes?mes=" + mes + "&idcliente=" + this.idcliente)
                 .then(res => res.json())
                 .then(data => {
-                    console.log(data)
+                    console.log(data.rutinas)
                     this.events = []
-                    for (d of data) {
+                    for (d of data.rutinas) {
                         var fecha = new Date(d.fecha);
                         this.events.push({
                             event_date: fecha,
                             event_title: d.nombre,
-                            event_theme: "blue",
+                            event_theme: "red",
+                        });
+                    }
+
+                    for (d of data.dietas) {
+                        var fecha = new Date(d.fecha);
+                        this.events.push({
+                            event_date: fecha,
+                            event_title: d.nombre,
+                            event_theme: "green",
                         });
                     }
                     $("#loading-calendar").hide();

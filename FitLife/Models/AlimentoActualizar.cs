@@ -1,8 +1,8 @@
 ﻿namespace FitLife.Models
 {
-    public class AlimentoAñadir
+    public class AlimentoActualizar
     {
-        public int IdAlimentoAñadir { get; set; }
+        public int IdComidaAlimento { get; set; }
 
         public string Comida { get; set; }
 

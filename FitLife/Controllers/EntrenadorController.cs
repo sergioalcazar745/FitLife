@@ -48,13 +48,16 @@ namespace FitLife.Controllers
             return View(usuario);
         }
 
-        public IActionResult Perfil()
+        public async Task<IActionResult> Perfil()
         {
+            int idusuario = int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            Usuario usuariomodel = await this.repo.FindUsuarioAsync(idusuario);
+            ViewData["USUARIO"] = usuariomodel;
             return View();
         }
 
         [HttpPost]
-        public IActionResult Perfil(int hola)
+        public async Task<IActionResult> Perfil(UsuarioValidation usuario)
         {
             return View();
         }
@@ -205,8 +208,11 @@ namespace FitLife.Controllers
         public async Task<IActionResult> EventosMes(int mes, int idcliente)
         {
             int identrenador = int.Parse(HttpContext.User.FindFirstValue("IdEntrenador"));
-            List<Evento> eventos = await this.repo.EventosMesAsync(idcliente, identrenador, mes);
-            return Json(eventos);
+            int idnutricionista = int.Parse(HttpContext.User.FindFirstValue("IdNutricionista"));
+            List<Evento> eventosrutina = await this.repo.EventosMesAsync(idcliente, identrenador, mes);
+            List<Evento> eventosdieta = await this.repo.EventosMesDietaAsync(idcliente, idnutricionista, mes);
+            ModelEventos modeleventos = new ModelEventos { Dietas = eventosdieta, Rutinas = eventosrutina };
+            return Json(modeleventos);
         }
     }
 }
