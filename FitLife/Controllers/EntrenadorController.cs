@@ -70,7 +70,15 @@ namespace FitLife.Controllers
         [AuthorizeUsers(Policy = "Profesional")]
         public async Task<IActionResult> EliminarCliente(int idcliente)
         {
-            await this.repo.EliminarClienteEntrenadorAsync(idcliente);
+            string role = HttpContext.User.FindFirstValue(ClaimTypes.Role);
+            if (role == "nutricionista")
+            {
+                await this.repo.EliminarClienteAsync(idcliente, 0);
+            }
+            else if(role == "entrenador")
+            {
+                await this.repo.EliminarClienteAsync(idcliente, 1);
+            }
             return RedirectToAction("Clientes");
         }
 

@@ -29,6 +29,12 @@ namespace FitLife.Controllers
         [HttpPost]
         public async Task<IActionResult> Dietas(DateTime fechainicio, DateTime fechafinal)
         {
+            string mensaje = TempData["MENSAJEDIETAS"] as string;
+            if(mensaje != null)
+            {
+                ViewData["MENSAJE"] = mensaje;
+            }
+            TempData.Remove("MENSAJEDIETAS");
             int idcliente = this.memory.Get<int>("idcliente");
             int idnutricionista = int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
             List<ModelDieta> dietas = await this.repo.FilterDietas(fechainicio, fechafinal, idcliente, idnutricionista);
@@ -38,9 +44,11 @@ namespace FitLife.Controllers
 
         public async Task<IActionResult> DetallesDieta(int iddieta)
         {
-            //HttpContext.Session.SetObject("AlimentosAñadir", new List<AlimentoAñadir>());
-            //HttpContext.Session.SetObject("AlimentosActualizar", new List<AlimentoActualizar>());
-            //HttpContext.Session.SetObject("AlimentosEliminar", new List<int>());
+            string error = TempData["Error"] as string;
+            if(error != null)
+            {
+                ViewData["Error"] = error;
+            }
             Dieta dieta = await this.repo.GetDieta(iddieta);
             List<ModelComidaAlimento> modelComidaAlimento = null;
             if (dieta != null)
@@ -59,6 +67,19 @@ namespace FitLife.Controllers
             ViewData["ALIMENTOS"] = alimentos;
             HttpContext.Session.Remove("Alimentos");
             return View(modelComidaAlimento);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DetallesDieta(int iddieta, DateTime fecha, string nombre)
+        {
+            int response = await this.repo.ActualizarDieta(iddieta, fecha, nombre);
+            if(response == 0)
+            {
+                TempData["Error"] = "Ya existe una dieta con esa fecha";
+                return RedirectToAction("DetallesDieta", new { iddieta = iddieta });
+            }
+            TempData["MENSAJEDIETAS"] = "Se ha guardado correctamente";
+            return RedirectToAction("Dietas");
         }
 
         public async Task<IActionResult> CrearDieta()

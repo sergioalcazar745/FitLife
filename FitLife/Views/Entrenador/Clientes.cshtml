@@ -71,7 +71,9 @@
             $("#cliente-search-add").keyup(function(e) {
                 var tecla = e.target.value;
                 if (tecla != "") {
-                    const result = listUsuarios.filter(usuario => usuario.nombre.includes(tecla) || usuario.apellidos.includes(tecla) || usuario.email.includes(tecla));
+                    console.log(listUsuarios)
+                    const result = listUsuarios.filter(usuario => usuario.nombre.toLowerCase().includes(tecla) || usuario.apellidos.toLowerCase().includes(tecla) || usuario.email.toLowerCase().includes(tecla));
+                    console.log(result)
                     if (result.length > 0) {
                         pintarClientes(result)
                     } else {

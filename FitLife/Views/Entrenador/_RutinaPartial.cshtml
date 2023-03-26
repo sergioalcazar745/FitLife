@@ -60,7 +60,7 @@
                         </div>
                     </div>
                 }
-                @using (Html.BeginForm("_RutinaPartial", "Entrenador", FormMethod.Post))
+                @using (Html.BeginForm("RutinaPartial", "Entrenador", FormMethod.Post))
                 {
                     <input type="hidden" name="idrutina" value="@Model.Rutinas[0].IdRutina" />
                     <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white mt-6">Comentario</label>

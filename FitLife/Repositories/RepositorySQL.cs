@@ -114,6 +114,24 @@ using System.Net;
 //	DELETE FROM DIETA WHERE IDDIETA = @IDDIETA
 //GO
 
+//CREATE PROCEDURE SP_ELIMINAR_CLIENTE
+//(@IDCLIENTE INT, @TIPO INT)
+//AS
+//    DELETE FROM RUTINAEJERCICIO WHERE @IDCLIENTE = @IDCLIENTE
+//	DELETE FROM COMIDAALIMENTO WHERE @IDCLIENTE = @IDCLIENTE
+//	DELETE FROM RUTINAS WHERE @IDCLIENTE = @IDCLIENTE
+//	DELETE FROM COMIDA WHERE @IDCLIENTE = @IDCLIENTE
+//	DELETE FROM DIETA WHERE @IDCLIENTE = @IDCLIENTE
+//	IF @TIPO = 1
+//	BEGIN
+//		UPDATE PERFILUSUARIO SET IDENTRENADOR = 0 WHERE @IDCLIENTE = @IDCLIENTE
+//	END
+//	ELSE
+//	BEGIN
+//		UPDATE PERFILUSUARIO SET IDDIETISTA = 0 WHERE @IDCLIENTE = @IDCLIENTE
+//	END
+//GO
+
 #endregion
 
 namespace FitLife.Repositories
@@ -326,11 +344,15 @@ namespace FitLife.Repositories
             await this.context.SaveChangesAsync();
         }
 
-        public async Task EliminarClienteEntrenadorAsync(int idcliente)
+        public async Task EliminarClienteAsync(int idcliente, int tipo)
         {
-            PerfilUsuario perfilUsuario = await this.FindPerfilUsuario(idcliente);
-            perfilUsuario.IdEntrenador = 0;
-            await this.context.SaveChangesAsync();
+            string sql = "SP_ELIMINAR_CLIENTE @IDCLIENTE, @TIPO";
+            SqlParameter paraidcliente = new SqlParameter("@IDCLIENTE", idcliente);
+            SqlParameter paratipo = new SqlParameter("@TIPO", tipo);
+            this.context.Database.ExecuteSqlRawAsync(sql, paraidcliente, paratipo);
+            //PerfilUsuario perfilUsuario = await this.FindPerfilUsuario(idcliente);
+            //perfilUsuario.IdEntrenador = 0;
+            //await this.context.SaveChangesAsync();
         }
 
         public async Task<List<Ejercicio>> EjerciciosAsync()
@@ -490,12 +512,27 @@ namespace FitLife.Repositories
 
         public async Task<int> GetMaxRutinaEjerciciosAsync()
         {
-            return this.context.RutinaEjercicios.Max(z => z.IdRutinaEjercicio);
+            if(this.context.RutinaEjercicios.Count() == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return this.context.RutinaEjercicios.Max(z => z.IdRutinaEjercicio);
+            }
         }
 
         public async Task<int> GetMaxRutinaAsync()
         {
-            return this.context.Rutinas.Max(z => z.IdRutina);
+            if(this.context.Dietas.Count() == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return this.context.Rutinas.Max(z => z.IdRutina);
+            }
+
         }
 
         public async Task RegisterComentarioRutinaAsync(string comentario, int idrutina)
@@ -531,7 +568,7 @@ namespace FitLife.Repositories
 
         public async Task ModificarEjerciciosRutina(List<ModelEjercicio> ejercicios, int idrutina)
         {
-            foreach (ModelEjercicio ejercicio in ejercicios)
+            foreach (ModelEjercicio ejercicio  in ejercicios)
             {
                 RutinaEjercicio ejercicioRutina = new RutinaEjercicio();
                 ejercicioRutina.IdRutinaEjercicio = ejercicio.IdRutinaEjercicio;
@@ -617,7 +654,7 @@ namespace FitLife.Repositories
 
         public async Task<Dieta> GetDieta(int iddieta)
         {
-            return await this.context.Dietas.FirstOrDefaultAsync();
+            return await this.context.Dietas.FirstOrDefaultAsync(z => z.IdDieta == iddieta);
         }
 
         public async Task<List<ModelDieta>> DietasId(int idcliente)
@@ -921,6 +958,20 @@ namespace FitLife.Repositories
             comidalimento.Grasas = (comidalimento.Kcal * alimento.Grasas) / alimento.Kcal;
             await this.context.ComidaAlimentos.AddAsync(comidalimento);
             await this.context.SaveChangesAsync();
+        }
+
+        public async Task<int> ActualizarDieta(int iddieta, DateTime fecha, string nombre)
+        {
+            Dieta dieta = await this.GetDieta(iddieta);
+            if(dieta.Fecha != fecha)
+            {
+                return 0;
+            }
+            dieta.Fecha = fecha;
+            dieta.Nombre = nombre;
+            this.context.Dietas.Update(dieta);
+            await this.context.SaveChangesAsync();
+            return 1;
         }
 
         #endregion
