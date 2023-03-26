@@ -7,10 +7,10 @@
 @section styles{
     <style>
         /*        @@media (max-width: 839px) {
-                                            .fechas {
-                                                grid-template-columns: repeat(1, 1fr);
-                                            }
-                                        }*/
+                                                    .fechas {
+                                                        grid-template-columns: repeat(1, 1fr);
+                                                    }
+                                                }*/
 
         @@media (min-width: 500px) {
             .fechas {
@@ -57,14 +57,18 @@
     </div>
 }
 
-<ul class="text-white">
-    @foreach (ModelDieta dieta in Model)
-    {
-        <div class="m-3">
-            <a href="/Dietista/DetallesDieta?iddieta=@dieta.IdDieta" class="block w-full mb-3 p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">@dieta.Fecha.ToString("dd/MM/yyyy")</h5>
-                <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">@dieta.Nombre</h5>
-            </a>
-        </div>
-    }
-</ul>
+@foreach (ModelDieta dieta in Model)
+{
+    <div class="m-3">
+        <a href="/Dietista/DetallesDieta?iddieta=@dieta.IdDieta" class="block w-full mb-3 p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">@dieta.Fecha.ToString("dd/MM/yyyy")</h5>
+            <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">@dieta.Nombre</h5>
+        </a>
+    </div>
+}
+
+
+@if (Model.Count == 0)
+{
+    <h1 class="text-white text-center text-xl">NO HAY DIETAS</h1>
+}

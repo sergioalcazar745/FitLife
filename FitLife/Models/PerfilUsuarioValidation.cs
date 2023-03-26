@@ -15,7 +15,7 @@ namespace FitLife.Models
         public int Altura { get; set; }
 
         [Required(ErrorMessage = "El peso es obligatorio.")]
-        [Range(30, 200, ErrorMessage = "El peso minimo es de 30 y maximo de 299.")]
+        [Range(30, 200, ErrorMessage = "El peso minimo es de 30kg y maximo de 200kg.")]
         public int Peso { get; set; }
     }
 }

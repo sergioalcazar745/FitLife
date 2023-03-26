@@ -123,6 +123,17 @@ namespace FitLife.Controllers
             string salt = HelperCryptography.GenerateSalt();
             byte[] passwordencrypt = HelperCryptography.EncryptPassword(usuario.Password, salt);
 
+            Usuario usuarioEF = new Usuario();
+            usuarioEF.Nombre = usuario.Nombre;
+            usuarioEF.Apellidos = usuario.Apellidos;
+            usuarioEF.Email = usuario.Email;
+            usuarioEF.Dni = usuario.Dni;
+            usuarioEF.Password = usuario.Password;
+            usuarioEF.PasswordEncrypt = passwordencrypt;
+            usuarioEF.Salt = salt;
+            usuarioEF.Role = usuario.Role;
+            this.memoryCache.Set("Usuario", usuarioEF);
+
             if (usuario.Role.ToLower() != "cliente")
             {
                 int idusuario = await this.repo.RegistrarUsuarioAsync(usuario.Nombre, usuario.Apellidos, usuario.Dni, usuario.Email, passwordencrypt,
@@ -133,16 +144,16 @@ namespace FitLife.Controllers
             }
             else
             {
-                Usuario usuarioEF = new Usuario();
-                usuarioEF.Nombre = usuario.Nombre;
-                usuarioEF.Apellidos = usuario.Apellidos;
-                usuarioEF.Email = usuario.Email;
-                usuarioEF.Dni = usuario.Dni;
-                usuarioEF.Password = usuario.Password;
-                usuarioEF.PasswordEncrypt = passwordencrypt;
-                usuarioEF.Salt = salt;
-                usuarioEF.Role = usuario.Role;
-                this.memoryCache.Set("Usuario", usuarioEF);
+                //Usuario usuarioEF = new Usuario();
+                //usuarioEF.Nombre = usuario.Nombre;
+                //usuarioEF.Apellidos = usuario.Apellidos;
+                //usuarioEF.Email = usuario.Email;
+                //usuarioEF.Dni = usuario.Dni;
+                //usuarioEF.Password = usuario.Password;
+                //usuarioEF.PasswordEncrypt = passwordencrypt;
+                //usuarioEF.Salt = salt;
+                //usuarioEF.Role = usuario.Role;
+                //this.memoryCache.Set("Usuario", usuarioEF);
                 return RedirectToAction("RegisterPerfil");
             }
         }
@@ -172,7 +183,10 @@ namespace FitLife.Controllers
 
         public async Task<IActionResult> EnviarEmailConfirmacion(string email, string accion)
         {
+            TempData.Remove("Email");
+            TempData["Email"] = email;
             ViewData["Email"] = email;
+            string eliminar = TempData["Action"] as string;
             TempData["Action"] = accion;
             return View();
         }
@@ -194,6 +208,7 @@ namespace FitLife.Controllers
                         await this.repo.DeleteSolicitudUpdateEstadoUsuarioAsync(solicitud.IdUsuario);
                         this.memoryCache.Remove("Salt");
                         string action = TempData["Action"] as string;
+                        TempData.Remove("Action");
                         if(action == "password")
                         {
                             return RedirectToAction("NuevaPassword");
@@ -214,25 +229,36 @@ namespace FitLife.Controllers
                             }
                             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, userPrincipal);
                             this.memoryCache.Remove("Usuario");
-                            this.memoryCache.Remove("IdUsuario");                            
-                            return RedirectToAction("Calendario", "Cliente");
+                            this.memoryCache.Remove("IdUsuario");
+                            TempData.Remove("Email");
+                            if (usuario.Role == "cliente")
+                            {
+                                return RedirectToAction("Calendario", "Cliente");
+                            }
+                            else
+                            {
+                                return RedirectToAction("Clientes", "Entrenador");
+                            }
                         }
                     }
                     else
                     {
                         ViewData["Error"] = "Codigo incorrecto";
+                        ViewData["Email"] = TempData["Email"] as string;
                         return View();
                     }
                 }
                 else
                 {
                     ViewData["Error"] = "Parece que no es el mismo dispositivo.";
+                    ViewData["Email"] = TempData["Email"] as string;
                     return View();
                 }
             }
             else
             {
                 ViewData["Error"] = "No hemos encontrado ninguna confirmacion.";
+                ViewData["Email"] = TempData["Email"] as string;
                 return View();
             }
         }

@@ -1,4 +1,5 @@
 ﻿using FitLife.Extensions;
+using FitLife.Filters;
 using FitLife.Models;
 using FitLife.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,7 @@ using System.Security.Claims;
 
 namespace FitLife.Controllers
 {
+    [AuthorizeUsers(Policy = "Nutricionista")]
     public class DietistaController : Controller
     {
         IRepository repo;

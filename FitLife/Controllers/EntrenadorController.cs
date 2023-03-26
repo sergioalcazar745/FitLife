@@ -21,12 +21,14 @@ namespace FitLife.Controllers
             this.memoryCache = memoryCache;
         }
 
+        [AuthorizeUsers(Policy = "Profesional")]
         public async Task<IActionResult> Clientes()
         {
             List<UsuarioPerfil> clientes = await this.repo.GetClientesAsync();
             return View(clientes);
         }
 
+        [AuthorizeUsers(Policy = "Profesional")]
         public async Task<IActionResult> AñadirCliente(int idcliente)
         {
             int idUsuario = int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -41,6 +43,7 @@ namespace FitLife.Controllers
             return RedirectToAction("Clientes");
         }
 
+        [AuthorizeUsers(Policy = "Profesional")]
         public async Task<IActionResult> DetallesCliente(int idcliente)
         {
             this.memoryCache.Set("idcliente", idcliente);
@@ -48,6 +51,7 @@ namespace FitLife.Controllers
             return View(usuario);
         }
 
+        [AuthorizeUsers]
         public async Task<IActionResult> Perfil()
         {
             int idusuario = int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -56,18 +60,21 @@ namespace FitLife.Controllers
             return View();
         }
 
+        [AuthorizeUsers]
         [HttpPost]
         public async Task<IActionResult> Perfil(UsuarioValidation usuario)
         {
             return View();
         }
 
+        [AuthorizeUsers(Policy = "Profesional")]
         public async Task<IActionResult> EliminarCliente(int idcliente)
         {
             await this.repo.EliminarClienteEntrenadorAsync(idcliente);
             return RedirectToAction("Clientes");
         }
 
+        [AuthorizeUsers(Policy = "Entrenador")]
         public async Task<IActionResult> CrearRutina(int idcliente)
         {
             List<Ejercicio> ejercicios = await this.repo.EjerciciosAsync();
@@ -75,6 +82,7 @@ namespace FitLife.Controllers
             return View(ejercicios);
         }
 
+        [AuthorizeUsers(Policy = "Entrenador")]
         [HttpPost]
         public async Task<IActionResult> CrearRutina(ModelRutina rutina)
         {
@@ -87,6 +95,7 @@ namespace FitLife.Controllers
             return Json("Success");
         }
 
+        [AuthorizeUsers(Policy = "Entrenador")]
         public async Task<IActionResult> ModificarRutina(RutinaEjerciciosModificar rutina)
         {
             int idcliente = this.memoryCache.Get<int>("idcliente");
@@ -117,6 +126,7 @@ namespace FitLife.Controllers
             return Json("Success");
         }
 
+        [AuthorizeUsers(Policy = "Cliente")]
         public async Task<IActionResult> _RutinaPartial(string fecha)
         {
             int identrenador = int.Parse(HttpContext.User.FindFirstValue("IdEntrenador"));
@@ -149,6 +159,7 @@ namespace FitLife.Controllers
             return PartialView("_RutinaPartial", calendario);
         }
 
+        [AuthorizeUsers(Policy = "Cliente")]
         [HttpPost]
         public async Task<IActionResult> RutinaPartial(int idrutina, string comentario)
         {
@@ -156,6 +167,7 @@ namespace FitLife.Controllers
             return RedirectToAction("Calendario", "Cliente");
         }
 
+        [AuthorizeUsers(Policy = "Cliente")]
         [HttpPost]
         public async Task<IActionResult> DietaPartial(int iddieta, string comentario)
         {
@@ -163,6 +175,7 @@ namespace FitLife.Controllers
             return RedirectToAction("Calendario", "Cliente");
         }
 
+        [AuthorizeUsers(Policy = "Entrenador")]
         public async Task<IActionResult> Rutinas(int idcliente, int? mensaje)
         {
             if(mensaje is not null)
@@ -174,6 +187,7 @@ namespace FitLife.Controllers
             return View(rutinas);
         }
 
+        [AuthorizeUsers(Policy = "Entrenador")]
         [HttpPost]
         public async Task<IActionResult> Rutinas(DateTime fechainicio, DateTime fechafinal)
         {
@@ -184,6 +198,7 @@ namespace FitLife.Controllers
             return View(rutinas);
         }
 
+        [AuthorizeUsers(Policy = "Entrenador")]
         public async Task<IActionResult> DetallesRutina(int idrutina, int? mensaje)
         {
             if(mensaje is not null)
@@ -198,6 +213,7 @@ namespace FitLife.Controllers
             return View(ejercicios);
         }
 
+        [AuthorizeUsers(Policy = "Entrenador")]
         public async Task<IActionResult> EliminarRutina (int idrutina)
         {
             int idcliente = this.memoryCache.Get<int>("idcliente");
@@ -205,6 +221,7 @@ namespace FitLife.Controllers
             return RedirectToAction("Rutinas", new { idcliente = idcliente });
         }
 
+        [AuthorizeUsers(Policy = "Cliente")]
         public async Task<IActionResult> EventosMes(int mes, int idcliente)
         {
             int identrenador = int.Parse(HttpContext.User.FindFirstValue("IdEntrenador"));

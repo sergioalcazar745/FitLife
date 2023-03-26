@@ -1,8 +1,10 @@
-﻿using FitLife.Repositories;
+﻿using FitLife.Filters;
+using FitLife.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitLife.Controllers
 {
+    [AuthorizeUsers (Policy = "Cliente")]
     public class ClienteController : Controller
     {
         IRepository repo;
