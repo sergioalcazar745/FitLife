@@ -126,45 +126,35 @@ namespace FitLife.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AñadirAlimentoDetalles(int iddieta, int comida, int alimento, int peso)
+        public async Task<IActionResult> AñadirAlimentoDetalles(int iddieta, int idcomida, string comida, int idalimento, int peso)
         {
-            //AlimentoAñadir alimentoAñadir = new AlimentoAñadir();
-            //alimentoAñadir.IdAlimentoAñadir = idalimentoañadir;
-            //alimentoAñadir.Alimento = alimento;
-            //alimentoAñadir.Comida = comida;
-            //alimentoAñadir.Peso = peso;
-
-            //List<AlimentoAñadir> alimentos;
-            //if (HttpContext.Session.GetObject<List<AlimentoAñadir>>("Alimentos") == null)
-            //{
-            //    alimentos = new List<AlimentoAñadir>();
-            //}
-            //else
-            //{
-            //    alimentos = HttpContext.Session.GetObject<List<AlimentoAñadir>>("Alimentos");
-            //}
-
-            //Alimento alimentoCheck = await this.repo.GetAlimento(alimento);
-            //alimentoAñadir.Kcal = (alimentoCheck.Kcal * peso) / 100;
-            //alimentoAñadir.Carbohidratos = (alimentoAñadir.Kcal * alimentoCheck.Carbohidratos) / alimentoCheck.Kcal;
-            //alimentoAñadir.Proteinas = (alimentoAñadir.Kcal * alimentoCheck.Proteinas) / alimentoCheck.Kcal;
-            //alimentoAñadir.Fibra = (alimentoAñadir.Kcal * alimentoCheck.Fibra) / alimentoCheck.Kcal;
-            //alimentoAñadir.Grasas = (alimentoAñadir.Kcal * alimentoCheck.Grasas) / alimentoCheck.Kcal;
-
-            //alimentos.Add(alimentoAñadir);
-            //HttpContext.Session.SetObject("Alimentos", alimentos);
-            //return Json(alimentoAñadir);
+            if(idcomida == 0)
+            {
+                Alimento alimento = await this.repo.GetAlimento(idalimento);
+                double kcal = (alimento.Kcal * peso) / 100;
+                idcomida = await this.repo.CrearComida(iddieta, comida, kcal);
+            }
+            await this.repo.AñadirComidaAlimento(iddieta, idcomida, idalimento, peso);
             return Json("");
         }
 
         [HttpPost]
-        public async Task<IActionResult> ModificarAlimentoDetalles(int iddieta, int idcomialimento, int comida, int alimento, int peso)
+        public async Task<IActionResult> ModificarAlimento(int idcomidaalimento, int idcomida, string comida, int iddieta, int idalimento, int peso)
         {
+            bool existe = true;
+            if(idcomida == 0)
+            {
+                Alimento alimento = await this.repo.GetAlimento(idalimento);
+                double kcal = (alimento.Kcal * peso) / 100;
+                idcomida = await this.repo.CrearComida(iddieta, comida, kcal);
+                existe = false;
+            }
+            await this.repo.ActualizarComidaAlimento(idcomidaalimento, idcomida, idalimento, peso, existe);
             return Json("");   
         }
 
         [HttpPost]
-        public IActionResult EliminarAlimento(int id)
+        public async Task<IActionResult> EliminarAlimento(int id, int idcomida)
         {
             List<AlimentoAñadir> alimentos = HttpContext.Session.GetObject<List<AlimentoAñadir>>("Alimentos");
             AlimentoAñadir alimento = alimentos.Find(x => x.IdAlimentoAñadir == id);
@@ -177,6 +167,12 @@ namespace FitLife.Controllers
         {
             await this.repo.EliminarComidaAlimento(id);
             return Json("");
+        }
+
+        public async Task<IActionResult> EliminarDieta(int iddieta)
+        {
+            await this.repo.EliminarDieta(iddieta);
+            return RedirectToAction("Dietas");
         }
     }
 }

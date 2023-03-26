@@ -106,6 +106,14 @@ using System.Net;
 //	DELETE FROM RUTINAS WHERE IDRUTINA = @IDRUTINA
 //GO
 
+//CREATE PROCEDURE SP_ELIMINAR_DIETA
+//(@IDDIETA INT)
+//AS
+//    DELETE FROM COMIDAALIMENTO WHERE IDDIETA = @IDDIETA
+//	DELETE FROM COMIDA WHERE IDDIETA = @IDDIETA
+//	DELETE FROM DIETA WHERE IDDIETA = @IDDIETA
+//GO
+
 #endregion
 
 namespace FitLife.Repositories
@@ -811,11 +819,108 @@ namespace FitLife.Repositories
             ComidaAlimento comidaalimento = await this.FindComidaAlimento(idcomidalimento);
             this.context.ComidaAlimentos.Remove(comidaalimento);
             await this.context.SaveChangesAsync();
+            ComidaAlimento comidaalimentoCheck = await this.FindComidaAlimentoByComida(comidaalimento.IdComida);
+            if (comidaalimentoCheck == null)
+            {
+                await this.EliminarComida(comidaalimento.IdComida);
+            }
+            else
+            {
+                await this.RestarKcal(comidaalimento.Kcal, comidaalimento.IdComida);
+            }
+        }
+
+        public async Task EliminarComida(int idcomida)
+        {
+            Comida comida = await this.GetComida(idcomida);
+            this.context.Comidas.Remove(comida);
+            await this.context.SaveChangesAsync();
         }
 
         public async Task<ComidaAlimento> FindComidaAlimento(int idcomidaalimento)
         {
             return await this.context.ComidaAlimentos.FirstOrDefaultAsync(z => z.IdComidaAlimento == idcomidaalimento);
+        }
+
+        public async Task<ComidaAlimento> FindComidaAlimentoByComida(int idcomida)
+        {
+            return await this.context.ComidaAlimentos.FirstOrDefaultAsync(z => z.IdComida == idcomida);
+        }
+
+        public async Task<Comida> GetComida(int idcomida)
+        {
+            return await this.context.Comidas.FirstOrDefaultAsync(z => z.IdComida == idcomida);
+        }
+
+        public async Task<double> RestarKcal(double resta, int idcomida)
+        {
+            Comida comida = await this.GetComida(idcomida);
+            comida.TotalKcal -= resta;
+            this.context.Update(comida);
+            await this.context.SaveChangesAsync();
+            return comida.TotalKcal;
+        }
+
+        public async Task SumarKcal(double suma, int idcomida)
+        {
+            Comida comida = await this.GetComida(idcomida);
+            comida.TotalKcal += suma;
+            this.context.Update(comida);
+            await this.context.SaveChangesAsync();
+        }
+
+        public async Task ActualizarComidaAlimento(int idcomialimento, int idcomida, int idalimento, int peso, bool existe)
+        {
+            ComidaAlimento comidalimento = await this.FindComidaAlimento(idcomialimento);
+            double resta = comidalimento.Kcal;
+            int idinicial = comidalimento.IdComida;
+            Alimento alimento = await this.GetAlimento(idalimento);
+            comidalimento.IdAlimento = idalimento;
+            comidalimento.IdComida = idcomida;
+            comidalimento.Peso = peso;
+            comidalimento.Kcal = (alimento.Kcal * peso) / 100;
+            comidalimento.Carbohidratos = (comidalimento.Kcal * alimento.Carbohidratos) / alimento.Kcal;
+            comidalimento.Proteinas = (comidalimento.Kcal * alimento.Proteinas) / alimento.Kcal;
+            comidalimento.Fibra = (comidalimento.Kcal * alimento.Fibra) / alimento.Kcal;
+            comidalimento.Grasas = (comidalimento.Kcal * alimento.Grasas) / alimento.Kcal;
+            this.context.ComidaAlimentos.Update(comidalimento);
+            await this.context.SaveChangesAsync();
+            double resultado = await this.RestarKcal(resta, idinicial);
+            if (resultado == 0)
+            {
+                await this.EliminarComida(idinicial);
+            }
+            if (existe)
+            {
+                await this.SumarKcal(comidalimento.Kcal, idcomida);
+            }
+        }
+
+        public async Task EliminarDieta(int iddieta)
+        {
+            string sql = "SP_ELIMINAR_DIETA @IDDIETA";
+            SqlParameter paraiddieta = new SqlParameter("@IDDIETA", iddieta);
+            await this.context.Database.ExecuteSqlRawAsync(sql, paraiddieta);
+        }
+
+        public async Task AñadirComidaAlimento(int iddieta, int idcomida, int idalimento, int peso)
+        {
+            int idcomidaalimento = await this.GetMaxComidaAlimento();
+            idcomidaalimento++;
+            ComidaAlimento comidalimento = new ComidaAlimento();
+            Alimento alimento = await this.GetAlimento(idalimento);
+            comidalimento.IdComidaAlimento = idcomidaalimento;
+            comidalimento.IdAlimento = idalimento;
+            comidalimento.IdComida = idcomida;
+            comidalimento.IdDieta = iddieta;
+            comidalimento.Peso = peso;
+            comidalimento.Kcal = (alimento.Kcal * peso) / 100;
+            comidalimento.Carbohidratos = (comidalimento.Kcal * alimento.Carbohidratos) / alimento.Kcal;
+            comidalimento.Proteinas = (comidalimento.Kcal * alimento.Proteinas) / alimento.Kcal;
+            comidalimento.Fibra = (comidalimento.Kcal * alimento.Fibra) / alimento.Kcal;
+            comidalimento.Grasas = (comidalimento.Kcal * alimento.Grasas) / alimento.Kcal;
+            await this.context.ComidaAlimentos.AddAsync(comidalimento);
+            await this.context.SaveChangesAsync();
         }
 
         #endregion

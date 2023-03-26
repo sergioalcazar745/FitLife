@@ -86,7 +86,6 @@
             <div class="p-3 font-light border-b border-gray-200 dark:border-gray-400">
                 @foreach (ModelComidaAlimento alimento in Model.ComidaAlimentos)
                 {
-                    double totalkcal = 0;
                     contador++;
                     accodion = "accordion" + contador;
                     <h2 id="accordion-flush-heading-1">
@@ -100,15 +99,16 @@
                             @foreach (ModelComidaAlimentoNombre alimentocomida in alimento.ComidaAlimento)
                             {
                                 <p class="mb-2 text-white text-xl">@alimentocomida.Alimento - @alimentocomida.Peso gr</p>
-                                <p class="mb-2 text-white dark:text-gray-400">Carbohidratos: @Math.Truncate(alimentocomida.Carbohidratos * 100)</p>
-                                <p class="mb-2 text-white dark:text-gray-400">Proteinas: @Math.Truncate(alimentocomida.Proteinas * 100)</p>
-                                <p class="mb-2 text-white dark:text-gray-400">Grasas: @Math.Truncate(alimentocomida.Grasas * 100)</p>
-                                <p class="mb-2 text-white dark:text-gray-400">Fibra: @Math.Truncate(alimentocomida.Fibra * 100)</p>
-                                <p class="mb-2 text-white dark:text-gray-400">Kcal: @Math.Truncate(alimentocomida.Kcal * 100)</p>
-                                totalkcal += @Math.Truncate(alimentocomida.Kcal * 100);
+                                <p class="mb-2 text-white dark:text-gray-400">Carbohidratos: @alimentocomida.Carbohidratos</p>
+                                <p class="mb-2 text-white dark:text-gray-400">Proteinas: @alimentocomida.Proteinas</p>
+                                <p class="mb-2 text-white dark:text-gray-400">Grasas: @alimentocomida.Grasas</p>
+                                <p class="mb-2 text-white dark:text-gray-400">Fibra: @alimentocomida.Fibra</p>
+                                <p class="mb-2 text-white dark:text-gray-400">Kcal: @alimentocomida.Kcal</p>
                             }
-                            @{totaldieta += totalkcal;}
-                            <p class="mb-2 text-white pt-3 border-t border-gray-400">TOTAL KCALS: @totalkcal</p>
+                            @{
+                                totaldieta +=alimento.Comida.TotalKcal;
+                            }
+                            <p class="mb-2 text-white pt-3 border-t border-gray-400">TOTAL KCALS: @alimento.Comida.TotalKcal</p>
                         </div>
                     </div>
                 }

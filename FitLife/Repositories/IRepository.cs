@@ -116,5 +116,21 @@ namespace FitLife.Repositories
         Task<ComidaAlimento> FindComidaAlimento(int id);
 
         Task EliminarComidaAlimento(int idcomidalimento);
+
+        Task<double> RestarKcal(double resta, int idcomida);
+
+        Task SumarKcal(double suma, int idcomida);
+
+        Task<Comida> GetComida(int idcomida);
+
+        Task ActualizarComidaAlimento(int idcomialimento, int comida, int alimento, int peso, bool existe);
+
+        Task EliminarComida(int idcomida);
+
+        Task<ComidaAlimento> FindComidaAlimentoByComida(int idcomida);
+
+        Task EliminarDieta(int iddieta);
+
+        Task AñadirComidaAlimento(int iddieta, int idcomida, int idalimento, int peso);
     }
 }
