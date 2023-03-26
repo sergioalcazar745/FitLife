@@ -78,6 +78,7 @@ namespace FitLife.Controllers
                 }
                 else
                 {
+                    this.memoryCache.Set("Usuario", usuario);
                     await this.EnviarConfirmacion(usuario.IdUsuario, usuario.Email);
                     return RedirectToAction("EnviarEmailConfirmacion", new {email = usuario.Email, accion = "register"});
                 }
