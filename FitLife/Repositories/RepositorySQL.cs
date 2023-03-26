@@ -6,6 +6,7 @@ using MvcCryptographyBBDD.Helpers;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.Metrics;
+using System.Drawing;
 using System.Net;
 
 #region PROCEDURES
@@ -126,18 +127,20 @@ using System.Net;
 //		UPDATE PERFILUSUARIO SET IDENTRENADOR = 0 WHERE IDUSUARIO = @IDCLIENTE
 //	END
 //	IF @TIPO = 0
+//	PRINT('ENTRO')
 //	BEGIN
-//		DECLARE @IDCOMIDA INT
+//        DECLARE @IDCOMIDA INT
 //		DECLARE @IDDIETA INT
 //		SELECT @IDDIETA = IDDIETA FROM DIETA WHERE IDCLIENTE = @IDCLIENTE
 //		SELECT @IDCOMIDA = IDCOMIDA FROM COMIDA WHERE IDDIETA IN (@IDDIETA)
 
-//      DELETE FROM COMIDAALIMENTO WHERE IDCOMIDA IN (@IDCOMIDA)
+//		DELETE FROM COMIDAALIMENTO WHERE IDCOMIDA IN (@IDCOMIDA)
 //		DELETE FROM COMIDA WHERE IDDIETA IN (@IDDIETA)
 //		DELETE FROM DIETA WHERE IDCLIENTE = @IDCLIENTE
 //		UPDATE PERFILUSUARIO SET IDDIETISTA = 0 WHERE IDUSUARIO = @IDCLIENTE
 //	END
 //GO
+
 
 #endregion
 
@@ -356,7 +359,7 @@ namespace FitLife.Repositories
             string sql = "SP_ELIMINAR_CLIENTE @IDCLIENTE, @TIPO";
             SqlParameter paraidcliente = new SqlParameter("@IDCLIENTE", idcliente);
             SqlParameter paratipo = new SqlParameter("@TIPO", tipo);
-            this.context.Database.ExecuteSqlRawAsync(sql, paraidcliente, paratipo);
+            await this.context.Database.ExecuteSqlRawAsync(sql, paraidcliente, paratipo);
             //PerfilUsuario perfilUsuario = await this.FindPerfilUsuario(idcliente);
             //perfilUsuario.IdEntrenador = 0;
             //await this.context.SaveChangesAsync();
