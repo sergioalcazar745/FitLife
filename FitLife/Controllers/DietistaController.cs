@@ -21,6 +21,11 @@ namespace FitLife.Controllers
 
         public async Task<IActionResult> Dietas()
         {
+            string mensaje = TempData["MENSAJEDIETAS"] as string;
+            if (mensaje != null)
+            {
+                ViewData["MENSAJE"] = mensaje;
+            }
             int idcliente = this.memory.Get<int>("idcliente");
             List<ModelDieta> dietas = await this.repo.DietasId(idcliente);
             return View(dietas);
@@ -29,11 +34,6 @@ namespace FitLife.Controllers
         [HttpPost]
         public async Task<IActionResult> Dietas(DateTime fechainicio, DateTime fechafinal)
         {
-            string mensaje = TempData["MENSAJEDIETAS"] as string;
-            if(mensaje != null)
-            {
-                ViewData["MENSAJE"] = mensaje;
-            }
             TempData.Remove("MENSAJEDIETAS");
             int idcliente = this.memory.Get<int>("idcliente");
             int idnutricionista = int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -114,6 +114,7 @@ namespace FitLife.Controllers
                 }
             }
             HttpContext.Session.Remove("Alimentos");
+            TempData["MENSAJEDIETAS"] = "Se ha guardado correctamente";
             return RedirectToAction("Dietas");
         }
 
