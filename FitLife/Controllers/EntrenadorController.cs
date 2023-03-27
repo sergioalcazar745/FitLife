@@ -211,7 +211,7 @@ namespace FitLife.Controllers
         {
             if(mensaje is not null)
             {
-                ViewData["MENSAJE"] = "La rutina ha sido actualizada correctamente";
+                ViewData["CORRECTO"] = "La rutina ha sido actualizada correctamente";
             }
             Rutina rutina = await this.repo.FindRutinaByIdAsync(idrutina);
             List<ModelEjercicio> ejercicios = await this.repo.EjerciciosRutina(idrutina);
